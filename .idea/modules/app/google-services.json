@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "915977243350",
+    "firebase_url": "https://vecity-foods.firebaseio.com",
+    "project_id": "vecity-foods",
+    "storage_bucket": "vecity-foods.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:915977243350:android:0601bf20c3db60cd909777",
+        "android_client_info": {
+          "package_name": "com.vecityfoods"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "915977243350-m4kes5eoc28t7r9mvds2pr04ghbporup.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vecityfoods",
+            "certificate_hash": "05108368d28ee56cd45242e04e2e60a511653323"
+          }
+        },
+        {
+          "client_id": "915977243350-jjnlgpe7fgn4ufgleqedhb3kcef1jpfv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDL9QRwZU-TR61F_Qg3idHD0jHd1lyx6wQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "915977243350-jjnlgpe7fgn4ufgleqedhb3kcef1jpfv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
