@@ -8,11 +8,13 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.cepheuen.elegantnumberbutton.view.ElegantNumberButton;
 import com.squareup.picasso.Picasso;
 import com.verityfoods.R;
 import com.verityfoods.data.interfaces.CustomItemClickListener;
 import com.verityfoods.data.model.Product;
 import com.verityfoods.utils.AppUtils;
+import com.verityfoods.utils.Globals;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -34,6 +36,9 @@ public class ProductViewHolder extends RecyclerView.ViewHolder implements View.O
     @BindView(R.id.product_price)
     TextView productPrice;
 
+    @BindView(R.id.product_quantity_counter)
+    ElegantNumberButton productQuantity;
+
     public ProductViewHolder(@NonNull View itemView) {
         super(itemView);
         ButterKnife.bind(this, itemView);
@@ -52,6 +57,10 @@ public class ProductViewHolder extends RecyclerView.ViewHolder implements View.O
                 .error(R.drawable.ic_baseline_image_24)
                 .placeholder(R.drawable.ic_baseline_image_24)
                 .into(productImage);
+
+        productQuantity.setOnValueChangeListener((view, oldValue, newValue) -> {
+            Globals.CART_COUNT = newValue;
+        });
     }
 
     public void setItemClickListener(CustomItemClickListener itemClickListener) {

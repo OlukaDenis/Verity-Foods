@@ -3,9 +3,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/item_shop_cart"
+        android:icon="@drawable/shape_notification"
+        android:title="@string/cart"
+        app:actionLayout="@layout/layout_cart_counter"
+        app:showAsAction="ifRoom" />
+
+    <item
         android:id="@+id/action_search"
         android:orderInCategory="100"
         android:title="@string/search"
         android:icon="@drawable/ic_search"
         app:showAsAction="ifRoom" />
+
 </menu>

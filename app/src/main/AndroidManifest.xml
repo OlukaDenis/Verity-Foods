@@ -13,6 +13,7 @@
         android:screenOrientation="portrait"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".ui.CartActivity"></activity>
         <activity android:name=".ui.ProductsActivity" />
         <activity
             android:name=".ui.auth.AuthChooser"

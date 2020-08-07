@@ -12,17 +12,22 @@ import androidx.paging.PagedList;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.ui.firestore.paging.FirestorePagingAdapter;
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.firebase.ui.firestore.paging.LoadingState;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.firestore.Query;
 import com.verityfoods.R;
 import com.verityfoods.data.model.Category;
@@ -41,8 +46,8 @@ public class ProductsActivity extends AppCompatActivity {
     private FirestorePagingAdapter<Product, ProductViewHolder> adapter;
     private LinearLayoutManager layoutManager;
     private Category category;
+    private TextView cartCounter;
 
-    private AppBarConfiguration mAppBarConfiguration;
     private NavController navController;
 
     @Override
@@ -54,7 +59,6 @@ public class ProductsActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         this.getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_chevron_left);
-        
         vars = new Vars(this);
 
         category = (Category) getIntent().getSerializableExtra(Globals.CATEGORY_OBJ);
@@ -143,5 +147,43 @@ public class ProductsActivity extends AppCompatActivity {
         };
         productRecycler.setAdapter(adapter);
         adapter.notifyDataSetChanged();
+    }
+
+    public void getCartCount() {
+        cartCounter.setText(String.valueOf(Globals.CART_COUNT));
+//        vars.tehecaApp.myDatabse.collection(Globals.cart)
+//                .document(vars.getShoppingID())
+//                .collection(Globals.cartProducts)
+//                .get()
+//                .addOnSuccessListener(queryDocumentSnapshots -> {
+//                    int count = queryDocumentSnapshots.size();
+//                    cartCounter.setText(String.valueOf(count));
+//                })
+//                .addOnFailureListener(e -> Timber.i("An error occurred while getting cart item count%s", e.getMessage()));
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.app_menu, menu);
+
+        View count = menu.findItem(R.id.item_shop_cart).getActionView();
+        cartCounter = count.findViewById(R.id.cart_counter_text);
+        getCartCount();
+
+        count.setOnClickListener(v -> startActivity(new Intent(getApplicationContext(), CartActivity.class)));
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == android.R.id.home) {
+            finish();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }

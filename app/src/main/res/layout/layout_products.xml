@@ -87,7 +87,7 @@
                         android:backgroundTint="@color/colorAccent"/>
 
                     <com.cepheuen.elegantnumberbutton.view.ElegantNumberButton
-                        android:id="@+id/cart_quantity_counter"
+                        android:id="@+id/product_quantity_counter"
                         android:layout_width="70dp"
                         android:layout_height="30dp"
                         app:initialNumber="1"

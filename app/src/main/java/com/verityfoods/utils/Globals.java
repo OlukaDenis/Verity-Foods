@@ -6,4 +6,6 @@ public class Globals {
     public static final String PRODUCTS = "products";
     public static String CATEGORY_OBJ;
     public static String CATEGORY_COVER;
+
+    public static int CART_COUNT = 5;
 }
