@@ -3,23 +3,54 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/nav_home">
+    app:startDestination="@+id/nav_settings">
 
     <fragment
-        android:id="@+id/nav_home"
-        android:name="com.vecityfoods.ui.home.HomeFragment"
+        android:id="@+id/nav_settings"
+        android:name="com.verityfoods.ui.settings.SettingsFragment"
         android:label="@string/menu_home"
         tools:layout="@layout/fragment_home" />
 
     <fragment
-        android:id="@+id/nav_gallery"
-        android:name="com.vecityfoods.ui.gallery.GalleryFragment"
+        android:id="@+id/nav_account"
+        android:name="com.verityfoods.ui.account.AccountFragment"
         android:label="@string/menu_gallery"
-        tools:layout="@layout/fragment_gallery" />
+        tools:layout="@layout/fragment_account" />
 
     <fragment
-        android:id="@+id/nav_slideshow"
-        android:name="com.vecityfoods.ui.slideshow.SlideshowFragment"
+        android:id="@+id/nav_orders"
+        android:name="com.verityfoods.ui.orders.OrdersFragment"
         android:label="@string/menu_slideshow"
-        tools:layout="@layout/fragment_slideshow" />
+        tools:layout="@layout/fragment_orders" />
+
+    <fragment
+        android:id="@+id/navigation_home"
+        android:name="com.verityfoods.ui.bottomviews.home.HomeFragment"
+        android:label="@string/title_home"
+        tools:layout="@layout/fragment_home" />
+
+    <fragment
+        android:id="@+id/navigation_category"
+        android:name="com.verityfoods.ui.bottomviews.category.CategoryFragment"
+        android:label="@string/category"
+        tools:layout="@layout/fragment_category" />
+
+    <fragment
+        android:id="@+id/navigation_search"
+        android:name="com.verityfoods.ui.bottomviews.search.SearchFragment"
+        android:label="@string/search"
+        tools:layout="@layout/fragment_search" />
+
+    <fragment
+        android:id="@+id/navigation_offers"
+        android:name="com.verityfoods.ui.bottomviews.offers.OffersFragment"
+        android:label="@string/offers"
+        tools:layout="@layout/fragment_offers" />
+
+    <fragment
+        android:id="@+id/navigation_cart"
+        android:name="com.verityfoods.ui.bottomviews.basket.BasketFragment"
+        android:label="@string/basket"
+        tools:layout="@layout/fragment_basket" />
+
 </navigation>
