@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 
+import com.verityfoods.MainActivity;
 import com.verityfoods.R;
 import com.verityfoods.ui.auth.AuthChooser;
 
@@ -20,7 +21,7 @@ public class SplashActivity extends AppCompatActivity {
         int SPLASH_TIMEOUT = 3000;
         new Handler().postDelayed(() -> {
             // This method will be executed once the timer is over
-            Intent i = new Intent(getApplicationContext(), AuthChooser.class);
+            Intent i = new Intent(getApplicationContext(), MainActivity.class);
             startActivity(i);
             finish();
         }, SPLASH_TIMEOUT);

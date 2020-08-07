@@ -9,7 +9,6 @@
         android:id="@+id/shop_category_recycler"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:listitem="@layout/layout_shop_category"
-        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"/>
+        tools:listitem="@layout/layout_shop_category"/>
 
 </RelativeLayout>

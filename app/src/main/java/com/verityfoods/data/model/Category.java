@@ -1,15 +1,22 @@
 package com.verityfoods.data.model;
 
-public class Category {
+import java.io.Serializable;
+
+public class Category implements Serializable {
+    private String uuid;
     private String name;
     private String image;
 
     public Category() {
     }
 
-    public Category(String name, String image) {
-        this.name = name;
-        this.image = image;
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 
     public String getName() {

@@ -20,13 +20,12 @@ import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.firebase.ui.firestore.paging.LoadingState;
 import com.google.firebase.firestore.Query;
 import com.verityfoods.R;
+import com.verityfoods.data.interfaces.CustomItemClickListener;
 import com.verityfoods.data.model.Category;
 import com.verityfoods.ui.ProductsActivity;
 import com.verityfoods.utils.Globals;
 import com.verityfoods.utils.Vars;
 import com.verityfoods.viewholders.CategoryViewHolder;
-
-import butterknife.BindView;
 
 public class HomeFragment extends Fragment {
     private static final String TAG = "HomeFragment";
@@ -70,6 +69,7 @@ public class HomeFragment extends Fragment {
                 .setQuery(catQuery, config, snapshot -> {
                     category = snapshot.toObject(Category.class);
                     assert category != null;
+                    category.setUuid(snapshot.getId());
                     return category;
                 })
                 .build();
@@ -79,12 +79,10 @@ public class HomeFragment extends Fragment {
             protected void onBindViewHolder(@NonNull CategoryViewHolder holder, int position, @NonNull Category model) {
                 holder.bindCategory(model);
 
-                holder.itemView.setOnClickListener(v -> {
-                    Intent productIntent = new Intent(requireActivity(), ProductsActivity.class);
-//                    productIntent.putExtra(Globals.ACTIVE_CATEGORY_ID, model.getShop_id());
-
-                    startActivity(productIntent);
-
+                holder.itemView.setOnClickListener( v -> {
+                    Intent intent = new Intent(requireActivity(), ProductsActivity.class);
+                    intent.putExtra(Globals.CATEGORY_OBJ, model);
+                    startActivity(intent);
                 });
             }
 
@@ -92,7 +90,7 @@ public class HomeFragment extends Fragment {
             @Override
             public CategoryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_shop_category, parent, false);
-                return new CategoryViewHolder(view);
+                return new CategoryViewHolder(view, getContext());
             }
 
             @Override
