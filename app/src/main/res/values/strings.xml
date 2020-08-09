@@ -32,4 +32,6 @@
     <string name="shop_by_category">Shop By Category</string>
     <string name="category_name">Category Name</string>
     <string name="cart">Cart</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

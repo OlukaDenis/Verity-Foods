@@ -1,7 +1,6 @@
 package com.verityfoods.viewholders;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -13,8 +12,6 @@ import com.squareup.picasso.Picasso;
 import com.verityfoods.R;
 import com.verityfoods.data.interfaces.CustomItemClickListener;
 import com.verityfoods.data.model.Category;
-import com.verityfoods.ui.ProductsActivity;
-import com.verityfoods.utils.Globals;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

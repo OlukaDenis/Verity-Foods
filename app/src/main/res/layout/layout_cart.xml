@@ -15,7 +15,7 @@
         android:weightSum="10">
 
         <ImageView
-            android:id="@+id/prduct_image"
+            android:id="@+id/cart_image"
             android:layout_width="0dp"
             android:layout_weight="4"
             android:layout_height="match_parent"
@@ -30,14 +30,14 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/product_brand"
+                android:id="@+id/cart_category"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Brand"
                 android:textColor="@color/blackish"/>
 
             <TextView
-                android:id="@+id/product_name"
+                android:id="@+id/cart_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Product Name"
@@ -49,45 +49,32 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <LinearLayout
-                    android:id="@+id/prices"
+                <TextView
+                    android:id="@+id/cart_price"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:text="UGX 2000"
+                    android:gravity="bottom"
+                    android:layout_centerInParent="true"
+                    android:layout_alignParentStart="true"
+                    android:textStyle="bold"
+                    android:textColor="@color/colorPrimaryDark"/>
 
-                    <TextView
-                        android:id="@+id/product_mrp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="UGX 3000"
-                        android:textSize="14sp"
-                        android:layout_marginTop="16dp"
-                        android:textColor="@color/blackish"/>
-
-                    <TextView
-                        android:id="@+id/product_price"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="UGX 2000"
-                        android:textStyle="bold"
-                        android:textColor="@color/colorPrimaryDark"/>
-
-                </LinearLayout>
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
-                    android:layout_toEndOf="@+id/prices"
+                    android:layout_toEndOf="@+id/cart_price"
                     android:gravity="end"
                     android:orientation="vertical">
 
                     <include layout="@layout/plus_minu_layout"/>
 
                     <Button
-                        android:id="@+id/add_to_cart"
-                        android:layout_width="70dp"
+                        android:id="@+id/remove_cart"
+                        android:layout_width="wrap_content"
                         android:layout_height="40dp"
-                        android:text="Add"
+                        android:text="Remove"
                         android:layout_marginTop="8dp"
                         android:backgroundTint="@color/colorAccent"/>
 

@@ -3,6 +3,7 @@ package com.verityfoods.viewholders;
 import android.graphics.Paint;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -26,7 +27,7 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
     private LinearLayout plusMinusButton;
     private TextView plusButton;
     private TextView minusButton;
-    private TextView total;
+    public TextView total;
     private int value = 0;
 
     @BindView(R.id.prduct_image)
@@ -44,6 +45,8 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
     @BindView(R.id.product_price)
     TextView productPrice;
 
+    public Button addToCart;
+
     public ProductViewHolder(@NonNull View itemView) {
         super(itemView);
         ButterKnife.bind(this, itemView);
@@ -51,6 +54,7 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
         minusButton = itemView.findViewById(R.id.minus_btn);
         total = itemView.findViewById(R.id.counter_total);
         plusMinusButton = itemView.findViewById(R.id.plus_minus_button);
+        addToCart = itemView.findViewById(R.id.add_to_cart);
         Log.d(TAG, "ProductViewHolder: "+total.getText().toString().trim());
     }
 
