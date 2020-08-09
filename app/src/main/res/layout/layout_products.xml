@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="150dp"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -80,19 +81,16 @@
                     android:gravity="end"
                     android:orientation="vertical">
 
+                    <include layout="@layout/plus_minu_layout"/>
+
                     <Button
                         android:layout_width="70dp"
                         android:layout_height="40dp"
                         android:text="Add"
+                        android:layout_marginTop="8dp"
                         android:backgroundTint="@color/colorAccent"/>
 
-                    <com.cepheuen.elegantnumberbutton.view.ElegantNumberButton
-                        android:id="@+id/product_quantity_counter"
-                        android:layout_width="70dp"
-                        android:layout_height="30dp"
-                        app:initialNumber="1"
-                        app:backGroundColor="@color/colorPrimary"
-                        app:textColor="@color/white"/>
+
                 </LinearLayout>
             </RelativeLayout>
 
