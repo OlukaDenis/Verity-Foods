@@ -49,7 +49,6 @@ public class BasketFragment extends Fragment {
     private FirestorePagingAdapter<Cart, CartViewHolder> adapter;
     private LinearLayoutManager layoutManager;
     private Category category;
-    private int quantityCount;
 
     private LinearLayout checkoutLayout;
     private ProgressBar totalLoading;
@@ -218,15 +217,16 @@ public class BasketFragment extends Fragment {
 
                 holder.bindCart(model);
 
+                String val = holder.total.getText().toString();
                 holder.plusButton.setOnClickListener(view -> {
-                    int p = Integer.parseInt(holder.total.getText().toString());
+                    int p = Integer.parseInt(val);
                     holder.total.setText(String.valueOf(p += 1));
                     updateCartQuantity(model, Integer.parseInt(holder.total.getText().toString()));
                 });
 
-                holder.minusButton.setOnClickListener(view -> {
-                    int m = Integer.parseInt(holder.total.getText().toString());
-                    if (quantityCount > 1) {
+                holder.minusButton.setOnClickListener(v -> {
+                    int m = Integer.parseInt(val);
+                    if (m > 1) {
                         holder.total.setText(String.valueOf(m -= 1));
                         updateCartQuantity(model, Integer.parseInt(holder.total.getText().toString()));
                     }

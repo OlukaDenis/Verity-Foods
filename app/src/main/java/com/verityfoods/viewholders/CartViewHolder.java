@@ -2,6 +2,7 @@ package com.verityfoods.viewholders;
 
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -36,7 +37,7 @@ public class CartViewHolder extends RecyclerView.ViewHolder {
     @BindView(R.id.cart_price)
     TextView cartPrice;
 
-    public Button removeCart;
+    public ImageButton removeCart;
 
     public CartViewHolder(@NonNull View itemView) {
         super(itemView);
@@ -49,7 +50,7 @@ public class CartViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void bindCart(Cart cart) {
-        cartName.setText(cart.getCategory_name());
+        cartName.setText(cart.getProduct_name());
         cartCategory.setText(cart.getCategory_name());
         cartPrice.setText(AppUtils.formatCurrency(cart.getAmount()));
         total.setText(String.valueOf(cart.getQuantity()));

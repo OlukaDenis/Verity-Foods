@@ -3,14 +3,14 @@
     android:id="@+id/plus_minus_button"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
-    android:layout_width="70dp"
+    android:layout_width="80dp"
     android:gravity="center"
     android:layout_height="wrap_content">
 
     <TextView
         android:id="@+id/minus_btn"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
         android:gravity="center"
         android:layout_gravity="center"
         android:textColor="@color/colorPrimary"
@@ -30,9 +30,9 @@
 
     <TextView
         android:id="@+id/plus_btn"
-        android:layout_width="20dp"
+        android:layout_width="25dp"
         android:background="@drawable/plus_bg"
-        android:layout_height="20dp"
+        android:layout_height="25dp"
         android:gravity="center"
         android:textColor="@color/white"
         android:text="+" />

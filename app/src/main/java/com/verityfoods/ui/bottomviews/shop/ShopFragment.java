@@ -1,28 +1,33 @@
-package com.verityfoods.ui.products;
+package com.verityfoods.ui.bottomviews.shop;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.NavController;
 import androidx.paging.PagedList;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Toast;
-
 import com.firebase.ui.firestore.paging.FirestorePagingAdapter;
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.firebase.ui.firestore.paging.LoadingState;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.verityfoods.R;
 import com.verityfoods.data.model.Cart;
 import com.verityfoods.data.model.Category;
@@ -35,8 +40,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class ProductsFragment extends Fragment {
-    private static final String TAG = "ProductsFragment";
+public class ShopFragment extends Fragment {
+    private static final String TAG = "ShopFragment";
     private Vars vars;
     private Product product;
     private RecyclerView productRecycler;
@@ -50,32 +55,66 @@ public class ProductsFragment extends Fragment {
     BadgeDrawable badgeDrawable;
     BottomNavigationView bottomNav;
 
-    public ProductsFragment() {
-        // Required empty public constructor
-    }
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View root =  inflater.inflate(R.layout.fragment_products, container, false);
+    private ShopViewModel shopViewModel;
 
-        bottomNav = requireActivity().findViewById(R.id.bottom_navigation);
-        badgeDrawable = bottomNav.getBadge(R.id.navigation_cart);
-
-        vars = new Vars(requireContext());
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             ViewGroup container, Bundle savedInstanceState) {
+        shopViewModel =  ViewModelProviders.of(this).get(ShopViewModel.class);
+        View root = inflater.inflate(R.layout.fragment_shop, container, false);
+        vars = new Vars(requireActivity());
         loading = new ProgressDialog(requireActivity());
-
-        Bundle bundle = getArguments();
-        assert bundle != null;
-        category = (Category) bundle.getSerializable(Globals.CATEGORY_OBJ);
 
         layoutManager = new LinearLayoutManager(requireActivity());
         productRecycler = root.findViewById(R.id.products_recycler);
         productRecycler.setLayoutManager(layoutManager);
 
-        populateProducts();
-
+        populateCategories();
         return root;
+    }
+
+    private void populateCategories() {
+        Log.d(TAG, "populateCategories called: ");
+        vars.verityApp.db
+                .collection(Globals.CATEGORIES)
+                .get()
+                .addOnCompleteListener(task -> {
+                    Log.d(TAG, "populateCategories: "+task.getResult().toString());
+                    Log.d(TAG, "Category size: " +task.getResult().size());
+                    if (task.isSuccessful()) {
+
+                        if (Objects.requireNonNull(task.getResult()).size() > 0) {
+                            Log.d(TAG, "Category size: " +task.getResult().size());
+
+                            for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+                                Category category = document.toObject(Category.class);
+
+//                                    populateProducts(category.getUuid());
+                                Log.d(TAG, "Categories: " + category.getName());
+//                                vars.verityApp.db
+//                                        .collection(Globals.CATEGORIES)
+//                                        .document(category.getUuid())
+//                                        .collection(Globals.PRODUCTS)
+//                                        .get()
+//                                        .addOnCompleteListener(task1 -> {
+//                                            if (task.isSuccessful()) {
+//                                                if (Objects.requireNonNull(task1.getResult()).size() > 0) {
+//                                                    for (QueryDocumentSnapshot snapshot : Objects.requireNonNull(task1.getResult())) {
+//                                                        Product product = snapshot.toObject(Product.class);
+//                                                        Log.d(TAG, "All products: " + product.getName());
+//                                                    }
+//                                                }
+//                                            }
+//                                        })
+//                                        .addOnFailureListener(e -> Log.e(TAG, "Error: ", e));
+                            }
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    vars.verityApp.crashlytics.log("Error while fetching categories");
+                    Log.e(TAG, "Error occured: ", e);
+                    vars.verityApp.crashlytics.recordException(e);
+                });
     }
 
     private void checkExistingProduct(String userId, String productID, Cart cart, int qty) {
@@ -140,11 +179,13 @@ public class ProductsFragment extends Fragment {
                 });
     }
 
-    private void populateProducts() {
+    private void populateProducts(String categoryID) {
         Log.d(TAG, "populateProducts called");
 
-        Query categoryQuery = vars.verityApp.db
+        Query catQuery = vars.verityApp.db
                 .collection(Globals.CATEGORIES)
+                .document(categoryID)
+                .collection(Globals.PRODUCTS)
                 .orderBy("name");
 
         PagedList.Config config = new PagedList.Config.Builder()
@@ -155,19 +196,10 @@ public class ProductsFragment extends Fragment {
 
         FirestorePagingOptions<Product> options = new FirestorePagingOptions.Builder<Product>()
                 .setLifecycleOwner(this)
-                .setQuery(categoryQuery, config, snapshot -> {
-                    category = snapshot.toObject(Category.class);
-
+                .setQuery(catQuery, config, snapshot -> {
                     product = snapshot.toObject(Product.class);
                     assert product != null;
                     product.setUuid(snapshot.getId());
-
-                    Query productQuery = vars.verityApp.db
-                            .collection(Globals.CATEGORIES)
-                            .document(snapshot.getId())
-                            .collection(Globals.PRODUCTS)
-                            .orderBy("name");
-
                     return product;
                 })
                 .build();
@@ -177,17 +209,13 @@ public class ProductsFragment extends Fragment {
             protected void onBindViewHolder(@NonNull ProductViewHolder holder, int position, @NonNull Product model) {
                 holder.bindProduct(model);
 
-                String val = holder.total.getText().toString();
-                quantity = Integer.parseInt(val);
-
                 holder.plusButton.setOnClickListener(view -> {
-                    int p = Integer.parseInt(val);
+                    int p = Integer.parseInt(holder.total.getText().toString());
                     holder.total.setText(String.valueOf(p += 1));
                     quantity = Integer.parseInt(holder.total.getText().toString());
                 });
-
                 holder.minusButton.setOnClickListener(view -> {
-                    int m = Integer.parseInt(val);
+                    int m = Integer.parseInt(holder.total.getText().toString());
                     if (m > 1) {
                         holder.total.setText(String.valueOf(m -= 1));
                         quantity = Integer.parseInt(holder.total.getText().toString());

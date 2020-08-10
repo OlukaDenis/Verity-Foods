@@ -81,7 +81,7 @@
                     android:gravity="end"
                     android:orientation="vertical">
 
-                    <include layout="@layout/plus_minu_layout"/>
+                    <include layout="@layout/plus_minus_layout"/>
 
                     <Button
                         android:id="@+id/add_to_cart"

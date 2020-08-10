@@ -25,8 +25,8 @@ import butterknife.ButterKnife;
 public class ProductViewHolder extends RecyclerView.ViewHolder {
     private static final String TAG = "ProductViewHolder";
     private LinearLayout plusMinusButton;
-    private TextView plusButton;
-    private TextView minusButton;
+    public TextView plusButton;
+    public TextView minusButton;
     public TextView total;
     private int value = 0;
 
@@ -70,18 +70,6 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
                 .error(R.drawable.ic_baseline_image_24)
                 .placeholder(R.drawable.ic_baseline_image_24)
                 .into(productImage);
-        plusButton.setOnClickListener(view -> {
-            Log.d(TAG, product.getName() + " - plus button clicked: "+ (value += 1));
-            int p = Integer.parseInt(total.getText().toString());
-            total.setText(String.valueOf(p += 1));
-        });
-        minusButton.setOnClickListener(view -> {
-            int m = Integer.parseInt(total.getText().toString());
-            if (m > 1) {
-                total.setText(String.valueOf(m -= 1));
-            }
-        });
-
     }
 
 

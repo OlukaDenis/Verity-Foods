@@ -57,7 +57,8 @@ public class HomeFragment extends Fragment {
         Log.d(TAG, "populateCategories called: ");
         Query catQuery = vars.verityApp.db
                 .collection(Globals.CATEGORIES)
-                .orderBy("name");
+                .orderBy("name")
+                .limit(12);
 
         PagedList.Config config = new PagedList.Config.Builder()
                 .setEnablePlaceholders(false)
@@ -81,9 +82,6 @@ public class HomeFragment extends Fragment {
                 holder.bindCategory(model);
 
                 holder.itemView.setOnClickListener( v -> {
-//                    Intent intent = new Intent(requireActivity(), ProductsActivity.class);
-//                    intent.putExtra(, model);
-//                    startActivity(intent);
 
                     Bundle bundle = new Bundle();
                     bundle.putSerializable(Globals.CATEGORY_OBJ, model);
