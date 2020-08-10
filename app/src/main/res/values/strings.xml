@@ -17,7 +17,7 @@
     <string name="name">Name</string>
     <string name="phone">Phone</string>
     <string name="creat_password">Create Password</string>
-    <string name="singup">Singup</string>
+    <string name="singup">Signup</string>
     <string name="address">Address</string>
     <string name="signup">Signup</string>
     <string name="login">Login</string>
@@ -35,4 +35,14 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="shop">Shop</string>
+    <string name="enter_your_phone_number">Enter your phone number</string>
+    <string name="enter_the_code_that_has_been_sent_via_sms">Enter the code that has been sent via SMS</string>
+    <string name="enter_code">Enter code</string>
+    <string name="enter_details">Enter your details to complete the registration process</string>
+    <string name="logout">Logout</string>
+    <string name="log_out_message">Are you sure you want log out?</string>
+    <string name="cancel">No</string>
+    <string name="hello_customer">Hello Customer!</string>
+    <string name="login_now">Login now</string>
+    <string name="login_with_phone">Login with phone</string>
 </resources>

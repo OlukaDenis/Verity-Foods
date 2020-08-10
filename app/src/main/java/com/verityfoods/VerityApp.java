@@ -4,6 +4,7 @@ import android.app.Application;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
@@ -19,6 +20,7 @@ public class VerityApp extends Application {
     public String firebaseid;
     public FirebaseStorage mStorageRef;
     public FirebaseCrashlytics crashlytics;
+    public PhoneAuthProvider phoneAuth;
 
     public static synchronized VerityApp getInstance() {
         return mInstance;
@@ -36,6 +38,7 @@ public class VerityApp extends Application {
         db = FirebaseFirestore.getInstance();
         mStorageRef = FirebaseStorage.getInstance();
         crashlytics = FirebaseCrashlytics.getInstance();
+        phoneAuth = PhoneAuthProvider.getInstance();
 
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
                 .setPersistenceEnabled(true)

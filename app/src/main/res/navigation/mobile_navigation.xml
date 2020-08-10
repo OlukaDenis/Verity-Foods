@@ -30,6 +30,12 @@
         tools:layout="@layout/fragment_orders" />
 
     <fragment
+        android:id="@+id/nav_logout"
+        android:name="com.verityfoods.ui.logout.LogoutFragment"
+        android:label="Logout"
+        tools:layout="@layout/fragment_logout" />
+
+    <fragment
         android:id="@+id/navigation_home"
         android:name="com.verityfoods.ui.bottomviews.home.HomeFragment"
         android:label="@string/title_home"

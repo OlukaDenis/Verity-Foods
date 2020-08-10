@@ -20,7 +20,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/phone"
+            android:id="@+id/signup_phone"
             style="@style/textInputStyle"
             android:hint="Mobile Number"
             android:inputType="number" />
