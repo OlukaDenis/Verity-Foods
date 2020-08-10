@@ -43,7 +43,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-core:17.4.4'
     implementation 'com.google.firebase:firebase-messaging:20.2.4'
     implementation 'com.jakewharton:butterknife:10.2.2'
-    implementation 'androidx.paging:paging-runtime:2.1.0'
+    implementation 'androidx.paging:paging-runtime:2.1.2'
     annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.2'
     implementation 'com.miguelcatalan:materialsearchview:1.4.0'
     testImplementation 'junit:junit:4.12'
@@ -54,6 +54,7 @@ dependencies {
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'com.google.firebase:firebase-crashlytics:17.1.1'
     implementation 'com.cepheuen.elegant-number-button:lib:1.0.2'
+    implementation 'com.google.android.libraries.places:places:2.3.0'
 
 
 }

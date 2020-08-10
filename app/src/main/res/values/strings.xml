@@ -47,4 +47,8 @@
     <string name="login_with_phone">Login with phone</string>
     <string name="email">Email</string>
     <string name="continue_next">Continue</string>
+
+    <string name="google_maps_key">AIzaSyCE1qv5ePq-AL8sB1kYb-Ing_zOZdv5-S8</string>
+    <string name="your_address">Your address</string>
+
 </resources>

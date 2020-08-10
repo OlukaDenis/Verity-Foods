@@ -9,6 +9,7 @@ import android.view.View;
 
 import com.verityfoods.MainActivity;
 import com.verityfoods.R;
+import com.verityfoods.utils.Globals;
 import com.verityfoods.utils.Vars;
 
 import butterknife.ButterKnife;
@@ -39,14 +40,27 @@ public class AuthChooser extends AppCompatActivity {
 
     }
 
+    public void checkUserProfile() {
+        vars.verityApp.db.collection(Globals.USERS)
+                .document(vars.verityApp.mAuth.getCurrentUser().getUid())
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                        finish();
+                    } else {
+                        startActivity(new Intent(getApplicationContext(), SignupActivity.class));
+                        finish();
+                    }
+                });
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
 
         if (vars.isLoggedIn()) {
-            Log.d(TAG, "User UID: "+vars.verityApp.mAuth.getCurrentUser().getUid());
-            startActivity(new Intent(getApplicationContext(), MainActivity.class));
-            finish();
+            checkUserProfile();
         }
     }
 }

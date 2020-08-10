@@ -7,6 +7,7 @@ public class Globals {
     public static final String CART = "cart";
     public static final String MY_CART = "my_cart";
     public static final String USERS = "users";
+    public static final int AUTOCOMPLETE_REQUEST_CODE = 103;
 
     public static String CATEGORY_OBJ;
     public static String CATEGORY_COVER;

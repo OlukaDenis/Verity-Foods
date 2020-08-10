@@ -4,7 +4,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -12,6 +14,11 @@ import android.widget.AutoCompleteTextView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.AutocompleteActivity;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.FirebaseException;
@@ -23,6 +30,8 @@ import com.verityfoods.data.model.User;
 import com.verityfoods.utils.Globals;
 import com.verityfoods.utils.Vars;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -69,6 +78,8 @@ public class SignupActivity extends AppCompatActivity {
     private PhoneAuthProvider.ForceResendingToken token;
     private ProgressDialog progressDialog;
     private User user;
+    private LocationManager locationManager;
+    private List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG, Place.Field.ADDRESS);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,9 +89,29 @@ public class SignupActivity extends AppCompatActivity {
         vars = new Vars(this);
         progressDialog = new ProgressDialog(this);
         user = new User();
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        displayPhoneLayout();
+
+        if (!Places.isInitialized()) {
+            Places.initialize(getApplicationContext(), getString(R.string.google_maps_key));
+        }
     }
 
-    @OnClick({R.id.signup_btn, R.id.location, R.id.already_logged_in})
+    private void pickLocation() {
+        Log.d(TAG, "pickLocation called: ");
+            try {
+                Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields).setCountry("UG")
+                        .build(this);
+                startActivityForResult(intent, Globals.AUTOCOMPLETE_REQUEST_CODE);
+                Log.d(TAG, "pickLocation: location request sent");
+            } catch (Exception e) {
+                vars.verityApp.crashlytics.recordException(e);
+                Log.e(TAG, "pickLocation error: ",e );
+            }
+    }
+
+    @OnClick({R.id.signup_btn, R.id.location})
     public void onItemClicked(View view) {
         switch (view.getId()) {
 
@@ -90,8 +121,8 @@ public class SignupActivity extends AppCompatActivity {
                 }
                 break;
 
-            case R.id.already_logged_in:
-                startActivity(new Intent(this, LoginActivity.class));
+            case R.id.location:
+                pickLocation();
                 break;
             default:
                 break;
@@ -256,6 +287,21 @@ public class SignupActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == Globals.AUTOCOMPLETE_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                Place place = Autocomplete.getPlaceFromIntent(data);
+                userAddress.setText(place.getAddress());
+            } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
+                Toast.makeText(this, "Unable to pick address", Toast.LENGTH_SHORT).show();
+            } else if (resultCode == RESULT_CANCELED) {
+                Log.d(TAG, "onActivityResult: " + "Cancelled...");
+            }
+        }
+    }
+
+                @Override
     protected void onStart() {
         super.onStart();
         if (vars.isLoggedIn()) {
