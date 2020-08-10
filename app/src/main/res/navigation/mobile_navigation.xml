@@ -42,10 +42,10 @@
         tools:layout="@layout/fragment_category" />
 
     <fragment
-        android:id="@+id/navigation_search"
-        android:name="com.verityfoods.ui.bottomviews.search.SearchFragment"
-        android:label="@string/search"
-        tools:layout="@layout/fragment_search" />
+        android:id="@+id/navigation_shop"
+        android:name="com.verityfoods.ui.bottomviews.shop.ShopFragment"
+        android:label="@string/shop"
+        tools:layout="@layout/fragment_shop" />
 
     <fragment
         android:id="@+id/navigation_offers"
@@ -58,5 +58,11 @@
         android:name="com.verityfoods.ui.bottomviews.basket.BasketFragment"
         android:label="@string/basket"
         tools:layout="@layout/fragment_basket" />
+
+    <fragment
+        android:id="@+id/navigation_products"
+        android:name="com.verityfoods.ui.products.ProductsFragment"
+        android:label="Products"
+        tools:layout="@layout/fragment_products" />
 
 </navigation>

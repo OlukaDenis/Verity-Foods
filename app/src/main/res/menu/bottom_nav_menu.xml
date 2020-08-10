@@ -13,14 +13,14 @@
         android:title="@string/category" />
 
     <item
+        android:id="@+id/navigation_shop"
+        android:icon="@drawable/ic_local_mall"
+        android:title="@string/shop" />
+
+    <item
         android:id="@+id/navigation_offers"
         android:icon="@drawable/ic_offer"
         android:title="@string/offers" />
-
-    <item
-        android:id="@+id/navigation_search"
-        android:icon="@drawable/ic_search"
-        android:title="@string/search" />
 
     <item
         android:id="@+id/navigation_cart"

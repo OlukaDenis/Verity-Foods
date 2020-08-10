@@ -1,6 +1,5 @@
 package com.verityfoods.ui.bottomviews.home;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,6 +10,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.paging.PagedList;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,9 +21,7 @@ import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.firebase.ui.firestore.paging.LoadingState;
 import com.google.firebase.firestore.Query;
 import com.verityfoods.R;
-import com.verityfoods.data.interfaces.CustomItemClickListener;
 import com.verityfoods.data.model.Category;
-import com.verityfoods.ui.ProductsActivity;
 import com.verityfoods.utils.Globals;
 import com.verityfoods.utils.Vars;
 import com.verityfoods.viewholders.CategoryViewHolder;
@@ -34,6 +33,7 @@ public class HomeFragment extends Fragment {
     private GridLayoutManager gridLayoutManager;
     private Category category;
 
+    private NavController navController;
     private RecyclerView categoryRecycler;
 
 
@@ -44,6 +44,7 @@ public class HomeFragment extends Fragment {
         homeViewModel = ViewModelProviders.of(this).get(HomeViewModel.class);
         View root = inflater.inflate(R.layout.fragment_home, container, false);
         vars = new Vars(requireActivity());
+        navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
 
         categoryRecycler = root.findViewById(R.id.shop_category_recycler);
         gridLayoutManager = new GridLayoutManager(requireActivity(), 3);
@@ -56,7 +57,8 @@ public class HomeFragment extends Fragment {
         Log.d(TAG, "populateCategories called: ");
         Query catQuery = vars.verityApp.db
                 .collection(Globals.CATEGORIES)
-                .orderBy("name");
+                .orderBy("name")
+                .limit(12);
 
         PagedList.Config config = new PagedList.Config.Builder()
                 .setEnablePlaceholders(false)
@@ -80,9 +82,10 @@ public class HomeFragment extends Fragment {
                 holder.bindCategory(model);
 
                 holder.itemView.setOnClickListener( v -> {
-                    Intent intent = new Intent(requireActivity(), ProductsActivity.class);
-                    intent.putExtra(Globals.CATEGORY_OBJ, model);
-                    startActivity(intent);
+
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable(Globals.CATEGORY_OBJ, model);
+                    navController.navigate(R.id.navigation_products, bundle);
                 });
             }
 
