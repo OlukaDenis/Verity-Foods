@@ -135,17 +135,17 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/password_layout"
+            android:id="@+id/email_layout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/password"
+                android:id="@+id/email"
                 style="@style/textInputStyle"
-                android:hint="@string/creat_password"
-                android:inputType="textPassword" />
+                android:hint="@string/email"
+                android:inputType="textEmailAddress" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -160,7 +160,7 @@
                 style="@style/textInputStyle"
                 android:hint="@string/address"
                 android:text="Kitintale, Portbell Road"
-                android:inputType="textPassword" />
+                android:inputType="textCapWords" />
         </com.google.android.material.textfield.TextInputLayout>
 
     </LinearLayout>
@@ -169,7 +169,7 @@
         android:id="@+id/signup_btn"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:text="continue"
+        android:text="@string/continue_next"
         android:textAllCaps="true"
         android:layout_marginTop="16dp"
         app:layout_constraintEnd_toEndOf="parent"

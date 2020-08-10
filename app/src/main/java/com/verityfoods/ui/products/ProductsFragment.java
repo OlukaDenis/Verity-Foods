@@ -145,6 +145,8 @@ public class ProductsFragment extends Fragment {
 
         Query categoryQuery = vars.verityApp.db
                 .collection(Globals.CATEGORIES)
+                .document(category.getUuid())
+                .collection(Globals.PRODUCTS)
                 .orderBy("name");
 
         PagedList.Config config = new PagedList.Config.Builder()
@@ -161,13 +163,6 @@ public class ProductsFragment extends Fragment {
                     product = snapshot.toObject(Product.class);
                     assert product != null;
                     product.setUuid(snapshot.getId());
-
-                    Query productQuery = vars.verityApp.db
-                            .collection(Globals.CATEGORIES)
-                            .document(snapshot.getId())
-                            .collection(Globals.PRODUCTS)
-                            .orderBy("name");
-
                     return product;
                 })
                 .build();

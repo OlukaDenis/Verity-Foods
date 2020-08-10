@@ -45,4 +45,6 @@
     <string name="hello_customer">Hello Customer!</string>
     <string name="login_now">Login now</string>
     <string name="login_with_phone">Login with phone</string>
+    <string name="email">Email</string>
+    <string name="continue_next">Continue</string>
 </resources>

@@ -32,7 +32,7 @@ import butterknife.OnClick;
 
 public class SignupActivity extends AppCompatActivity {
     private static final String TAG = "SignupActivity";
-    private static String VERIFY = "verify";
+    private static String VERIFY = "verify number";
     private static String CONTINUE = "continue";
     private static String SAVE = "save";
 
@@ -56,8 +56,8 @@ public class SignupActivity extends AppCompatActivity {
     @BindView(R.id.name)
     TextInputEditText userName;
 
-    @BindView(R.id.password)
-    TextInputEditText userPassword;
+    @BindView(R.id.email)
+    TextInputEditText userEmail;
 
     @BindView(R.id.location)
     AutoCompleteTextView userAddress;
@@ -151,7 +151,6 @@ public class SignupActivity extends AppCompatActivity {
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
-                        Toast.makeText(this, "User exists", Toast.LENGTH_SHORT).show();
                         startActivity(new Intent(getApplicationContext(), MainActivity.class));
                         finish();
                         progressDialog.dismiss();
@@ -216,14 +215,14 @@ public class SignupActivity extends AppCompatActivity {
 
     private void saveUserDetails() {
         String userID = Objects.requireNonNull(vars.verityApp.mAuth.getCurrentUser()).getUid();
-        if (!userPassword.getText().toString().isEmpty() &&
+        if (!userEmail.getText().toString().isEmpty() &&
         !userAddress.getText().toString().isEmpty() &&
         !userName.getText().toString().isEmpty()) {
             user.setName(userName.getText().toString());
             user.setUserID(userID);
             user.setPhone(vars.verityApp.mAuth.getCurrentUser().getPhoneNumber());
             user.setAddress(userAddress.getText().toString());
-            user.setPassword(userPassword.getText().toString());
+            user.setEmail(userEmail.getText().toString());
 
             vars.verityApp.db.collection(Globals.USERS)
                     .document(userID)

@@ -27,7 +27,7 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/password_layout"
+        android:id="@+id/email_layout"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -37,7 +37,7 @@
         app:layout_constraintTop_toBottomOf="@id/phone_layout">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/password"
+            android:id="@+id/email"
             style="@style/textInputStyle"
             android:hint="Password"
             android:inputType="textPassword" />
@@ -49,7 +49,7 @@
         android:layout_height="wrap_content"
         android:text="Remember me"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/password_layout"/>
+        app:layout_constraintTop_toBottomOf="@id/email_layout"/>
 
     <TextView
         android:id="@+id/forgot_password"
@@ -60,7 +60,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/remember_me"
         app:layout_constraintBottom_toTopOf="@+id/login_btn"
-        app:layout_constraintTop_toBottomOf="@id/password_layout"/>
+        app:layout_constraintTop_toBottomOf="@id/email_layout"/>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/login_btn"
