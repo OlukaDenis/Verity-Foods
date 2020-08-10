@@ -23,6 +23,13 @@
         android:layout_marginBottom="60dp"
         android:layout_alignParentBottom="true">
 
+        <ProgressBar
+            android:id="@+id/auth_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:layout_gravity="center" />
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/choose_login"
             android:layout_width="match_parent"

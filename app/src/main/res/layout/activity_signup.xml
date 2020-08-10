@@ -159,6 +159,7 @@
                 android:id="@+id/location"
                 style="@style/textInputStyle"
                 android:hint="@string/your_address"
+                android:text="Kitintale, Port Bell Road"
                 android:inputType="textCapWords" />
         </com.google.android.material.textfield.TextInputLayout>
 

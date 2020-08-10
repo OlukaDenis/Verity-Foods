@@ -14,6 +14,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.google.android.gms.common.api.Status;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.Autocomplete;
@@ -100,16 +101,11 @@ public class SignupActivity extends AppCompatActivity {
 
     private void pickLocation() {
         Log.d(TAG, "pickLocation called: ");
-            try {
-                Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields).setCountry("UG")
-                        .build(this);
-                startActivityForResult(intent, Globals.AUTOCOMPLETE_REQUEST_CODE);
-                Log.d(TAG, "pickLocation: location request sent");
-            } catch (Exception e) {
-                vars.verityApp.crashlytics.recordException(e);
-                Log.e(TAG, "pickLocation error: ",e );
-            }
-    }
+
+        Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields).setCountry("UG")
+                .build(this);
+        startActivityForResult(intent, Globals.AUTOCOMPLETE_REQUEST_CODE);
+}
 
     @OnClick({R.id.signup_btn, R.id.location})
     public void onItemClicked(View view) {
@@ -150,7 +146,7 @@ public class SignupActivity extends AppCompatActivity {
                             verificationID = s;
                             token = forceResendingToken;
                             displayCodeLayout();
-                            Toast.makeText(SignupActivity.this, "OTP sent", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(SignupActivity.this, "OTP code has been sent to your phone!", Toast.LENGTH_LONG).show();
                         }
 
                         @Override
@@ -168,9 +164,11 @@ public class SignupActivity extends AppCompatActivity {
                             vars.verityApp.crashlytics.recordException(e);
                             vars.verityApp.crashlytics.log("Phone verification failed" + e.getMessage());
                             Log.d(TAG, "Phone verification failed: ", e);
+                            progressDialog.dismiss();
                         }
                     });
         } else {
+            progressDialog.dismiss();
             phone.setError("Invalid phone number");
             phone.requestFocus();
         }
@@ -203,7 +201,6 @@ public class SignupActivity extends AppCompatActivity {
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
                             checkUserProfile();
-                            Toast.makeText(this, "Phone verification is successful", Toast.LENGTH_SHORT).show();
                         } else {
                             progressDialog.dismiss();
                             displayPhoneLayout();
@@ -217,6 +214,7 @@ public class SignupActivity extends AppCompatActivity {
                         vars.verityApp.crashlytics.recordException(e);
                     });
         } else {
+            progressDialog.dismiss();
             code.setError("OTP is invalid");
         }
     }
@@ -245,6 +243,9 @@ public class SignupActivity extends AppCompatActivity {
     }
 
     private void saveUserDetails() {
+        progressDialog.setMessage("Saving user details ...");
+        progressDialog.show();
+
         String userID = Objects.requireNonNull(vars.verityApp.mAuth.getCurrentUser()).getUid();
         if (!userEmail.getText().toString().isEmpty() &&
         !userAddress.getText().toString().isEmpty() &&
@@ -262,18 +263,20 @@ public class SignupActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             startActivity(new Intent(getApplicationContext(), MainActivity.class));
                             finish();
-                            Toast.makeText(this, "Your details are successfully saved", Toast.LENGTH_SHORT).show();
-
+                            progressDialog.dismiss();
                         } else {
+                            progressDialog.dismiss();
                             Toast.makeText(this, "Registration unsuccessful", Toast.LENGTH_SHORT).show();
                         }
                     })
                     .addOnFailureListener(e -> {
+                        progressDialog.dismiss();
                         vars.verityApp.crashlytics.recordException(e);
                         Log.e(TAG, "Error while saving data: ",e);
                     });
 
         } else {
+            progressDialog.dismiss();
             Toast.makeText(this, "All fields are required", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -294,7 +297,9 @@ public class SignupActivity extends AppCompatActivity {
                 Place place = Autocomplete.getPlaceFromIntent(data);
                 userAddress.setText(place.getAddress());
             } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
-                Toast.makeText(this, "Unable to pick address", Toast.LENGTH_SHORT).show();
+                Status status = Autocomplete.getStatusFromIntent(data);
+                Log.d(TAG, "Error while picking location: "+status.getStatusMessage());
+                Toast.makeText(this, status.getStatusMessage(), Toast.LENGTH_SHORT).show();
             } else if (resultCode == RESULT_CANCELED) {
                 Log.d(TAG, "onActivityResult: " + "Cancelled...");
             }

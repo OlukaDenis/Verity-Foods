@@ -6,18 +6,30 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
+import com.google.android.material.button.MaterialButton;
 import com.verityfoods.MainActivity;
 import com.verityfoods.R;
 import com.verityfoods.utils.Globals;
 import com.verityfoods.utils.Vars;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class AuthChooser extends AppCompatActivity {
     private static final String TAG = "AuthChooser";
     private Vars vars;
+    @BindView(R.id.auth_progress)
+    ProgressBar loading;
+
+    @BindView(R.id.choose_login)
+    MaterialButton loginBtn;
+
+    @BindView(R.id.choose_skip)
+    TextView skip;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +53,11 @@ public class AuthChooser extends AppCompatActivity {
     }
 
     public void checkUserProfile() {
+        loading.setVisibility(View.VISIBLE);
+        loginBtn.setEnabled(false);
+        loginBtn.setBackgroundColor(getResources().getColor(R.color.bg));
+        skip.setVisibility(View.GONE);
+
         vars.verityApp.db.collection(Globals.USERS)
                 .document(vars.verityApp.mAuth.getCurrentUser().getUid())
                 .get()
