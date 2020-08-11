@@ -73,19 +73,6 @@ public class ShopFragment extends Fragment {
         return root;
     }
 
-    private void populateAllProducts() {
-        vars.verityApp.db
-                .collectionGroup(Globals.PRODUCTS)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    //Iterate to get the products out of the queryDocumentSnapshots object
-                    for (DocumentSnapshot document : Objects.requireNonNull(queryDocumentSnapshots.getDocuments())) {
-                        Product product = document.toObject(Product.class);
-                        Log.d(TAG, "Products: " + product.getName());
-                    }
-                });
-    }
-
     private void checkExistingProduct(String userId, String productID, Cart cart, int qty) {
 
         vars.verityApp.db.collection(Globals.CART + "/" + userId + "/" + Globals.MY_CART)

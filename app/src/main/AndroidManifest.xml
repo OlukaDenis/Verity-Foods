@@ -14,6 +14,13 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
+            android:label=""
+            android:name=".ui.search.SearchActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+        <activity
             android:name=".ui.auth.AuthChooser"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity

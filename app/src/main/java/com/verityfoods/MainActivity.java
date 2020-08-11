@@ -15,9 +15,11 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.navigation.NavigationView;
 import com.verityfoods.data.model.User;
 import com.verityfoods.ui.auth.AuthChooser;
+import com.verityfoods.ui.search.SearchActivity;
 import com.verityfoods.utils.Globals;
 import com.verityfoods.utils.Vars;
 
+import androidx.annotation.NonNull;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -129,7 +131,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_search) {
+            startActivity(new Intent(getApplicationContext(), SearchActivity.class));
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
