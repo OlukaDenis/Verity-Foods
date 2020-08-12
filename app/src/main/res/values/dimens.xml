@@ -7,4 +7,6 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="font_thirty">30sp</dimen>
     <dimen name="font_sixteen">16sp</dimen>
+    <dimen name="font_eighteen">18sp</dimen>
+    <dimen name="font_twenty_four">24sp</dimen>
 </resources>

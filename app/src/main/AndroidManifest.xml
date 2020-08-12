@@ -13,6 +13,14 @@
         android:screenOrientation="portrait"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".ui.checkout.CheckoutActivity"></activity>
+        <activity
+            android:name=".ui.search.SearchActivity"
+            android:label="">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
         <activity
             android:name=".ui.auth.AuthChooser"
             android:theme="@style/AppTheme.NoActionBar" />

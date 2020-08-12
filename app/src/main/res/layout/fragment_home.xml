@@ -16,28 +16,32 @@
 
 
         <LinearLayout
-            android:id="@+id/linearLayout"
+            android:id="@+id/search_linearLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="45dp"
             android:background="@drawable/search_background"
             android:orientation="horizontal"
-            android:padding="10dp"
             android:weightSum="10"
+            android:gravity="center"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
                 android:layout_width="30dp"
-                android:layout_height="match_parent"
+                android:layout_height="30dp"
+               android:layout_marginStart="8dp"
                 android:tint="@android:color/darker_gray"
                 app:srcCompat="@drawable/ic_search" />
 
-            <EditText
+            <TextView
+                android:id="@+id/search_here"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginStart="8dp"
-                android:background="@android:color/transparent"
+                android:paddingTop="10dp"
+                android:gravity="center_vertical"
+                android:paddingBottom="10dp"
                 android:hint="@string/search_here" />
 
         </LinearLayout>
@@ -86,29 +90,18 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/dealsSliderLayout">
 
-            <ProgressBar
-                android:id="@+id/sliding_image_loader"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true" />
+<!--            <ProgressBar-->
+<!--                android:id="@+id/sliding_image_loader"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_centerInParent="true" />-->
 
-            <com.smarteist.autoimageslider.SliderView
-                android:id="@+id/imageSlider"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/products_slider"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:sliderAnimationDuration="600"
-                app:sliderAutoCycleDirection="back_and_forth"
-                app:sliderAutoCycleEnabled="true"
-                app:sliderIndicatorAnimationDuration="600"
-                app:sliderIndicatorGravity="center_horizontal|bottom"
-                app:sliderIndicatorMargin="15dp"
-                app:sliderIndicatorOrientation="horizontal"
-                app:sliderIndicatorPadding="3dp"
-                app:sliderIndicatorRadius="2dp"
-                app:sliderIndicatorSelectedColor="@color/colorPrimaryDark"
-                app:sliderIndicatorUnselectedColor="@android:color/darker_gray"
-                app:sliderScrollTimeInSec="1"
-                app:sliderStartAutoCycle="true" />
+                android:layout_height="200dp"
+                android:orientation="horizontal"
+                tools:listitem="@layout/layout_product_slider"/>
 
         </RelativeLayout>
 

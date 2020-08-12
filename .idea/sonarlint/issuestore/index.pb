@@ -7,8 +7,6 @@ H
 app/google-services.json,f/d/fd8d34b142d02ec743a8efefefd2c097961666e9
 q
 Aapp/src/main/java/com/verityfoods/data/local/LocalDataSource.java,0/a/0a15f52e99aa4d67177271bae33bf0cae2147008
-j
-:app/src/main/java/com/verityfoods/ui/ProductsActivity.java,2/6/26a0b997693bae054c57bd834eba4d8434089f62
 u
 Eapp/src/main/java/com/verityfoods/viewholders/CategoryViewHolder.java,8/e/8e6d026f811fadd85e4eb18ddcf5ac906fd429a5
 t

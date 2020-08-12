@@ -25,6 +25,7 @@ import com.firebase.ui.firestore.paging.LoadingState;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -68,53 +69,8 @@ public class ShopFragment extends Fragment {
         productRecycler = root.findViewById(R.id.products_recycler);
         productRecycler.setLayoutManager(layoutManager);
 
-        populateCategories();
+        populateProducts();
         return root;
-    }
-
-    private void populateCategories() {
-        Log.d(TAG, "populateCategories called: ");
-        vars.verityApp.db
-                .collection(Globals.CATEGORIES)
-                .get()
-                .addOnCompleteListener(task -> {
-                    Log.d(TAG, "populateCategories: "+task.getResult().toString());
-                    Log.d(TAG, "Category size: " +task.getResult().size());
-                    if (task.isSuccessful()) {
-
-                        if (Objects.requireNonNull(task.getResult()).size() > 0) {
-                            Log.d(TAG, "Category size: " +task.getResult().size());
-
-                            for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
-                                Category category = document.toObject(Category.class);
-
-//                                    populateProducts(category.getUuid());
-                                Log.d(TAG, "Categories: " + category.getName());
-//                                vars.verityApp.db
-//                                        .collection(Globals.CATEGORIES)
-//                                        .document(category.getUuid())
-//                                        .collection(Globals.PRODUCTS)
-//                                        .get()
-//                                        .addOnCompleteListener(task1 -> {
-//                                            if (task.isSuccessful()) {
-//                                                if (Objects.requireNonNull(task1.getResult()).size() > 0) {
-//                                                    for (QueryDocumentSnapshot snapshot : Objects.requireNonNull(task1.getResult())) {
-//                                                        Product product = snapshot.toObject(Product.class);
-//                                                        Log.d(TAG, "All products: " + product.getName());
-//                                                    }
-//                                                }
-//                                            }
-//                                        })
-//                                        .addOnFailureListener(e -> Log.e(TAG, "Error: ", e));
-                            }
-                        }
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    vars.verityApp.crashlytics.log("Error while fetching categories");
-                    Log.e(TAG, "Error occured: ", e);
-                    vars.verityApp.crashlytics.recordException(e);
-                });
     }
 
     private void checkExistingProduct(String userId, String productID, Cart cart, int qty) {
@@ -179,14 +135,11 @@ public class ShopFragment extends Fragment {
                 });
     }
 
-    private void populateProducts(String categoryID) {
+    private void populateProducts() {
         Log.d(TAG, "populateProducts called");
 
         Query catQuery = vars.verityApp.db
-                .collection(Globals.CATEGORIES)
-                .document(categoryID)
-                .collection(Globals.PRODUCTS)
-                .orderBy("name");
+                .collectionGroup(Globals.PRODUCTS);
 
         PagedList.Config config = new PagedList.Config.Builder()
                 .setEnablePlaceholders(false)

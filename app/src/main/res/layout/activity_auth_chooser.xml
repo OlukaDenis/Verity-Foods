@@ -23,19 +23,29 @@
         android:layout_marginBottom="60dp"
         android:layout_alignParentBottom="true">
 
+        <ProgressBar
+            android:id="@+id/auth_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:layout_gravity="center" />
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/choose_login"
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:backgroundTint="@color/colorAccent"
-            android:text="@string/login"/>
+            android:text="@string/login_with_phone"/>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/choose_signup"
+        <TextView
+            android:id="@+id/choose_skip"
             android:layout_width="match_parent"
-            android:layout_height="60dp"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:textColor="@color/colorPrimaryDark"
             android:layout_marginTop="16dp"
-            android:text="@string/signup"/>
+            android:gravity="center"
+            android:text="Skip for now"/>
 
     </LinearLayout>
 
