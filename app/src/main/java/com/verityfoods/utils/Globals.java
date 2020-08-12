@@ -4,6 +4,7 @@ public class Globals {
 
     public static final String CATEGORIES = "categories";
     public static final String PRODUCTS = "products";
+    public static final String SLIDERS = "sliders";
     public static final String CART = "cart";
     public static final String MY_CART = "my_cart";
     public static final String USERS = "users";
@@ -19,4 +20,5 @@ public class Globals {
     public static final int SPLASH_TIMEOUT = 3000;
 
     public static final String ORDER_TOTAL = "order_total";
+    public static int MAX_LIST_SIZE = 10;
 }
