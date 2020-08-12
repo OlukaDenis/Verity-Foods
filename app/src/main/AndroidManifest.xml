@@ -13,9 +13,10 @@
         android:screenOrientation="portrait"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".ui.checkout.CheckoutActivity"></activity>
         <activity
-            android:label=""
-            android:name=".ui.search.SearchActivity">
+            android:name=".ui.search.SearchActivity"
+            android:label="">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />

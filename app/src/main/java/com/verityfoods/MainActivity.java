@@ -20,7 +20,9 @@ import com.verityfoods.utils.Globals;
 import com.verityfoods.utils.Vars;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.navigation.NavController;
+import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
@@ -28,7 +30,9 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements
+        NavigationView.OnNavigationItemSelectedListener,
+        NavController.OnDestinationChangedListener {
     private static final String TAG = "MainActivity";
 
     private AppBarConfiguration mAppBarConfiguration;
@@ -39,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Vars vars;
     private User user;
     private NavigationView navigationView;
+    private String userUid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +69,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
 
+        if (vars.isLoggedIn()) {
+            userUid = vars.verityApp.mAuth.getCurrentUser().getUid();
+        } else {
+            userUid = vars.getShoppingID();
+        }
+
         getCurrentUserDetails();
     }
 
@@ -79,9 +90,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             loggedInDrawer.setVisibility(View.VISIBLE);
             notLoggedInDrawer.setVisibility(View.GONE);
 
-            String userID = vars.verityApp.mAuth.getCurrentUser().getUid();
             vars.verityApp.db.collection(Globals.USERS)
-                    .document(userID)
+                    .document(userUid)
                     .get()
                     .addOnSuccessListener(documentSnapshot -> {
                         if (documentSnapshot.exists()) {
@@ -106,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void getCartCount() {
         badgeDrawable = bottomNav.getBadge(R.id.navigation_cart);
         vars.verityApp.db.collection(Globals.CART)
-                .document(vars.getShoppingID())
+                .document(userUid)
                 .collection(Globals.MY_CART)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -122,6 +132,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     vars.verityApp.crashlytics.recordException(e);
                     Log.e(TAG, "Error while getting cart count: ",e );
                 });
+    }
+
+
+    @Override
+    public void onDestinationChanged(@NonNull NavController controller, @NonNull NavDestination destination, @Nullable Bundle arguments) {
+        if(destination.getId()== R.id.nav_logout) {
+            bottomNav.setVisibility(View.GONE);
+        } else {
+            bottomNav.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override

@@ -16,28 +16,32 @@
 
 
         <LinearLayout
-            android:id="@+id/linearLayout"
+            android:id="@+id/search_linearLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="45dp"
             android:background="@drawable/search_background"
             android:orientation="horizontal"
-            android:padding="10dp"
             android:weightSum="10"
+            android:gravity="center"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
                 android:layout_width="30dp"
-                android:layout_height="match_parent"
+                android:layout_height="30dp"
+               android:layout_marginStart="8dp"
                 android:tint="@android:color/darker_gray"
                 app:srcCompat="@drawable/ic_search" />
 
-            <EditText
+            <TextView
+                android:id="@+id/search_here"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginStart="8dp"
-                android:background="@android:color/transparent"
+                android:paddingTop="10dp"
+                android:gravity="center_vertical"
+                android:paddingBottom="10dp"
                 android:hint="@string/search_here" />
 
         </LinearLayout>

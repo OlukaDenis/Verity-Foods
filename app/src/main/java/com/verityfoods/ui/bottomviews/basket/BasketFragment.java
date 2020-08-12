@@ -1,6 +1,7 @@
 package com.verityfoods.ui.bottomviews.basket;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -32,6 +33,8 @@ import com.verityfoods.R;
 import com.verityfoods.data.model.Cart;
 import com.verityfoods.data.model.Category;
 import com.verityfoods.data.model.Product;
+import com.verityfoods.ui.auth.AuthChooser;
+import com.verityfoods.ui.checkout.CheckoutActivity;
 import com.verityfoods.utils.AppUtils;
 import com.verityfoods.utils.Globals;
 import com.verityfoods.utils.Vars;
@@ -99,23 +102,24 @@ public class BasketFragment extends Fragment {
         cartRecycler = root.findViewById(R.id.cart_recycler);
         cartRecycler.setLayoutManager(layoutManager);
 
+        checkoutBtn.setOnClickListener(view -> proceedToCheckout());
+
         getCartItemsCount();
         getTotalSum();
         return root;
     }
 
-//    private void proceedToCheckout() {
-//        if (vars.isLoggedIn()) {
-//            Intent checkoutIntent = new Intent(getApplicationContext(), DeliveryMethodActivity.class);
-//            checkoutIntent.putExtra(Globals.order_total, total);
-//            startActivity(checkoutIntent);
-//        }else {
-//            startActivity(new Intent(getApplicationContext(), LoginActivity.class));
-//            overridePendingTransition(R.anim.teheca_slide_in_right, R.anim.teheca_slide_out_left);
-//            Toasty.warning(getApplicationContext(), getString(R.string.singn_in_to_continue), Toast.LENGTH_LONG).show();
-//
-//        }
-//    }
+    private void proceedToCheckout() {
+        if (vars.isLoggedIn()) {
+            Intent checkoutIntent = new Intent(requireActivity(), CheckoutActivity.class);
+            checkoutIntent.putExtra(Globals.ORDER_TOTAL, total);
+            startActivity(checkoutIntent);
+        }else {
+            startActivity(new Intent(requireActivity(), AuthChooser.class));
+            Toast.makeText(requireActivity(), "You need to login to continue", Toast.LENGTH_SHORT).show();
+
+        }
+    }
 
     public void getCartItemsCount() {
         vars.verityApp.db.collection(Globals.CART)

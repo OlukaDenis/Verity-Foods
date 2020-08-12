@@ -17,4 +17,6 @@ public class Globals {
 
     public static int CART_COUNT = 0;
     public static final int SPLASH_TIMEOUT = 3000;
+
+    public static final String ORDER_TOTAL = "order_total";
 }
