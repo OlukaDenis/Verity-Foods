@@ -59,7 +59,7 @@ public class CheckoutActivity extends AppCompatActivity {
 
         Toolbar toolbar = findViewById(R.id.checkout_toolbar);
         setSupportActionBar(toolbar);
-        toolbar.setTitle("");
+        toolbar.setTitle("Checkout");
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
         ButterKnife.bind(this);
