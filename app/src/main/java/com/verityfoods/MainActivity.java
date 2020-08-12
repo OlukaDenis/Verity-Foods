@@ -90,6 +90,7 @@ public class MainActivity extends AppCompatActivity implements
             loggedInDrawer.setVisibility(View.VISIBLE);
             notLoggedInDrawer.setVisibility(View.GONE);
 
+
             vars.verityApp.db.collection(Globals.USERS)
                     .document(userUid)
                     .get()

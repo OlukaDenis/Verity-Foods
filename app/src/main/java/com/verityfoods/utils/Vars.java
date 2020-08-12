@@ -1,13 +1,10 @@
 package com.verityfoods.utils;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.verityfoods.R;
 import com.verityfoods.VerityApp;
-import com.verityfoods.ui.auth.AuthChooser;
+import com.verityfoods.data.model.User;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -39,6 +36,7 @@ public class Vars {
     public boolean isLoggedIn() {
         return verityApp.mAuth.getCurrentUser() != null;
     }
+
 
     public void getFirebaseToken() {
 
