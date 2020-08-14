@@ -15,6 +15,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.navigation.NavigationView;
 import com.verityfoods.data.model.User;
 import com.verityfoods.ui.auth.AuthChooser;
+import com.verityfoods.ui.auth.SignupActivity;
 import com.verityfoods.ui.search.SearchActivity;
 import com.verityfoods.utils.Globals;
 import com.verityfoods.utils.Vars;
@@ -71,8 +72,6 @@ public class MainActivity extends AppCompatActivity implements
 
         if (vars.isLoggedIn()) {
             userUid = vars.verityApp.mAuth.getCurrentUser().getUid();
-        } else {
-            userUid = vars.getShoppingID();
         }
 
         getCurrentUserDetails();
@@ -108,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements
             loggedInDrawer.setVisibility(View.GONE);
             notLoggedInDrawer.setVisibility(View.VISIBLE);
             loginNow.setOnClickListener(view -> {
-                startActivity(new Intent(getApplicationContext(), AuthChooser.class));
+                startActivity(new Intent(getApplicationContext(), SignupActivity.class));
                 finish();
             });
         }
@@ -117,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements
     public void getCartCount() {
         badgeDrawable = bottomNav.getBadge(R.id.navigation_cart);
         vars.verityApp.db.collection(Globals.CART)
-                .document(userUid)
+                .document(vars.getShoppingID())
                 .collection(Globals.MY_CART)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {

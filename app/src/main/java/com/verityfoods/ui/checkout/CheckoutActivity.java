@@ -1,9 +1,12 @@
 package com.verityfoods.ui.checkout;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.os.Bundle;
+import android.view.MenuItem;
+import android.widget.CompoundButton;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
@@ -18,7 +21,7 @@ import java.util.Objects;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class CheckoutActivity extends AppCompatActivity {
+public class CheckoutActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener  {
     private static final String TAG = "CheckoutActivity";
     private TextView totalSum;
     private TextView changeAddress;
@@ -46,8 +49,12 @@ public class CheckoutActivity extends AppCompatActivity {
     @BindView(R.id.text_phone)
     TextView userPhone;
 
-    private RadioButton standardShipping;
-    private RadioButton pickupStation;
+    @BindView( R.id.standard_shipping)
+    RadioButton standardShipping;
+
+    @BindView(R.id.pickup_station)
+    RadioButton pickupStation;
+
     private String deliveryMethod = "";
 
     private String userUid;
@@ -59,8 +66,8 @@ public class CheckoutActivity extends AppCompatActivity {
 
         Toolbar toolbar = findViewById(R.id.checkout_toolbar);
         setSupportActionBar(toolbar);
-        toolbar.setTitle("Checkout");
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        this.getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_baseline_close_24);
 
         ButterKnife.bind(this);
         vars = new Vars(this);
@@ -69,6 +76,9 @@ public class CheckoutActivity extends AppCompatActivity {
         total = Objects.requireNonNull(getIntent().getExtras()).getInt(Globals.ORDER_TOTAL);
         totalSum = findViewById(R.id.total_order_summary);
         totalSum.setText(AppUtils.formatCurrency(total));
+
+        standardShipping.setOnCheckedChangeListener(this);
+        pickupStation.setOnCheckedChangeListener(this);
 
         populateUserDetails();
         updateTotals(shipping);
@@ -97,5 +107,44 @@ public class CheckoutActivity extends AppCompatActivity {
         shippingTotal.setText(AppUtils.formatCurrency(shippingFee));
         textSubTotal.setText(AppUtils.formatCurrency(total));
         totalSum.setText(AppUtils.formatCurrency(grandTotal));
+    }
+
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+        if (isChecked) {
+            if (buttonView.getId() == R.id.standard_shipping){
+                pickupStation.setChecked(false);
+                updateDeliveryMethod(standardShipping.getText().toString());
+                updateTotals(2000);
+            }
+
+            if (buttonView.getId() == R.id.pickup_station) {
+                standardShipping.setChecked(false);
+                updateDeliveryMethod(pickupStation.getText().toString());
+                updateTotals(0);
+            }
+        }
+
+    }
+
+    public void updateDeliveryMethod(String selected) {
+        if (selected.isEmpty()) {
+            deliveryMethod = null;
+        } else {
+            deliveryMethod = selected;
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == android.R.id.home) {
+            finish();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }

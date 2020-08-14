@@ -11,3 +11,5 @@ u
 Eapp/src/main/java/com/verityfoods/viewholders/CategoryViewHolder.java,8/e/8e6d026f811fadd85e4eb18ddcf5ac906fd429a5
 t
 Dapp/src/main/java/com/verityfoods/viewholders/ProductViewHolder.java,e/e/eefc81edb829ed3ecd38503c14f7a2afc7c12a9a
+s
+Capp/src/main/java/com/verityfoods/ui/checkout/CheckoutActivity.java,3/5/351c5de38c00053b6dfaf5439b5dc4b4739dbb7d

@@ -34,6 +34,7 @@ import com.verityfoods.data.model.Cart;
 import com.verityfoods.data.model.Category;
 import com.verityfoods.data.model.Product;
 import com.verityfoods.ui.auth.AuthChooser;
+import com.verityfoods.ui.auth.SignupActivity;
 import com.verityfoods.ui.checkout.CheckoutActivity;
 import com.verityfoods.utils.AppUtils;
 import com.verityfoods.utils.Globals;
@@ -94,8 +95,6 @@ public class BasketFragment extends Fragment {
 
         if (vars.isLoggedIn()) {
             userUid = vars.verityApp.mAuth.getCurrentUser().getUid();
-        } else {
-            userUid = vars.getShoppingID();
         }
 
         layoutManager = new LinearLayoutManager(requireActivity());
@@ -115,7 +114,7 @@ public class BasketFragment extends Fragment {
             checkoutIntent.putExtra(Globals.ORDER_TOTAL, total);
             startActivity(checkoutIntent);
         }else {
-            startActivity(new Intent(requireActivity(), AuthChooser.class));
+            startActivity(new Intent(requireActivity(), SignupActivity.class));
             Toast.makeText(requireActivity(), "You need to login to continue", Toast.LENGTH_SHORT).show();
 
         }
@@ -123,7 +122,7 @@ public class BasketFragment extends Fragment {
 
     public void getCartItemsCount() {
         vars.verityApp.db.collection(Globals.CART)
-                .document(userUid)
+                .document(vars.getShoppingID())
                 .collection(Globals.MY_CART)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -151,7 +150,7 @@ public class BasketFragment extends Fragment {
 
     public void updateCartCount() {
         vars.verityApp.db.collection(Globals.CART)
-                .document(userUid)
+                .document(vars.getShoppingID())
                 .collection(Globals.MY_CART)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -169,7 +168,7 @@ public class BasketFragment extends Fragment {
         Log.d(TAG, "newvalue: "+newValue);
             totalLoading.setVisibility(View.VISIBLE);
             totalCartSum.setVisibility(View.GONE);
-            vars.verityApp.db.collection(Globals.CART + "/" + userUid + "/" + Globals.MY_CART)
+            vars.verityApp.db.collection(Globals.CART + "/" + vars.getShoppingID() + "/" + Globals.MY_CART)
                     .whereEqualTo("product_id", model.getProduct_id())
                     .get()
                     .addOnCompleteListener(task -> {
@@ -182,7 +181,7 @@ public class BasketFragment extends Fragment {
                                     mCart.setAmount((price * newValue));
                                     mCart.setQuantity(newValue);
                                     vars.verityApp.db.collection(Globals.CART)
-                                            .document(userUid)
+                                            .document(vars.getShoppingID())
                                             .collection(Globals.MY_CART)
                                             .document(document.getId())
                                             .set(mCart);
@@ -202,7 +201,7 @@ public class BasketFragment extends Fragment {
     public void populateCart() {
 //        mShimmerViewContainer.setVisibility(View.VISIBLE);
         Query cartQuery = vars.verityApp.db.collection(Globals.CART)
-                .document(userUid)
+                .document(vars.getShoppingID())
                 .collection(Globals.MY_CART)
                 .orderBy("category_name");
 
@@ -248,7 +247,7 @@ public class BasketFragment extends Fragment {
                     loading.show();
                     totalLoading.setVisibility(View.VISIBLE);
                     totalCartSum.setVisibility(View.GONE);
-                    vars.verityApp.db.collection(Globals.CART + "/" + userUid + "/" + Globals.MY_CART)
+                    vars.verityApp.db.collection(Globals.CART + "/" + vars.getShoppingID() + "/" + Globals.MY_CART)
                             .whereEqualTo("product_id", cart.getProduct_id())
                             .get()
                             .addOnCompleteListener(task -> {
@@ -257,7 +256,7 @@ public class BasketFragment extends Fragment {
 
                                         for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
                                             vars.verityApp.db.collection(Globals.CART)
-                                                    .document(userUid)
+                                                    .document(vars.getShoppingID())
                                                     .collection(Globals.MY_CART)
                                                     .document(document.getId())
                                                     .delete()
@@ -341,7 +340,7 @@ public class BasketFragment extends Fragment {
 
     public void getTotalSum() {
         vars.verityApp.db.collection(Globals.CART)
-                .document(userUid)
+                .document(vars.getShoppingID())
                 .collection(Globals.MY_CART)
                 .get()
                 .addOnCompleteListener(task -> {

@@ -76,8 +76,6 @@ public class ProductsFragment extends Fragment {
 
         if (vars.isLoggedIn()) {
             userUid = vars.verityApp.mAuth.getCurrentUser().getUid();
-        } else {
-            userUid = vars.getShoppingID();
         }
 
         populateProducts();
@@ -134,7 +132,7 @@ public class ProductsFragment extends Fragment {
 
     public void updateCartCount() {
         vars.verityApp.db.collection(Globals.CART)
-                .document(userUid)
+                .document(vars.getShoppingID())
                 .collection(Globals.MY_CART)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -215,9 +213,9 @@ public class ProductsFragment extends Fragment {
                     );
 
                     vars.verityApp.db.collection(Globals.CART)
-                            .document(userUid)
+                            .document(vars.getShoppingID())
                             .set(cart)
-                            .addOnSuccessListener(aVoid -> checkExistingProduct(userUid, model.getUuid(), cartProduct, quantity));
+                            .addOnSuccessListener(aVoid -> checkExistingProduct(vars.getShoppingID(), model.getUuid(), cartProduct, quantity));
                 });
             }
 
