@@ -13,4 +13,10 @@ public class AppUtils {
 
         return "UGX "+formattedNumber;
     }
+
+    public static String formatOffer(int offer) {
+        String s = String.valueOf(offer);
+
+        return s + "% OFF";
+    }
 }

@@ -4,6 +4,7 @@ import android.graphics.Paint;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -42,6 +43,12 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
     @BindView(R.id.product_price)
     TextView productPrice;
 
+    @BindView(R.id.discount_layout)
+    FrameLayout discountLayout;
+
+    @BindView(R.id.offer_value)
+    TextView offerValue;
+
     public Button addToCart;
 
     public ProductViewHolder(@NonNull View itemView) {
@@ -56,11 +63,26 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void bindProduct(Product product) {
+
+        if (product.isOffer()) {
+            discountLayout.setVisibility(View.VISIBLE);
+            offerValue.setText(AppUtils.formatOffer(product.getOffer_value()));
+
+            double discount = (product.getOffer_value() * product.getSelling_price()) / 100;
+            double actual = product.getSelling_price() - discount;
+            int m = (int) actual;
+
+            productPrice.setText(AppUtils.formatCurrency(m));
+            Log.d(TAG, "Discount: "+discount);
+        } else {
+            discountLayout.setVisibility(View.GONE);
+            productPrice.setText(AppUtils.formatCurrency(product.getSelling_price()));
+        }
         productName.setText(product.getName());
         productBrand.setText(product.getBrand());
         productMRP.setText(AppUtils.formatCurrency(product.getMrp()));
         productMRP.setPaintFlags(productMRP.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-        productPrice.setText(AppUtils.formatCurrency(product.getSelling_price()));
+        Log.d(TAG, "It is an offer: "+product.isOffer());
 
         Picasso.get()
                 .load(product.getImage())

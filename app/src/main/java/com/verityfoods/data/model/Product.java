@@ -10,6 +10,9 @@ public class Product implements Serializable {
     private String brand;
     private int mrp;
     private int selling_price;
+    private boolean offer;
+    private boolean isVariable;
+    private int offer_value;
 
     public Product() {
     }
@@ -68,5 +71,29 @@ public class Product implements Serializable {
 
     public void setSelling_price(int selling_price) {
         this.selling_price = selling_price;
+    }
+
+    public boolean isOffer() {
+        return offer;
+    }
+
+    public void setOffer(boolean offer) {
+        this.offer = offer;
+    }
+
+    public int getOffer_value() {
+        return offer_value;
+    }
+
+    public void setOffer_value(int offer_value) {
+        this.offer_value = offer_value;
+    }
+
+    public boolean isVariable() {
+        return isVariable;
+    }
+
+    public void setVariable(boolean variable) {
+        isVariable = variable;
     }
 }

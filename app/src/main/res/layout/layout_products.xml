@@ -98,6 +98,30 @@
         </LinearLayout>
     </LinearLayout>
 
+    <FrameLayout
+        android:id="@+id/discount_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="8dp">
+
+        <FrameLayout
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@drawable/offer_badge">
+
+            <TextView
+                android:id="@+id/offer_value"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:textAllCaps="true"
+                android:textColor="@color/white"
+                android:text="10% OFF" />
+        </FrameLayout>
+
+    </FrameLayout>
+
     <View
         android:layout_width="match_parent"
         android:layout_height="0.5dp"

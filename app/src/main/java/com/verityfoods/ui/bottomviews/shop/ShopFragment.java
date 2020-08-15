@@ -62,6 +62,10 @@ public class ShopFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         shopViewModel =  ViewModelProviders.of(this).get(ShopViewModel.class);
         View root = inflater.inflate(R.layout.fragment_shop, container, false);
+
+        bottomNav = requireActivity().findViewById(R.id.bottom_navigation);
+        badgeDrawable = bottomNav.getBadge(R.id.navigation_cart);
+
         vars = new Vars(requireActivity());
         loading = new ProgressDialog(requireActivity());
 
@@ -184,8 +188,8 @@ public class ShopFragment extends Fragment {
 
                     int amount = model.getSelling_price() * quantity;
                     Cart cartProduct = new Cart(
-                            category.getUuid(),
-                            category.getName(),
+                            model.getCategory_id(),
+                           model.getName(),
                             model.getUuid(),
                             model.getName(),
                             model.getImage(),
