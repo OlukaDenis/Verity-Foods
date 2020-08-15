@@ -33,6 +33,7 @@ import com.verityfoods.R;
 import com.verityfoods.data.model.Cart;
 import com.verityfoods.data.model.Category;
 import com.verityfoods.data.model.Product;
+import com.verityfoods.utils.AppUtils;
 import com.verityfoods.utils.Globals;
 import com.verityfoods.utils.Vars;
 import com.verityfoods.viewholders.ProductViewHolder;
@@ -53,8 +54,8 @@ public class ShopFragment extends Fragment {
     int quantity;
 
     private NavController navController;
-    BadgeDrawable badgeDrawable;
-    BottomNavigationView bottomNav;
+    private BadgeDrawable badgeDrawable;
+    private BottomNavigationView bottomNav;
 
     private ShopViewModel shopViewModel;
 
@@ -107,7 +108,6 @@ public class ShopFragment extends Fragment {
                                     .addOnSuccessListener(documentReference -> {
                                         Toast.makeText(requireActivity(), "Product added to Cart", Toast.LENGTH_SHORT).show();
                                         updateCartCount();
-//                                        viewModel.cartTotalCount(userId);
                                         loading.dismiss();
                                     })
                                     .addOnFailureListener(e -> {
@@ -166,34 +166,30 @@ public class ShopFragment extends Fragment {
             protected void onBindViewHolder(@NonNull ProductViewHolder holder, int position, @NonNull Product model) {
                 holder.bindProduct(model);
 
-                holder.plusButton.setOnClickListener(view -> {
-                    int p = Integer.parseInt(holder.total.getText().toString());
-                    holder.total.setText(String.valueOf(p += 1));
-                    quantity = Integer.parseInt(holder.total.getText().toString());
-                });
-                holder.minusButton.setOnClickListener(view -> {
-                    int m = Integer.parseInt(holder.total.getText().toString());
-                    if (m > 1) {
-                        holder.total.setText(String.valueOf(m -= 1));
-                        quantity = Integer.parseInt(holder.total.getText().toString());
-                    }
-                });
-
                 holder.addToCart.setOnClickListener(view -> {
-                    Log.d(TAG, "Quantity: "+ quantity);
+                    Log.d(TAG, "Quantity: "+ holder.value);
                     loading.setMessage("Adding to cart ...");
                     loading.show();
                     Map<String, Object> cart = new HashMap<>();
                     cart.put("name", "Cart");
 
-                    int amount = model.getSelling_price() * quantity;
+                    int amount;
+                    if (model.isOffer()) {
+                        double discount = (model.getOffer_value() * model.getSelling_price()) / 100;
+                        double m = model.getSelling_price() - discount;
+                        int actual = (int) m;
+                        amount = actual * holder.value;
+                    } else {
+                        amount = model.getSelling_price() * holder.value;
+                    }
+
                     Cart cartProduct = new Cart(
                             model.getCategory_id(),
-                           model.getName(),
+                            model.getCategory_name(),
                             model.getUuid(),
                             model.getName(),
                             model.getImage(),
-                            quantity,
+                            holder.value,
                             amount
                     );
 

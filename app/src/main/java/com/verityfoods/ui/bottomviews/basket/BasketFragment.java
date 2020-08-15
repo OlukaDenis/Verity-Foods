@@ -202,8 +202,7 @@ public class BasketFragment extends Fragment {
 //        mShimmerViewContainer.setVisibility(View.VISIBLE);
         Query cartQuery = vars.verityApp.db.collection(Globals.CART)
                 .document(vars.getShoppingID())
-                .collection(Globals.MY_CART)
-                .orderBy("category_name");
+                .collection(Globals.MY_CART);
 
         PagedList.Config config = new PagedList.Config.Builder()
                 .setEnablePlaceholders(false)

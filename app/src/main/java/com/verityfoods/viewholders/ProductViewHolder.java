@@ -26,7 +26,7 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
     public TextView plusButton;
     public TextView minusButton;
     public TextView total;
-    private int value = 0;
+    public int value;
 
     @BindView(R.id.prduct_image)
     ImageView productImage;
@@ -64,6 +64,23 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
 
     public void bindProduct(Product product) {
 
+        value = Integer.parseInt(total.getText().toString());
+        plusButton.setOnClickListener(view -> {
+            int p = Integer.parseInt(total.getText().toString());
+            total.setText(String.valueOf(p += 1));
+            value = Integer.parseInt(total.getText().toString());
+            Log.d(TAG, "on Plus: "+value);
+        });
+
+        minusButton.setOnClickListener(view -> {
+            int m = Integer.parseInt(total.getText().toString());
+            if (m > 1) {
+                total.setText(String.valueOf(m -= 1));
+                value = Integer.parseInt(total.getText().toString());
+            }
+            Log.d(TAG, "on Minus: "+value);
+        });
+
         if (product.isOffer()) {
             discountLayout.setVisibility(View.VISIBLE);
             offerValue.setText(AppUtils.formatOffer(product.getOffer_value()));
@@ -71,9 +88,7 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
             double discount = (product.getOffer_value() * product.getSelling_price()) / 100;
             double actual = product.getSelling_price() - discount;
             int m = (int) actual;
-
             productPrice.setText(AppUtils.formatCurrency(m));
-            Log.d(TAG, "Discount: "+discount);
         } else {
             discountLayout.setVisibility(View.GONE);
             productPrice.setText(AppUtils.formatCurrency(product.getSelling_price()));

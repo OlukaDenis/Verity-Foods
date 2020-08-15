@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 public class Product implements Serializable {
     private String category_id;
+    private String category_name;
     private String uuid;
     private String name;
     private String image;
@@ -23,6 +24,14 @@ public class Product implements Serializable {
 
     public void setCategory_id(String category_id) {
         this.category_id = category_id;
+    }
+
+    public String getCategory_name() {
+        return category_name;
+    }
+
+    public void setCategory_name(String category_name) {
+        this.category_name = category_name;
     }
 
     public String getUuid() {
