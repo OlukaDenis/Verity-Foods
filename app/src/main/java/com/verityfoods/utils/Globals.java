@@ -11,7 +11,10 @@ public class Globals {
     public static final String USERS = "users";
     public static final int AUTOCOMPLETE_REQUEST_CODE = 103;
 
-    public static String CATEGORY_OBJ;
+    public static final String CATEGORY_OBJ  = "Category_Object";
+    public static final String SUB_CATEGORY_OBJ = "Sub_category_object";
+    public static String CATEGORY_ID;
+    public static String CATEGORY_NAME;
     public static String CATEGORY_COVER;
     public static final String uniqueIdPrefs = "Verity_Unique_Prefs";
     public static final String uniqueShoppingId = "Unique_Shopping_ID";

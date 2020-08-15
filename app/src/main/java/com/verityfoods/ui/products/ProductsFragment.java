@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.paging.PagedList;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,6 +16,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.firebase.ui.firestore.paging.FirestorePagingAdapter;
@@ -24,6 +26,7 @@ import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.squareup.picasso.Picasso;
 import com.verityfoods.MainActivity;
 import com.verityfoods.R;
 import com.verityfoods.data.model.Cart;
@@ -38,6 +41,9 @@ import com.verityfoods.viewholders.SubCategoryViewHolder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public class ProductsFragment extends Fragment {
     private static final String TAG = "ProductsFragment";
@@ -64,6 +70,8 @@ public class ProductsFragment extends Fragment {
     BottomNavigationView bottomNav;
     private PagedList.Config config;
 
+    private ImageView categoryBanner;
+
     public ProductsFragment() {
         // Required empty public constructor
     }
@@ -72,9 +80,11 @@ public class ProductsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View root =  inflater.inflate(R.layout.fragment_products, container, false);
-
+        ButterKnife.bind(requireActivity());
         bottomNav = requireActivity().findViewById(R.id.bottom_navigation);
         badgeDrawable = bottomNav.getBadge(R.id.navigation_cart);
+
+        navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
 
         vars = new Vars(requireContext());
         loading = new ProgressDialog(requireActivity());
@@ -101,6 +111,13 @@ public class ProductsFragment extends Fragment {
                 .setPrefetchDistance(10)
                 .setPageSize(20)
                 .build();
+
+        categoryBanner = root.findViewById(R.id.category_banner);
+        Picasso.get()
+                .load(category.getImage())
+                .error(R.drawable.ic_baseline_image_24)
+                .placeholder(R.drawable.ic_baseline_image_24)
+                .into(categoryBanner);
 
         populateProducts();
         populateSubCategories();
@@ -187,6 +204,7 @@ public class ProductsFragment extends Fragment {
                 .setQuery(subQuery, config, snapshot -> {
                     subCategory = snapshot.toObject(SubCategory.class);
                     assert subCategory != null;
+                    subCategory.setUuid(snapshot.getId());
                     return subCategory;
                 })
                 .build();
@@ -195,6 +213,14 @@ public class ProductsFragment extends Fragment {
             @Override
             protected void onBindViewHolder(@NonNull SubCategoryViewHolder holder, int position, @NonNull SubCategory model) {
                 holder.bindSubCategory(model);
+
+                holder.itemView.setOnClickListener(view -> {
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable(Globals.SUB_CATEGORY_OBJ, model);
+                    navController.navigate(R.id.navigation_sub_category, bundle);
+                    Globals.CATEGORY_ID = category.getUuid();
+                    Globals.CATEGORY_NAME = category.getName();
+                });
             }
 
             @NonNull
@@ -246,7 +272,7 @@ public class ProductsFragment extends Fragment {
         Log.d(TAG, "populateProducts called");
 
         Query categoryQuery = vars.verityApp.db
-                .collection(Globals.PRODUCTS)
+                .collectionGroup(Globals.PRODUCTS)
                 .whereEqualTo("category_id", category.getUuid())
                 .orderBy("name");
 

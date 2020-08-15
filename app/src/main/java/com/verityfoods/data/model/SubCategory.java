@@ -1,6 +1,9 @@
 package com.verityfoods.data.model;
 
-public class SubCategory {
+import java.io.Serializable;
+
+public class SubCategory implements Serializable {
+    private String uuid;
     private String name;
 
     public SubCategory() {
@@ -8,6 +11,14 @@ public class SubCategory {
 
     public SubCategory(String name) {
         this.name = name;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 
     public String getName() {
