@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.paging.PagedList;
@@ -23,13 +24,16 @@ import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.verityfoods.MainActivity;
 import com.verityfoods.R;
 import com.verityfoods.data.model.Cart;
 import com.verityfoods.data.model.Category;
 import com.verityfoods.data.model.Product;
+import com.verityfoods.data.model.SubCategory;
 import com.verityfoods.utils.Globals;
 import com.verityfoods.utils.Vars;
 import com.verityfoods.viewholders.ProductViewHolder;
+import com.verityfoods.viewholders.SubCategoryViewHolder;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,11 +42,19 @@ import java.util.Objects;
 public class ProductsFragment extends Fragment {
     private static final String TAG = "ProductsFragment";
     private Vars vars;
-    private Product product;
     private RecyclerView productRecycler;
+    private RecyclerView subCategoryRecycler;
+
+    private LinearLayoutManager productsLayoutManager;
+    private LinearLayoutManager subCategoriesLayoutManager;
+
     private FirestorePagingAdapter<Product, ProductViewHolder> adapter;
-    private LinearLayoutManager layoutManager;
+    private FirestorePagingAdapter<SubCategory, SubCategoryViewHolder> subAdapter;
+
+    private SubCategory subCategory;
     private Category category;
+    private Product product;
+
     private ProgressDialog loading;
     int quantity;
     private String userUid;
@@ -50,6 +62,7 @@ public class ProductsFragment extends Fragment {
     private NavController navController;
     BadgeDrawable badgeDrawable;
     BottomNavigationView bottomNav;
+    private PagedList.Config config;
 
     public ProductsFragment() {
         // Required empty public constructor
@@ -69,18 +82,34 @@ public class ProductsFragment extends Fragment {
         Bundle bundle = getArguments();
         assert bundle != null;
         category = (Category) bundle.getSerializable(Globals.CATEGORY_OBJ);
+       getActionBar().setTitle(category.getName());
 
-        layoutManager = new LinearLayoutManager(requireActivity());
+        productsLayoutManager = new LinearLayoutManager(requireActivity());
         productRecycler = root.findViewById(R.id.products_recycler);
-        productRecycler.setLayoutManager(layoutManager);
+        productRecycler.setLayoutManager(productsLayoutManager);
+
+        subCategoriesLayoutManager = new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false);
+        subCategoryRecycler = root.findViewById(R.id.recycler_sub_categories);
+        subCategoryRecycler.setLayoutManager(subCategoriesLayoutManager);
 
         if (vars.isLoggedIn()) {
             userUid = vars.verityApp.mAuth.getCurrentUser().getUid();
         }
 
+        config = new PagedList.Config.Builder()
+                .setEnablePlaceholders(false)
+                .setPrefetchDistance(10)
+                .setPageSize(20)
+                .build();
+
         populateProducts();
+        populateSubCategories();
 
         return root;
+    }
+
+    private ActionBar getActionBar() {
+        return ((MainActivity) requireActivity()).getSupportActionBar();
     }
 
     private void checkExistingProduct(String userId, String productID, Cart cart, int qty) {
@@ -145,26 +174,85 @@ public class ProductsFragment extends Fragment {
                 });
     }
 
+    private void populateSubCategories() {
+
+        Query subQuery = vars.verityApp.db
+                .collection(Globals.CATEGORIES)
+                .document(category.getUuid())
+                .collection(Globals.SUB_CATEGORIES)
+                .orderBy("name");
+
+        FirestorePagingOptions<SubCategory> options = new FirestorePagingOptions.Builder<SubCategory>()
+                .setLifecycleOwner(this)
+                .setQuery(subQuery, config, snapshot -> {
+                    subCategory = snapshot.toObject(SubCategory.class);
+                    assert subCategory != null;
+                    return subCategory;
+                })
+                .build();
+
+        subAdapter = new FirestorePagingAdapter<SubCategory, SubCategoryViewHolder>(options) {
+            @Override
+            protected void onBindViewHolder(@NonNull SubCategoryViewHolder holder, int position, @NonNull SubCategory model) {
+                holder.bindSubCategory(model);
+            }
+
+            @NonNull
+            @Override
+            public SubCategoryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_sub_categories, parent, false);
+                return new SubCategoryViewHolder(view);
+            }
+
+            @Override
+            protected void onError(@NonNull Exception e) {
+                super.onError(e);
+                Toast.makeText(requireActivity(), "Error", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            protected void onLoadingStateChanged(@NonNull LoadingState state) {
+                switch (state) {
+                    case LOADING_INITIAL:
+
+                        break;
+
+                    case LOADING_MORE:
+//                        mShimmerViewContainer.setVisibility(View.VISIBLE);
+                        break;
+
+                    case LOADED:
+//                        mShimmerViewContainer.setVisibility(View.GONE);
+                        notifyDataSetChanged();
+                        break;
+
+                    case ERROR:
+                        Toast.makeText(requireActivity(), "Error", Toast.LENGTH_SHORT).show();
+
+//                        mShimmerViewContainer.setVisibility(View.GONE);
+                        break;
+
+                    case FINISHED:
+//                        mShimmerViewContainer.setVisibility(View.GONE);
+                        break;
+                }
+            }
+        };
+        subCategoryRecycler.setAdapter(subAdapter);
+        subAdapter.notifyDataSetChanged();
+    }
+
     private void populateProducts() {
         Log.d(TAG, "populateProducts called");
 
         Query categoryQuery = vars.verityApp.db
-                .collection(Globals.CATEGORIES)
-                .document(category.getUuid())
                 .collection(Globals.PRODUCTS)
+                .whereEqualTo("category_id", category.getUuid())
                 .orderBy("name");
-
-        PagedList.Config config = new PagedList.Config.Builder()
-                .setEnablePlaceholders(false)
-                .setPrefetchDistance(10)
-                .setPageSize(20)
-                .build();
 
         FirestorePagingOptions<Product> options = new FirestorePagingOptions.Builder<Product>()
                 .setLifecycleOwner(this)
                 .setQuery(categoryQuery, config, snapshot -> {
-                    category = snapshot.toObject(Category.class);
-
                     product = snapshot.toObject(Product.class);
                     assert product != null;
                     product.setUuid(snapshot.getId());

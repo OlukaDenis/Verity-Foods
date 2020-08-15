@@ -3,11 +3,12 @@ package com.verityfoods.data.model;
 import java.io.Serializable;
 
 public class Product implements Serializable {
+    private String category_id;
     private String uuid;
     private String name;
     private String image;
     private String brand;
-    private int mrp_rates;
+    private int mrp;
     private int selling_price;
 
     public Product() {
@@ -45,12 +46,12 @@ public class Product implements Serializable {
         this.brand = brand;
     }
 
-    public int getMrp_rates() {
-        return mrp_rates;
+    public int getMrp() {
+        return mrp;
     }
 
-    public void setMrp_rates(int mrp_rates) {
-        this.mrp_rates = mrp_rates;
+    public void setMrp(int mrp) {
+        this.mrp = mrp;
     }
 
     public int getSelling_price() {

@@ -11,13 +11,10 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.cepheuen.elegantnumberbutton.view.ElegantNumberButton;
 import com.squareup.picasso.Picasso;
 import com.verityfoods.R;
-import com.verityfoods.data.interfaces.CustomItemClickListener;
 import com.verityfoods.data.model.Product;
 import com.verityfoods.utils.AppUtils;
-import com.verityfoods.utils.Globals;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -61,7 +58,7 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
     public void bindProduct(Product product) {
         productName.setText(product.getName());
         productBrand.setText(product.getBrand());
-        productMRP.setText(AppUtils.formatCurrency(product.getMrp_rates()));
+        productMRP.setText(AppUtils.formatCurrency(product.getMrp()));
         productMRP.setPaintFlags(productMRP.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
         productPrice.setText(AppUtils.formatCurrency(product.getSelling_price()));
 
