@@ -13,7 +13,6 @@ public class Vars {
     public Context context;
     public VerityApp verityApp;
     SharedPreferences idSharedPref;
-
     public Vars(Context context) {
         this.context = context;
         verityApp = (VerityApp) context.getApplicationContext();

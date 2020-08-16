@@ -42,7 +42,6 @@ import java.util.Objects;
 public class SubCategoriesFragment extends Fragment {
     private static final String TAG = "SubCategoriesFragment";
     private ProgressDialog loading;
-    int quantity;
 
     private NavController navController;
     BadgeDrawable badgeDrawable;
@@ -127,45 +126,37 @@ public class SubCategoriesFragment extends Fragment {
             protected void onBindViewHolder(@NonNull ProductViewHolder holder, int position, @NonNull Product model) {
                 holder.bindProduct(model);
 
-                String val = holder.total.getText().toString();
-                quantity = Integer.parseInt(val);
-
-                holder.plusButton.setOnClickListener(view -> {
-                    int p = Integer.parseInt(val);
-                    holder.total.setText(String.valueOf(p += 1));
-                    quantity = Integer.parseInt(holder.total.getText().toString());
-                });
-
-                holder.minusButton.setOnClickListener(view -> {
-                    int m = Integer.parseInt(val);
-                    if (m > 1) {
-                        holder.total.setText(String.valueOf(m -= 1));
-                        quantity = Integer.parseInt(holder.total.getText().toString());
-                    }
-                });
+                int amount;
+                if (model.isOffer()) {
+                    double discount = (model.getOffer_value() * model.getSelling_price()) / 100;
+                    double m = model.getSelling_price() - discount;
+                    int actual = (int) m;
+                    amount = actual * holder.value;
+                } else {
+                    amount = model.getSelling_price() * holder.value;
+                }
 
                 holder.addToCart.setOnClickListener(view -> {
-                    Log.d(TAG, "Quantity: "+ quantity);
+                    Log.d(TAG, "Quantity: "+ holder.value);
                     loading.setMessage("Adding to cart ...");
                     loading.show();
                     Map<String, Object> cart = new HashMap<>();
                     cart.put("name", "Cart");
 
-                    int amount = model.getSelling_price() * quantity;
                     Cart cartProduct = new Cart(
                            categoryID,
                             categoryName,
                             model.getUuid(),
                             model.getName(),
                             model.getImage(),
-                            quantity,
+                            holder.value,
                             amount
                     );
 
                     vars.verityApp.db.collection(Globals.CART)
                             .document(vars.getShoppingID())
                             .set(cart)
-                            .addOnSuccessListener(aVoid -> checkExistingProduct(vars.getShoppingID(), model.getUuid(), cartProduct, quantity));
+                            .addOnSuccessListener(aVoid -> checkExistingProduct(vars.getShoppingID(), model.getUuid(), cartProduct, holder.value));
                 });
             }
 
@@ -173,7 +164,7 @@ public class SubCategoriesFragment extends Fragment {
             @Override
             public ProductViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_products, parent, false);
-                return new ProductViewHolder(view);
+                return new ProductViewHolder(view, vars);
             }
 
             @Override
@@ -225,7 +216,17 @@ public class SubCategoriesFragment extends Fragment {
 
                             for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
                                 Cart cartProduct = document.toObject(Cart.class);
-                                cartProduct.setAmount((product.getSelling_price() * qty + cartProduct.getAmount()));
+
+                                if (product.isOffer()) {
+                                    double discount = (product.getOffer_value() * product.getSelling_price()) / 100;
+                                    double m = product.getSelling_price() - discount;
+                                    int actual = (int) m;
+
+                                    cartProduct.setAmount((actual * qty + cartProduct.getAmount()));
+                                } else {
+                                    cartProduct.setAmount((product.getSelling_price() * qty + cartProduct.getAmount()));
+                                }
+
                                 cartProduct.setQuantity(qty + cartProduct.getQuantity());
                                 vars.verityApp.db.collection(Globals.CART)
                                         .document(userId)

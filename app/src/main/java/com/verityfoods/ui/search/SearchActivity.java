@@ -4,51 +4,34 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.SearchManager;
-import android.content.Context;
-import android.content.Intent;
-import android.database.MatrixCursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 
-import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.verityfoods.R;
-import com.verityfoods.data.adapters.SearchAdapter;
-import com.verityfoods.data.adapters.SuggestionsAdapter;
 import com.verityfoods.data.model.Product;
 import com.verityfoods.utils.Globals;
 import com.verityfoods.utils.Vars;
 import com.verityfoods.viewholders.ProductViewHolder;
 
-import org.apache.commons.text.WordUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 public class SearchActivity extends AppCompatActivity {
     private static final String TAG = "SearchActivity";
     private Vars vars;
     private Product product;
-    private SearchAdapter adapter;
     private LinearLayoutManager layoutManager;
     private RecyclerView searchRecycler;
     private FirestoreRecyclerAdapter<Product, ProductViewHolder> searchAdapter;
@@ -123,7 +106,7 @@ public class SearchActivity extends AppCompatActivity {
                 @Override
                 public ProductViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                     View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_products, parent, false);
-                    return new ProductViewHolder(view);
+                    return new ProductViewHolder(view, vars);
                 }
 
                 @Override

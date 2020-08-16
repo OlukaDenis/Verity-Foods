@@ -19,4 +19,10 @@ public class AppUtils {
 
         return s + "% OFF";
     }
+
+    public static String formatVariable(String name, int price) {
+        String amount  = String.valueOf(price);
+
+        return name + " (" + amount + ") ";
+    }
 }

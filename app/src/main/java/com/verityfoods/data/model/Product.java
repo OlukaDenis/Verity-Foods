@@ -5,6 +5,7 @@ import java.io.Serializable;
 public class Product implements Serializable {
     private String category_id;
     private String category_name;
+    private String sub_category_id;
     private String uuid;
     private String name;
     private String image;
@@ -12,7 +13,7 @@ public class Product implements Serializable {
     private int mrp;
     private int selling_price;
     private boolean offer;
-    private boolean isVariable;
+    private boolean simple;
     private int offer_value;
 
     public Product() {
@@ -40,6 +41,14 @@ public class Product implements Serializable {
 
     public void setUuid(String uuid) {
         this.uuid = uuid;
+    }
+
+    public String getSub_category_id() {
+        return sub_category_id;
+    }
+
+    public void setSub_category_id(String sub_category_id) {
+        this.sub_category_id = sub_category_id;
     }
 
     public String getName() {
@@ -98,11 +107,11 @@ public class Product implements Serializable {
         this.offer_value = offer_value;
     }
 
-    public boolean isVariable() {
-        return isVariable;
+    public boolean isSimple() {
+        return simple;
     }
 
-    public void setVariable(boolean variable) {
-        isVariable = variable;
+    public void setSimple(boolean simple) {
+        this.simple = simple;
     }
 }

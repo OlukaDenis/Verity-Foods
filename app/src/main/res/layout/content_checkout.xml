@@ -223,7 +223,7 @@
                     android:id="@+id/nine_to_eleven"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="9am-11am"
+                    android:text="9-11am"
                     android:textSize="12sp"/>
 
                 <CheckBox
@@ -237,14 +237,14 @@
                     android:id="@+id/one_to_three"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="1pm-3pm"
+                    android:text="1-3pm"
                     android:textSize="12sp"/>
 
                 <CheckBox
                     android:id="@+id/three_to_five"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="3pm-5pm"
+                    android:text="3-5pm"
                     android:textSize="12sp"/>
 
             </LinearLayout>

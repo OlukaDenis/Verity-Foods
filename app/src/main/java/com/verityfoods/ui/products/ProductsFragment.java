@@ -338,7 +338,7 @@ public class ProductsFragment extends Fragment {
             @Override
             public ProductViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_products, parent, false);
-                return new ProductViewHolder(view);
+                return new ProductViewHolder(view, vars);
             }
 
             @Override

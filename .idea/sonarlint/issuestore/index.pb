@@ -29,3 +29,11 @@ s
 Capp/src/main/java/com/verityfoods/ui/products/ProductsFragment.java,e/0/e0add3fe71dbdb60c4dfc1a7d5623464c8017943
 w
 Gapp/src/main/java/com/verityfoods/ui/bottomviews/shop/ShopFragment.java,b/9/b9d49f09e7b6150b401c049e84dc2f2399ddf214
+e
+5app/src/main/java/com/verityfoods/utils/AppUtils.java,f/9/f9e058425c9e27a47b8ce35a1cb39c4c8c6ed3de
+f
+6app/src/main/java/com/verityfoods/data/model/Cart.java,6/a/6ad72a595a45b97df8971574f43f443b206e642e
+{
+Kapp/src/main/java/com/verityfoods/ui/bottomviews/offers/OffersFragment.java,e/2/e2fa6fba45732a005806bd9ab05823176cd8e20f
+{
+Kapp/src/main/java/com/verityfoods/ui/bottomviews/basket/BasketFragment.java,9/d/9d895fce36589c21f204fc2f8d48ffba73acd3da

@@ -177,7 +177,9 @@ public class BasketFragment extends Fragment {
 
                                 for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
                                     Cart mCart = document.toObject(Cart.class);
+
                                     int price = mCart.getAmount() / mCart.getQuantity();
+
                                     mCart.setAmount((price * newValue));
                                     mCart.setQuantity(newValue);
                                     vars.verityApp.db.collection(Globals.CART)
