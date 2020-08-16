@@ -51,7 +51,6 @@ public class ShopFragment extends Fragment {
     private LinearLayoutManager layoutManager;
     private Category category;
     private ProgressDialog loading;
-    int quantity;
 
     private NavController navController;
     private BadgeDrawable badgeDrawable;
@@ -89,7 +88,17 @@ public class ShopFragment extends Fragment {
 
                             for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
                                 Cart cartProduct = document.toObject(Cart.class);
-                                cartProduct.setAmount((product.getSelling_price() * qty + cartProduct.getAmount()));
+
+                                if (product.isOffer()) {
+                                    double discount = (product.getOffer_value() * product.getSelling_price()) / 100;
+                                    double m = product.getSelling_price() - discount;
+                                    int actual = (int) m;
+
+                                    cartProduct.setAmount((actual * qty + cartProduct.getAmount()));
+                                } else {
+                                    cartProduct.setAmount((product.getSelling_price() * qty + cartProduct.getAmount()));
+                                }
+
                                 cartProduct.setQuantity(qty + cartProduct.getQuantity());
                                 vars.verityApp.db.collection(Globals.CART)
                                         .document(userId)
@@ -196,7 +205,7 @@ public class ShopFragment extends Fragment {
                     vars.verityApp.db.collection(Globals.CART)
                             .document(vars.getShoppingID())
                             .set(cart)
-                            .addOnSuccessListener(aVoid -> checkExistingProduct(vars.getShoppingID(), model.getUuid(), cartProduct, quantity));
+                            .addOnSuccessListener(aVoid -> checkExistingProduct(vars.getShoppingID(), model.getUuid(), cartProduct, holder.value));
                 });
             }
 
