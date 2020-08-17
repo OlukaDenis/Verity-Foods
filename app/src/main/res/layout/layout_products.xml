@@ -48,6 +48,7 @@
             <Spinner
                 android:id="@+id/product_variable"
                 android:layout_width="150dp"
+                android:visibility="gone"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"/>
 

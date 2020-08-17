@@ -158,27 +158,27 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
                 .placeholder(R.drawable.ic_baseline_image_24)
                 .into(productImage);
 
-        if (!product.isSimple()) {
-            variableArray = new String[variableList.size()];
-            variableArray = variableList.toArray(variableArray);
-
-            productVariable.setVisibility(View.VISIBLE);
-            variableAdapter = new ArrayAdapter<>(vars.context.getApplicationContext(), android.R.layout.simple_spinner_item, variableArray);
-            variableAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            productVariable.setAdapter(variableAdapter);
-            productVariable.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                    Toast.makeText(vars.context.getApplicationContext(), variableList.get(i), Toast.LENGTH_SHORT).show();
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> adapterView) {
-                    Toast.makeText(vars.context.getApplicationContext(), "Nothing", Toast.LENGTH_SHORT).show();
-                }
-            });
-        } else {
-            productVariable.setVisibility(View.GONE);
-        }
+//        if (!product.isSimple()) {
+//            variableArray = new String[variableList.size()];
+//            variableArray = variableList.toArray(variableArray);
+//
+//            productVariable.setVisibility(View.VISIBLE);
+//            variableAdapter = new ArrayAdapter<>(vars.context.getApplicationContext(), android.R.layout.simple_spinner_item, variableArray);
+//            variableAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//            productVariable.setAdapter(variableAdapter);
+//            productVariable.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//                @Override
+//                public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+//                    Toast.makeText(vars.context.getApplicationContext(), variableList.get(i), Toast.LENGTH_SHORT).show();
+//                }
+//
+//                @Override
+//                public void onNothingSelected(AdapterView<?> adapterView) {
+//                    Toast.makeText(vars.context.getApplicationContext(), "Nothing", Toast.LENGTH_SHORT).show();
+//                }
+//            });
+//        } else {
+//            productVariable.setVisibility(View.GONE);
+//        }
     }
 }
