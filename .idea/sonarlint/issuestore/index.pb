@@ -37,3 +37,7 @@ f
 Kapp/src/main/java/com/verityfoods/ui/bottomviews/offers/OffersFragment.java,e/2/e2fa6fba45732a005806bd9ab05823176cd8e20f
 {
 Kapp/src/main/java/com/verityfoods/ui/bottomviews/basket/BasketFragment.java,9/d/9d895fce36589c21f204fc2f8d48ffba73acd3da
+a
+1app/src/main/java/com/verityfoods/utils/Vars.java,2/a/2a40cad85160641a4a3f8dea535e7f591795560d
+g
+7app/src/main/java/com/verityfoods/data/model/Order.java,8/4/84623bd89fe4c2e897ecf188c2eb0ff78ca5bd89

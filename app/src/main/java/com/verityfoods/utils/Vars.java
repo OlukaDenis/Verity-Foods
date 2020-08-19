@@ -2,6 +2,7 @@ package com.verityfoods.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.text.TextUtils;
 
 import com.verityfoods.VerityApp;
 import com.verityfoods.data.model.User;
@@ -13,10 +14,13 @@ public class Vars {
     public Context context;
     public VerityApp verityApp;
     SharedPreferences idSharedPref;
+    public User user;
+
     public Vars(Context context) {
         this.context = context;
         verityApp = (VerityApp) context.getApplicationContext();
         idSharedPref = context.getSharedPreferences(Globals.uniqueIdPrefs, Context.MODE_PRIVATE);
+        user = new User();
     }
 
     public void generateUserShoppingID() {
@@ -54,5 +58,13 @@ public class Vars {
                     }
                 });
 
+    }
+
+    public boolean isValidEmail(CharSequence target) {
+        if (TextUtils.isEmpty(target)) {
+            return true;
+        } else {
+            return !android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();
+        }
     }
 }

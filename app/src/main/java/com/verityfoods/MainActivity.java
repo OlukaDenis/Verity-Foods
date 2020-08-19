@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -13,6 +14,7 @@ import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.navigation.NavigationView;
+import com.squareup.picasso.Picasso;
 import com.verityfoods.data.model.User;
 import com.verityfoods.ui.auth.AuthChooser;
 import com.verityfoods.ui.auth.SignupActivity;
@@ -85,11 +87,11 @@ public class MainActivity extends AppCompatActivity implements
         MaterialButton loginNow = headerView.findViewById(R.id.login_now);
         TextView currentUserName = headerView.findViewById(R.id.current_user_name);
         TextView currentUserAddress = headerView.findViewById(R.id.current_user_address);
+        ImageView currentUserImage = headerView.findViewById(R.id.user_pic);
 
         if (vars.isLoggedIn()) {
             loggedInDrawer.setVisibility(View.VISIBLE);
             notLoggedInDrawer.setVisibility(View.GONE);
-
 
             vars.verityApp.db.collection(Globals.USERS)
                     .document(userUid)
@@ -100,6 +102,17 @@ public class MainActivity extends AppCompatActivity implements
                             if (user != null) {
                                 currentUserAddress.setText(user.getAddress());
                                 currentUserName.setText(user.getName());
+
+                                if (!user.getImage().isEmpty() || user.getImage() != null) {
+                                    Picasso.get()
+                                            .load(user.getImage())
+                                            .placeholder(R.drawable.avatar)
+                                            .error(R.drawable.avatar)
+                                            .into(currentUserImage);
+                                } else {
+
+                                    currentUserImage.setBackgroundResource(R.drawable.avatar);
+                                }
                             }
                         }
                     });

@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -66,6 +67,15 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
     @BindView(R.id.offer_value)
     TextView offerValue;
 
+    @BindView(R.id.product_pack)
+    TextView productPack;
+
+    @BindView(R.id.not_in_stock_layout)
+    RelativeLayout notInStock;
+
+    @BindView(R.id.prd_lower_layout)
+    RelativeLayout lowerLayout;
+
     @BindView(R.id.product_variable)
     Spinner productVariable;
 
@@ -88,30 +98,32 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
     }
 
     private void getProductVariables(Product product) {
-        Query query =   vars.verityApp.db
-                .collection(Globals.CATEGORIES)
-                .document(product.getCategory_id())
-                .collection(Globals.SUB_CATEGORIES)
-                .document(product.getSub_category_id())
-                .collection(Globals.PRODUCTS)
-                .document(product.getUuid())
-                .collection(Globals.VARIABLE);
+        if (product.getUuid() != null) {
+            Query query = vars.verityApp.db
+                    .collection(Globals.CATEGORIES)
+                    .document(product.getCategory_id())
+                    .collection(Globals.SUB_CATEGORIES)
+                    .document(product.getSub_category_id())
+                    .collection(Globals.PRODUCTS)
+                    .document(product.getUuid())
+                    .collection(Globals.VARIABLE);
 
-        query.get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        for (QueryDocumentSnapshot snapshot :  Objects.requireNonNull(task.getResult())) {
-                            variable = snapshot.toObject(Variable.class);
-                            String m = AppUtils.formatVariable(variable.getQty(), variable.getPrice());
-                            Log.d(TAG, "getProductVariables: "+m);
-                            variableList.add(m);
+            query.get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot snapshot : Objects.requireNonNull(task.getResult())) {
+                                variable = snapshot.toObject(Variable.class);
+                                String m = AppUtils.formatVariable(variable.getQty(), variable.getPrice());
+                                Log.d(TAG, "getProductVariables: " + m);
+                                variableList.add(m);
+                            }
                         }
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "bindProduct: ",e );
-                    vars.verityApp.crashlytics.recordException(e);
-                });
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e(TAG, "bindProduct: ", e);
+                        vars.verityApp.crashlytics.recordException(e);
+                    });
+        }
     }
 
     public void bindProduct(Product product) {
@@ -146,6 +158,17 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
             discountLayout.setVisibility(View.GONE);
             productPrice.setText(AppUtils.formatCurrency(product.getSelling_price()));
         }
+
+        if (!product.isStock()) {
+            notInStock.setVisibility(View.VISIBLE);
+            lowerLayout.setVisibility(View.GONE);
+            discountLayout.setVisibility(View.GONE);
+        } else {
+            notInStock.setVisibility(View.GONE);
+            lowerLayout.setVisibility(View.VISIBLE);
+        }
+
+        productPack.setText(product.getPack());
         productName.setText(product.getName());
         productBrand.setText(product.getBrand());
         productMRP.setText(AppUtils.formatCurrency(product.getMrp()));
@@ -158,7 +181,9 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
                 .placeholder(R.drawable.ic_baseline_image_24)
                 .into(productImage);
 
-//        if (!product.isSimple()) {
+        if (product.isSimple()) {
+
+        }
 //            variableArray = new String[variableList.size()];
 //            variableArray = variableList.toArray(variableArray);
 //
