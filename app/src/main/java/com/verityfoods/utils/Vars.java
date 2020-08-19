@@ -1,13 +1,11 @@
 package com.verityfoods.utils;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
+import android.text.TextUtils;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.verityfoods.R;
 import com.verityfoods.VerityApp;
-import com.verityfoods.ui.auth.AuthChooser;
+import com.verityfoods.data.model.User;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -16,11 +14,13 @@ public class Vars {
     public Context context;
     public VerityApp verityApp;
     SharedPreferences idSharedPref;
+    public User user;
 
     public Vars(Context context) {
         this.context = context;
         verityApp = (VerityApp) context.getApplicationContext();
         idSharedPref = context.getSharedPreferences(Globals.uniqueIdPrefs, Context.MODE_PRIVATE);
+        user = new User();
     }
 
     public void generateUserShoppingID() {
@@ -40,6 +40,7 @@ public class Vars {
         return verityApp.mAuth.getCurrentUser() != null;
     }
 
+
     public void getFirebaseToken() {
 
         if (!isLoggedIn()) return;
@@ -57,5 +58,13 @@ public class Vars {
                     }
                 });
 
+    }
+
+    public boolean isValidEmail(CharSequence target) {
+        if (TextUtils.isEmpty(target)) {
+            return true;
+        } else {
+            return !android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();
+        }
     }
 }

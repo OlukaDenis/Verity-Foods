@@ -278,5 +278,6 @@ public class HomeFragment extends Fragment {
     public void onPause() {
         super.onPause();
         stopAutoScrollBanner();
+        MAX_LIST_SIZE = 10;
     }
 }

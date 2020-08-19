@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.verityfoods.MainActivity;
 import com.verityfoods.R;
 import com.verityfoods.ui.auth.AuthChooser;
 import com.verityfoods.utils.Vars;
@@ -39,7 +40,7 @@ public class LogoutFragment extends Fragment {
                     .setPositiveButton(R.string.logout, (dialog, which) -> {
                             vars.verityApp.mAuth.signOut();
                             vars.verityApp.mAuth.signInAnonymously();
-                            Intent i = new Intent(requireActivity(), AuthChooser.class);
+                            Intent i = new Intent(requireActivity(), MainActivity.class);
                             requireActivity().startActivity(i);
                     })
                     .setNegativeButton(R.string.cancel, (dialog, which) -> {

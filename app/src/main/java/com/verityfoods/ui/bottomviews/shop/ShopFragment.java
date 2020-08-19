@@ -33,6 +33,7 @@ import com.verityfoods.R;
 import com.verityfoods.data.model.Cart;
 import com.verityfoods.data.model.Category;
 import com.verityfoods.data.model.Product;
+import com.verityfoods.utils.AppUtils;
 import com.verityfoods.utils.Globals;
 import com.verityfoods.utils.Vars;
 import com.verityfoods.viewholders.ProductViewHolder;
@@ -50,11 +51,10 @@ public class ShopFragment extends Fragment {
     private LinearLayoutManager layoutManager;
     private Category category;
     private ProgressDialog loading;
-    int quantity;
 
     private NavController navController;
-    BadgeDrawable badgeDrawable;
-    BottomNavigationView bottomNav;
+    private BadgeDrawable badgeDrawable;
+    private BottomNavigationView bottomNav;
 
     private ShopViewModel shopViewModel;
 
@@ -62,6 +62,10 @@ public class ShopFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         shopViewModel =  ViewModelProviders.of(this).get(ShopViewModel.class);
         View root = inflater.inflate(R.layout.fragment_shop, container, false);
+
+        bottomNav = requireActivity().findViewById(R.id.bottom_navigation);
+        badgeDrawable = bottomNav.getBadge(R.id.navigation_cart);
+
         vars = new Vars(requireActivity());
         loading = new ProgressDialog(requireActivity());
 
@@ -84,7 +88,17 @@ public class ShopFragment extends Fragment {
 
                             for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
                                 Cart cartProduct = document.toObject(Cart.class);
-                                cartProduct.setAmount((product.getSelling_price() * qty + cartProduct.getAmount()));
+
+                                if (product.isOffer()) {
+                                    double discount = (product.getOffer_value() * product.getSelling_price()) / 100;
+                                    double m = product.getSelling_price() - discount;
+                                    int actual = (int) m;
+
+                                    cartProduct.setAmount((actual * qty + cartProduct.getAmount()));
+                                } else {
+                                    cartProduct.setAmount((product.getSelling_price() * qty + cartProduct.getAmount()));
+                                }
+
                                 cartProduct.setQuantity(qty + cartProduct.getQuantity());
                                 vars.verityApp.db.collection(Globals.CART)
                                         .document(userId)
@@ -103,7 +117,6 @@ public class ShopFragment extends Fragment {
                                     .addOnSuccessListener(documentReference -> {
                                         Toast.makeText(requireActivity(), "Product added to Cart", Toast.LENGTH_SHORT).show();
                                         updateCartCount();
-//                                        viewModel.cartTotalCount(userId);
                                         loading.dismiss();
                                     })
                                     .addOnFailureListener(e -> {
@@ -162,41 +175,37 @@ public class ShopFragment extends Fragment {
             protected void onBindViewHolder(@NonNull ProductViewHolder holder, int position, @NonNull Product model) {
                 holder.bindProduct(model);
 
-                holder.plusButton.setOnClickListener(view -> {
-                    int p = Integer.parseInt(holder.total.getText().toString());
-                    holder.total.setText(String.valueOf(p += 1));
-                    quantity = Integer.parseInt(holder.total.getText().toString());
-                });
-                holder.minusButton.setOnClickListener(view -> {
-                    int m = Integer.parseInt(holder.total.getText().toString());
-                    if (m > 1) {
-                        holder.total.setText(String.valueOf(m -= 1));
-                        quantity = Integer.parseInt(holder.total.getText().toString());
-                    }
-                });
-
                 holder.addToCart.setOnClickListener(view -> {
-                    Log.d(TAG, "Quantity: "+ quantity);
+                    Log.d(TAG, "Quantity: "+ holder.value);
                     loading.setMessage("Adding to cart ...");
                     loading.show();
                     Map<String, Object> cart = new HashMap<>();
                     cart.put("name", "Cart");
 
-                    int amount = model.getSelling_price() * quantity;
+                    int amount;
+                    if (model.isOffer()) {
+                        double discount = (model.getOffer_value() * model.getSelling_price()) / 100;
+                        double m = model.getSelling_price() - discount;
+                        int actual = (int) m;
+                        amount = actual * holder.value;
+                    } else {
+                        amount = model.getSelling_price() * holder.value;
+                    }
+
                     Cart cartProduct = new Cart(
-                            category.getUuid(),
-                            category.getName(),
+                            model.getCategory_id(),
+                            model.getCategory_name(),
                             model.getUuid(),
                             model.getName(),
                             model.getImage(),
-                            quantity,
+                            holder.value,
                             amount
                     );
 
                     vars.verityApp.db.collection(Globals.CART)
                             .document(vars.getShoppingID())
                             .set(cart)
-                            .addOnSuccessListener(aVoid -> checkExistingProduct(vars.getShoppingID(), model.getUuid(), cartProduct, quantity));
+                            .addOnSuccessListener(aVoid -> checkExistingProduct(vars.getShoppingID(), model.getUuid(), cartProduct, holder.value));
                 });
             }
 
@@ -204,7 +213,7 @@ public class ShopFragment extends Fragment {
             @Override
             public ProductViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_products, parent, false);
-                return new ProductViewHolder(view);
+                return new ProductViewHolder(view, vars);
             }
 
             @Override

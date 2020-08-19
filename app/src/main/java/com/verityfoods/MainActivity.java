@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -13,14 +14,17 @@ import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.navigation.NavigationView;
+import com.squareup.picasso.Picasso;
 import com.verityfoods.data.model.User;
 import com.verityfoods.ui.auth.AuthChooser;
+import com.verityfoods.ui.auth.SignupActivity;
 import com.verityfoods.ui.search.SearchActivity;
 import com.verityfoods.utils.Globals;
 import com.verityfoods.utils.Vars;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
@@ -71,8 +75,6 @@ public class MainActivity extends AppCompatActivity implements
 
         if (vars.isLoggedIn()) {
             userUid = vars.verityApp.mAuth.getCurrentUser().getUid();
-        } else {
-            userUid = vars.getShoppingID();
         }
 
         getCurrentUserDetails();
@@ -85,6 +87,7 @@ public class MainActivity extends AppCompatActivity implements
         MaterialButton loginNow = headerView.findViewById(R.id.login_now);
         TextView currentUserName = headerView.findViewById(R.id.current_user_name);
         TextView currentUserAddress = headerView.findViewById(R.id.current_user_address);
+        ImageView currentUserImage = headerView.findViewById(R.id.user_pic);
 
         if (vars.isLoggedIn()) {
             loggedInDrawer.setVisibility(View.VISIBLE);
@@ -99,6 +102,17 @@ public class MainActivity extends AppCompatActivity implements
                             if (user != null) {
                                 currentUserAddress.setText(user.getAddress());
                                 currentUserName.setText(user.getName());
+
+                                if (!user.getImage().isEmpty() || user.getImage() != null) {
+                                    Picasso.get()
+                                            .load(user.getImage())
+                                            .placeholder(R.drawable.avatar)
+                                            .error(R.drawable.avatar)
+                                            .into(currentUserImage);
+                                } else {
+
+                                    currentUserImage.setBackgroundResource(R.drawable.avatar);
+                                }
                             }
                         }
                     });
@@ -107,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements
             loggedInDrawer.setVisibility(View.GONE);
             notLoggedInDrawer.setVisibility(View.VISIBLE);
             loginNow.setOnClickListener(view -> {
-                startActivity(new Intent(getApplicationContext(), AuthChooser.class));
+                startActivity(new Intent(getApplicationContext(), SignupActivity.class));
                 finish();
             });
         }
@@ -116,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements
     public void getCartCount() {
         badgeDrawable = bottomNav.getBadge(R.id.navigation_cart);
         vars.verityApp.db.collection(Globals.CART)
-                .document(userUid)
+                .document(vars.getShoppingID())
                 .collection(Globals.MY_CART)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {

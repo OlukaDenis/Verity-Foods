@@ -4,8 +4,10 @@ import android.app.ProgressDialog;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.paging.PagedList;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -14,6 +16,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.firebase.ui.firestore.paging.FirestorePagingAdapter;
@@ -23,33 +26,50 @@ import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.squareup.picasso.Picasso;
+import com.verityfoods.MainActivity;
 import com.verityfoods.R;
 import com.verityfoods.data.model.Cart;
 import com.verityfoods.data.model.Category;
 import com.verityfoods.data.model.Product;
+import com.verityfoods.data.model.SubCategory;
 import com.verityfoods.utils.Globals;
 import com.verityfoods.utils.Vars;
 import com.verityfoods.viewholders.ProductViewHolder;
+import com.verityfoods.viewholders.SubCategoryViewHolder;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class ProductsFragment extends Fragment {
     private static final String TAG = "ProductsFragment";
     private Vars vars;
-    private Product product;
     private RecyclerView productRecycler;
+    private RecyclerView subCategoryRecycler;
+
+    private LinearLayoutManager productsLayoutManager;
+    private LinearLayoutManager subCategoriesLayoutManager;
+
     private FirestorePagingAdapter<Product, ProductViewHolder> adapter;
-    private LinearLayoutManager layoutManager;
+    private FirestorePagingAdapter<SubCategory, SubCategoryViewHolder> subAdapter;
+
+    private SubCategory subCategory;
     private Category category;
+    private Product product;
+
     private ProgressDialog loading;
-    int quantity;
     private String userUid;
 
     private NavController navController;
     BadgeDrawable badgeDrawable;
     BottomNavigationView bottomNav;
+    private PagedList.Config config;
+
+    private ImageView categoryBanner;
 
     public ProductsFragment() {
         // Required empty public constructor
@@ -59,9 +79,11 @@ public class ProductsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View root =  inflater.inflate(R.layout.fragment_products, container, false);
-
+        ButterKnife.bind(requireActivity());
         bottomNav = requireActivity().findViewById(R.id.bottom_navigation);
         badgeDrawable = bottomNav.getBadge(R.id.navigation_cart);
+
+        navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
 
         vars = new Vars(requireContext());
         loading = new ProgressDialog(requireActivity());
@@ -69,20 +91,41 @@ public class ProductsFragment extends Fragment {
         Bundle bundle = getArguments();
         assert bundle != null;
         category = (Category) bundle.getSerializable(Globals.CATEGORY_OBJ);
+       getActionBar().setTitle(category.getName());
 
-        layoutManager = new LinearLayoutManager(requireActivity());
+        productsLayoutManager = new LinearLayoutManager(requireActivity());
         productRecycler = root.findViewById(R.id.products_recycler);
-        productRecycler.setLayoutManager(layoutManager);
+        productRecycler.setLayoutManager(productsLayoutManager);
+
+        subCategoriesLayoutManager = new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false);
+        subCategoryRecycler = root.findViewById(R.id.recycler_sub_categories);
+        subCategoryRecycler.setLayoutManager(subCategoriesLayoutManager);
 
         if (vars.isLoggedIn()) {
             userUid = vars.verityApp.mAuth.getCurrentUser().getUid();
-        } else {
-            userUid = vars.getShoppingID();
         }
 
+        config = new PagedList.Config.Builder()
+                .setEnablePlaceholders(false)
+                .setPrefetchDistance(10)
+                .setPageSize(20)
+                .build();
+
+        categoryBanner = root.findViewById(R.id.category_banner);
+        Picasso.get()
+                .load(category.getImage())
+                .error(R.drawable.ic_baseline_image_24)
+                .placeholder(R.drawable.ic_baseline_image_24)
+                .into(categoryBanner);
+
         populateProducts();
+        populateSubCategories();
 
         return root;
+    }
+
+    private ActionBar getActionBar() {
+        return ((MainActivity) requireActivity()).getSupportActionBar();
     }
 
     private void checkExistingProduct(String userId, String productID, Cart cart, int qty) {
@@ -96,8 +139,18 @@ public class ProductsFragment extends Fragment {
 
                             for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
                                 Cart cartProduct = document.toObject(Cart.class);
-                                cartProduct.setAmount((product.getSelling_price() * qty + cartProduct.getAmount()));
+
+                                if (product.isOffer()) {
+                                    double discount = (product.getOffer_value() * product.getSelling_price()) / 100;
+                                    double m = product.getSelling_price() - discount;
+                                    int actual = (int) m;
+
+                                    cartProduct.setAmount((actual * qty + cartProduct.getAmount()));
+                                } else {
+                                    cartProduct.setAmount((product.getSelling_price() * qty + cartProduct.getAmount()));
+                                }
                                 cartProduct.setQuantity(qty + cartProduct.getQuantity());
+
                                 vars.verityApp.db.collection(Globals.CART)
                                         .document(userId)
                                         .collection(Globals.MY_CART)
@@ -134,7 +187,7 @@ public class ProductsFragment extends Fragment {
 
     public void updateCartCount() {
         vars.verityApp.db.collection(Globals.CART)
-                .document(userUid)
+                .document(vars.getShoppingID())
                 .collection(Globals.MY_CART)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -147,26 +200,94 @@ public class ProductsFragment extends Fragment {
                 });
     }
 
+    private void populateSubCategories() {
+
+        Query subQuery = vars.verityApp.db
+                .collection(Globals.CATEGORIES)
+                .document(category.getUuid())
+                .collection(Globals.SUB_CATEGORIES)
+                .orderBy("name");
+
+        FirestorePagingOptions<SubCategory> options = new FirestorePagingOptions.Builder<SubCategory>()
+                .setLifecycleOwner(this)
+                .setQuery(subQuery, config, snapshot -> {
+                    subCategory = snapshot.toObject(SubCategory.class);
+                    assert subCategory != null;
+                    subCategory.setUuid(snapshot.getId());
+                    return subCategory;
+                })
+                .build();
+
+        subAdapter = new FirestorePagingAdapter<SubCategory, SubCategoryViewHolder>(options) {
+            @Override
+            protected void onBindViewHolder(@NonNull SubCategoryViewHolder holder, int position, @NonNull SubCategory model) {
+                holder.bindSubCategory(model);
+
+                holder.itemView.setOnClickListener(view -> {
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable(Globals.SUB_CATEGORY_OBJ, model);
+                    navController.navigate(R.id.navigation_sub_category, bundle);
+                    Globals.CATEGORY_ID = category.getUuid();
+                    Globals.CATEGORY_NAME = category.getName();
+                });
+            }
+
+            @NonNull
+            @Override
+            public SubCategoryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_sub_categories, parent, false);
+                return new SubCategoryViewHolder(view);
+            }
+
+            @Override
+            protected void onError(@NonNull Exception e) {
+                super.onError(e);
+                Toast.makeText(requireActivity(), "Error", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            protected void onLoadingStateChanged(@NonNull LoadingState state) {
+                switch (state) {
+                    case LOADING_INITIAL:
+
+                        break;
+
+                    case LOADING_MORE:
+//                        mShimmerViewContainer.setVisibility(View.VISIBLE);
+                        break;
+
+                    case LOADED:
+//                        mShimmerViewContainer.setVisibility(View.GONE);
+                        notifyDataSetChanged();
+                        break;
+
+                    case ERROR:
+                        Toast.makeText(requireActivity(), "Error", Toast.LENGTH_SHORT).show();
+
+//                        mShimmerViewContainer.setVisibility(View.GONE);
+                        break;
+
+                    case FINISHED:
+//                        mShimmerViewContainer.setVisibility(View.GONE);
+                        break;
+                }
+            }
+        };
+        subCategoryRecycler.setAdapter(subAdapter);
+        subAdapter.notifyDataSetChanged();
+    }
+
     private void populateProducts() {
         Log.d(TAG, "populateProducts called");
 
         Query categoryQuery = vars.verityApp.db
-                .collection(Globals.CATEGORIES)
-                .document(category.getUuid())
-                .collection(Globals.PRODUCTS)
+                .collectionGroup(Globals.PRODUCTS)
+                .whereEqualTo("category_id", category.getUuid())
                 .orderBy("name");
-
-        PagedList.Config config = new PagedList.Config.Builder()
-                .setEnablePlaceholders(false)
-                .setPrefetchDistance(10)
-                .setPageSize(20)
-                .build();
 
         FirestorePagingOptions<Product> options = new FirestorePagingOptions.Builder<Product>()
                 .setLifecycleOwner(this)
                 .setQuery(categoryQuery, config, snapshot -> {
-                    category = snapshot.toObject(Category.class);
-
                     product = snapshot.toObject(Product.class);
                     assert product != null;
                     product.setUuid(snapshot.getId());
@@ -179,45 +300,37 @@ public class ProductsFragment extends Fragment {
             protected void onBindViewHolder(@NonNull ProductViewHolder holder, int position, @NonNull Product model) {
                 holder.bindProduct(model);
 
-                String val = holder.total.getText().toString();
-                quantity = Integer.parseInt(val);
-
-                holder.plusButton.setOnClickListener(view -> {
-                    int p = Integer.parseInt(val);
-                    holder.total.setText(String.valueOf(p += 1));
-                    quantity = Integer.parseInt(holder.total.getText().toString());
-                });
-
-                holder.minusButton.setOnClickListener(view -> {
-                    int m = Integer.parseInt(val);
-                    if (m > 1) {
-                        holder.total.setText(String.valueOf(m -= 1));
-                        quantity = Integer.parseInt(holder.total.getText().toString());
-                    }
-                });
-
                 holder.addToCart.setOnClickListener(view -> {
-                    Log.d(TAG, "Quantity: "+ quantity);
+                    Log.d(TAG, "Quantity: "+ holder.value);
                     loading.setMessage("Adding to cart ...");
                     loading.show();
                     Map<String, Object> cart = new HashMap<>();
                     cart.put("name", "Cart");
 
-                    int amount = model.getSelling_price() * quantity;
+                    int amount;
+                    if (model.isOffer()) {
+                        double discount = (model.getOffer_value() * model.getSelling_price()) / 100;
+                        double m = model.getSelling_price() - discount;
+                        int actual = (int) m;
+                        amount = actual * holder.value;
+                    } else {
+                        amount = model.getSelling_price() * holder.value;
+                    }
+
                     Cart cartProduct = new Cart(
                             category.getUuid(),
                             category.getName(),
                             model.getUuid(),
                             model.getName(),
                             model.getImage(),
-                            quantity,
+                            holder.value,
                             amount
                     );
 
                     vars.verityApp.db.collection(Globals.CART)
-                            .document(userUid)
+                            .document(vars.getShoppingID())
                             .set(cart)
-                            .addOnSuccessListener(aVoid -> checkExistingProduct(userUid, model.getUuid(), cartProduct, quantity));
+                            .addOnSuccessListener(aVoid -> checkExistingProduct(vars.getShoppingID(), model.getUuid(), cartProduct, holder.value));
                 });
             }
 
@@ -225,7 +338,7 @@ public class ProductsFragment extends Fragment {
             @Override
             public ProductViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_products, parent, false);
-                return new ProductViewHolder(view);
+                return new ProductViewHolder(view, vars);
             }
 
             @Override

@@ -71,4 +71,10 @@
         android:label="Products"
         tools:layout="@layout/fragment_products" />
 
+    <fragment
+        android:id="@+id/navigation_sub_category"
+        android:name="com.verityfoods.ui.products.SubCategoriesFragment"
+        android:label="Sub Category"
+        tools:layout="@layout/fragment_sub_categories" />
+
 </navigation>

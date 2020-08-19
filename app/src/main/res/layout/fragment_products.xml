@@ -1,13 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<androidx.core.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".ui.products.ProductsFragment">
+    android:layout_height="match_parent">
 
-    <include
-        layout="@layout/products_grid" />
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/bg"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        tools:context=".ui.products.ProductsFragment">
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/category_banner_layout"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:id="@+id/category_banner"
+                android:src="@drawable/breakfast"
+                android:scaleType="centerCrop" />
+
+        </androidx.cardview.widget.CardView>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_sub_categories"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="parent"
+            android:layout_marginTop="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:orientation="horizontal"
+            tools:listitem="@layout/layout_sub_categories"
+            app:layout_constraintTop_toBottomOf="@id/category_banner_layout" />
+
+        <include
+            app:layout_constraintTop_toBottomOf="@id/recycler_sub_categories"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            layout="@layout/products_grid" />
 
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.core.widget.NestedScrollView>

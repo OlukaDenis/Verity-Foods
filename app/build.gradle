@@ -56,6 +56,6 @@ dependencies {
     implementation 'com.cepheuen.elegant-number-button:lib:1.0.2'
     implementation 'com.google.android.libraries.places:places:2.3.0'
     implementation 'org.apache.commons:commons-text:1.7'
-    implementation 'com.firebaseui:firebase-ui-database:4.3.2'
-
+    implementation 'com.firebaseui:firebase-ui-database:6.2.0'
+    implementation 'com.linchaolong.android:imagepicker:1.5'
 }

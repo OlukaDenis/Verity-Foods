@@ -107,15 +107,9 @@ public class SignupActivity extends AppCompatActivity {
         startActivityForResult(intent, Globals.AUTOCOMPLETE_REQUEST_CODE);
 }
 
-    @OnClick({R.id.signup_btn, R.id.location})
+    @OnClick({ R.id.location})
     public void onItemClicked(View view) {
         switch (view.getId()) {
-
-            case R.id.signup_btn:
-                if (signUpBtn.getText().toString().equalsIgnoreCase(CONTINUE)) {
-                    startOTPRequest();
-                }
-                break;
 
             case R.id.location:
                 pickLocation();
@@ -128,6 +122,7 @@ public class SignupActivity extends AppCompatActivity {
 
 
     public void  startOTPRequest() {
+        Log.d(TAG, "startOTPRequest called: ");
         if (!phone.getText().toString().isEmpty() && phone.getText().toString().length() == 9) {
             String contact = "+256" + phone.getText().toString();
             progressDialog.setMessage("Sending OTP ...");
@@ -156,14 +151,14 @@ public class SignupActivity extends AppCompatActivity {
 
                         @Override
                         public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {
-                            
+                            Log.d(TAG, "Verification Completed: ");
                         }
 
                         @Override
                         public void onVerificationFailed(@NonNull FirebaseException e) {
                             vars.verityApp.crashlytics.recordException(e);
                             vars.verityApp.crashlytics.log("Phone verification failed" + e.getMessage());
-                            Log.d(TAG, "Phone verification failed: ", e);
+                            Log.e(TAG, "Phone verification failed: ", e);
                             progressDialog.dismiss();
                         }
                     });
@@ -220,6 +215,7 @@ public class SignupActivity extends AppCompatActivity {
     }
 
     public void displayCodeLayout() {
+        Log.d(TAG, "displayCodeLayout called: ");
         stepPhoneLayout.setVisibility(View.GONE);
         stepCodeLayout.setVisibility(View.VISIBLE);
         signUpBtn.setText(VERIFY);
@@ -283,10 +279,17 @@ public class SignupActivity extends AppCompatActivity {
     }
 
     public void displayPhoneLayout() {
+        Log.d(TAG, "displayPhoneLayout called: ");
         stepCodeLayout.setVisibility(View.GONE);
         stepInfoLayout.setVisibility(View.GONE);
         stepPhoneLayout.setVisibility(View.VISIBLE);
         signUpBtn.setText(CONTINUE);
+
+        signUpBtn.setOnClickListener(view -> {
+            if (signUpBtn.getText().toString().equalsIgnoreCase(CONTINUE)) {
+                startOTPRequest();
+            }
+        });
     }
 
     @Override
