@@ -261,6 +261,7 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
         order.setSubTotal(subTotal);
         order.setProducts(cartList);
         order.setOrder_number(String.valueOf(orderNumber));
+        order.setStatus(Globals.ORDER_PLACED);
 
         saveOrder();
     }

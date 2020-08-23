@@ -33,25 +33,7 @@ public class LogoutFragment extends Fragment {
         navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         vars = new Vars(requireActivity());
 
-        if (vars.isLoggedIn()) {
-            new MaterialAlertDialogBuilder(requireContext())
-                    .setTitle(requireContext().getString(R.string.logout))
-                    .setMessage(R.string.log_out_message)
-                    .setPositiveButton(R.string.logout, (dialog, which) -> {
-                            vars.verityApp.mAuth.signOut();
-                            vars.verityApp.mAuth.signInAnonymously();
-                            Intent i = new Intent(requireActivity(), MainActivity.class);
-                            requireActivity().startActivity(i);
-                    })
-                    .setNegativeButton(R.string.cancel, (dialog, which) -> {
-                        navController.navigate(R.id.nav_home);
-                        dialog.dismiss();
-                    }).create()
-                    .show();
-        } else {
-            navController.navigate(R.id.nav_home);
-            Toast.makeText(requireActivity(), "You are not logged in", Toast.LENGTH_SHORT).show();
-        }
+
 
         return root;
     }

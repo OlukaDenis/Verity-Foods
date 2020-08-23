@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationView;
 import com.squareup.picasso.Picasso;
 import com.verityfoods.data.model.User;
@@ -72,12 +73,56 @@ public class MainActivity extends AppCompatActivity implements
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
 
+        //share app
+        MenuItem shareItem = navigationView.getMenu().findItem(R.id.nav_share);
+        shareItem.setOnMenuItemClickListener(item -> {
+            drawer.closeDrawers();
+            shareApp();
+            return true;
+        });
+
+        MenuItem logoutItem = navigationView.getMenu().findItem(R.id.nav_logout);
+        logoutItem.setOnMenuItemClickListener(menuItem -> {
+            drawer.closeDrawers();
+            logoutUser();
+            return true;
+        });
+
         if (vars.isLoggedIn()) {
             userUid = vars.verityApp.mAuth.getCurrentUser().getUid();
         }
 
         getCurrentUserDetails();
     }
+
+    private void logoutUser() {
+        if (vars.isLoggedIn()) {
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle(this.getString(R.string.logout))
+                    .setMessage(R.string.log_out_message)
+                    .setPositiveButton(R.string.logout, (dialog, which) -> {
+                        vars.verityApp.mAuth.signOut();
+                        vars.verityApp.mAuth.signInAnonymously();
+                        navController.navigate(R.id.nav_home);
+                    })
+                    .setNegativeButton(R.string.cancel, (dialog, which) -> {
+                        navController.navigate(R.id.nav_home);
+                        dialog.dismiss();
+                    }).create()
+                    .show();
+        } else {
+            navController.navigate(R.id.nav_home);
+            Toast.makeText(this, "You are not logged in", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void shareApp() {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, "http://www.verityfoods.com");
+        startActivity(Intent.createChooser(shareIntent, "Share with"));
+    }
+
 
     public void getCurrentUserDetails() {
         View headerView = navigationView.getHeaderView(0);
@@ -177,13 +222,7 @@ public class MainActivity extends AppCompatActivity implements
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-        if(id == R.id.nav_share){
-            Intent shareIntent = new Intent(Intent.ACTION_SEND);
-            shareIntent.setType("text/plain");
-            shareIntent.putExtra(Intent.EXTRA_TEXT, "http://www.verityfoods.com");
-            startActivity(Intent.createChooser(shareIntent, "Share with"));
-            return true;
-        }
+
         drawer.closeDrawers();
         return true;
     }

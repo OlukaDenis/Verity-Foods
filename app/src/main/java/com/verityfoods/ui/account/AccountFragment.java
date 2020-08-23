@@ -64,6 +64,7 @@ public class AccountFragment extends Fragment {
     @BindView(R.id.progressBar)
     ProgressBar progressBar;
 
+
     UploadTask uploadTask;
     private ImagePicker imagePicker = new ImagePicker();
 
@@ -71,11 +72,12 @@ public class AccountFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
+        vars = new Vars(requireActivity());
         accountViewModel =
                 ViewModelProviders.of(this).get(AccountViewModel.class);
         View root = inflater.inflate(R.layout.fragment_account, container, false);
         ButterKnife.bind(this, root);
-        vars = new Vars(requireActivity());
+
         progressBar.setVisibility(View.VISIBLE);
 
         if (vars.isLoggedIn()) {

@@ -29,4 +29,11 @@ public class Globals {
 
     public static final String ORDER_TOTAL = "order_total";
     public static int MAX_LIST_SIZE = 10;
+
+    //Order status
+    public static final String ORDER_PLACED = "Order placed";
+    public static final String ORDER_PROCESSED = "Order being processed";
+    public static final String ORDER_SHIPPED = "Order shipped";
+    public static final String ORDER_IN_TRANSIT = "Order in transit";
+    public static final String ORDER_DELIVERED = "Order delivered";
 }
