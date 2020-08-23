@@ -81,11 +81,7 @@ public class AccountFragment extends Fragment {
         if (vars.isLoggedIn()) {
             userUid = vars.verityApp.mAuth.getCurrentUser().getUid();
             getCurrentUser();
-        } else {
-            startActivity(new Intent(requireActivity(), SignupActivity.class));
-            Toast.makeText(requireActivity(), "You need to login to continue", Toast.LENGTH_SHORT).show();
         }
-
         return root;
     }
 
@@ -272,5 +268,14 @@ public class AccountFragment extends Fragment {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         imagePicker.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (!vars.isLoggedIn()) {
+            startActivity(new Intent(requireActivity(), SignupActivity.class));
+            Toast.makeText(requireActivity(), "You need to login to continue", Toast.LENGTH_SHORT).show();
+        }
     }
 }
