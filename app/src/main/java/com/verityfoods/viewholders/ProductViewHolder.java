@@ -181,9 +181,7 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
                 .placeholder(R.drawable.ic_baseline_image_24)
                 .into(productImage);
 
-        if (product.isSimple()) {
-
-        }
+//        if (!product.isSimple()) {
 //            variableArray = new String[variableList.size()];
 //            variableArray = variableList.toArray(variableArray);
 //

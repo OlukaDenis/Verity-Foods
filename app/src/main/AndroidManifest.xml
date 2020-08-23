@@ -15,10 +15,10 @@
         android:screenOrientation="portrait"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.checkout.CheckoutActivity"
-            android:label="Checkout">
-            
-        </activity>
+        <activity android:name=".ui.checkout.SuccessActivity"></activity>
+        <activity
+            android:name=".ui.checkout.CheckoutActivity"
+            android:label="Checkout"></activity>
         <activity
             android:name=".ui.search.SearchActivity"
             android:label="">
@@ -48,7 +48,6 @@
             android:name=".MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar" />
-
         <activity
             android:name="com.linchaolong.android.imagepicker.cropper.CropImageActivity"
             android:theme="@style/Base.Theme.AppCompat" />

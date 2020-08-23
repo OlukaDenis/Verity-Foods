@@ -64,6 +64,7 @@ public class AccountFragment extends Fragment {
     @BindView(R.id.progressBar)
     ProgressBar progressBar;
 
+
     UploadTask uploadTask;
     private ImagePicker imagePicker = new ImagePicker();
 
@@ -71,21 +72,18 @@ public class AccountFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
+        vars = new Vars(requireActivity());
         accountViewModel =
                 ViewModelProviders.of(this).get(AccountViewModel.class);
         View root = inflater.inflate(R.layout.fragment_account, container, false);
         ButterKnife.bind(this, root);
-        vars = new Vars(requireActivity());
+
         progressBar.setVisibility(View.VISIBLE);
 
         if (vars.isLoggedIn()) {
             userUid = vars.verityApp.mAuth.getCurrentUser().getUid();
             getCurrentUser();
-        } else {
-            startActivity(new Intent(requireActivity(), SignupActivity.class));
-            Toast.makeText(requireActivity(), "You need to login to continue", Toast.LENGTH_SHORT).show();
         }
-
         return root;
     }
 
@@ -272,5 +270,14 @@ public class AccountFragment extends Fragment {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         imagePicker.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (!vars.isLoggedIn()) {
+            startActivity(new Intent(requireActivity(), SignupActivity.class));
+            Toast.makeText(requireActivity(), "You need to login to continue", Toast.LENGTH_SHORT).show();
+        }
     }
 }

@@ -9,14 +9,15 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationView;
 import com.squareup.picasso.Picasso;
 import com.verityfoods.data.model.User;
-import com.verityfoods.ui.auth.AuthChooser;
 import com.verityfoods.ui.auth.SignupActivity;
 import com.verityfoods.ui.search.SearchActivity;
 import com.verityfoods.utils.Globals;
@@ -24,7 +25,6 @@ import com.verityfoods.utils.Vars;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
@@ -66,12 +66,28 @@ public class MainActivity extends AppCompatActivity implements
 
         navigationView = findViewById(R.id.nav_view);
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-              R.id.nav_home, R.id.nav_account, R.id.nav_orders, R.id.nav_settings, R.id.nav_logout)
+              R.id.nav_home, R.id.nav_account, R.id.nav_orders, R.id.nav_notifications,
+                R.id.nav_faq, R.id.nav_terms, R.id.nav_about, R.id.nav_privacy)
                 .setDrawerLayout(drawer)
                 .build();
 
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
+
+        //share app
+        MenuItem shareItem = navigationView.getMenu().findItem(R.id.nav_share);
+        shareItem.setOnMenuItemClickListener(item -> {
+            drawer.closeDrawers();
+            shareApp();
+            return true;
+        });
+
+        MenuItem logoutItem = navigationView.getMenu().findItem(R.id.nav_logout);
+        logoutItem.setOnMenuItemClickListener(menuItem -> {
+            drawer.closeDrawers();
+            logoutUser();
+            return true;
+        });
 
         if (vars.isLoggedIn()) {
             userUid = vars.verityApp.mAuth.getCurrentUser().getUid();
@@ -79,6 +95,36 @@ public class MainActivity extends AppCompatActivity implements
 
         getCurrentUserDetails();
     }
+
+    private void logoutUser() {
+        if (vars.isLoggedIn()) {
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle(this.getString(R.string.logout))
+                    .setMessage(R.string.log_out_message)
+                    .setPositiveButton(R.string.logout, (dialog, which) -> {
+                        vars.verityApp.mAuth.signOut();
+                        vars.verityApp.mAuth.signInAnonymously();
+                        startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                        Toast.makeText(this, "You have logged out.", Toast.LENGTH_SHORT).show();
+                    })
+                    .setNegativeButton(R.string.cancel, (dialog, which) -> {
+                        navController.navigate(R.id.nav_home);
+                        dialog.dismiss();
+                    }).create()
+                    .show();
+        } else {
+            navController.navigate(R.id.nav_home);
+            Toast.makeText(this, "You are not logged in", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void shareApp() {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, "http://www.verityfoods.com");
+        startActivity(Intent.createChooser(shareIntent, "Share with"));
+    }
+
 
     public void getCurrentUserDetails() {
         View headerView = navigationView.getHeaderView(0);
@@ -178,8 +224,7 @@ public class MainActivity extends AppCompatActivity implements
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-        if (id == R.id.nav_logout) {
-        }
+
         drawer.closeDrawers();
         return true;
     }

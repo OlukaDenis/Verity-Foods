@@ -136,7 +136,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
-                    android:text="UGX 2,000"
+                    android:text="UGX 3,000"
                     android:layout_marginLeft="4dp" />
 
             </LinearLayout>
@@ -151,6 +151,15 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/shipping_fee_layout"
                 app:layout_constraintEnd_toEndOf="parent"/>
+
+            <TextView
+                android:id="@+id/station_address"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="50dp"
+                android:text="Plot 45, Nakasero Road"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/pickup_station" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

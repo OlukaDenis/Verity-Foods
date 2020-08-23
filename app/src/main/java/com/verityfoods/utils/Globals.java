@@ -6,6 +6,7 @@ public class Globals {
     public static final String PRODUCTS = "products";
     public static final String SUB_CATEGORIES= "sub-categories";
     public static final String SLIDERS = "sliders";
+    public static final String DEALS = "deals";
     public static final String CART = "cart";
     public static final String MY_CART = "my_cart";
     public static final String ORDERS = "orders";
@@ -28,4 +29,12 @@ public class Globals {
 
     public static final String ORDER_TOTAL = "order_total";
     public static int MAX_LIST_SIZE = 10;
+
+    //Order status
+    public static final String ORDER_PLACED = "Order placed";
+    public static final String ORDER_PROCESSED = "Order being processed";
+    public static final String ORDER_SHIPPED = "Order shipped";
+    public static final String ORDER_IN_TRANSIT = "Order in transit";
+    public static final String ORDER_DELIVERED = "Order delivered";
+    public static final String ORDER_NUMBER = "order_number";
 }

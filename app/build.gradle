@@ -58,4 +58,5 @@ dependencies {
     implementation 'org.apache.commons:commons-text:1.7'
     implementation 'com.firebaseui:firebase-ui-database:6.2.0'
     implementation 'com.linchaolong.android:imagepicker:1.5'
+    implementation 'com.facebook.shimmer:shimmer:0.5.0'
 }

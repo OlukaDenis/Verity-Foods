@@ -17,6 +17,7 @@ public class Order implements Serializable {
     private int total;
     private String dateAdded;
     private String timeAdded;
+    private String status;
 
     public Order() {
     }
@@ -123,5 +124,13 @@ public class Order implements Serializable {
 
     public void setTimeAdded(String timeAdded) {
         this.timeAdded = timeAdded;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

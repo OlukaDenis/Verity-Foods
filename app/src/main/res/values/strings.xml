@@ -50,5 +50,12 @@
 
     <string name="google_maps_key">AIzaSyCE1qv5ePq-AL8sB1kYb-Ing_zOZdv5-S8</string>
     <string name="your_address">Your address</string>
+    <string name="notifications">Notifications</string>
+    <string name="share">Share</string>
+    <string name="my_pofile">My Pofile</string>
+    <string name="about_us">About Us</string>
+    <string name="faqs">FAQs</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="terms_and_conditions">Terms and Conditions</string>
 
 </resources>

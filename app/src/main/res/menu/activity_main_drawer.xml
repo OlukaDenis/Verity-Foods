@@ -11,16 +11,44 @@
         <item
             android:id="@+id/nav_account"
             android:icon="@drawable/ic_person"
-            android:title="@string/account" />
+            android:title="@string/my_pofile" />
         <item
             android:id="@+id/nav_orders"
             android:icon="@drawable/orders"
             android:title="@string/my_orders" />
 
         <item
-            android:id="@+id/nav_settings"
-            android:icon="@drawable/ic_settings"
-            android:title="@string/action_settings" />
+            android:id="@+id/nav_notifications"
+            android:icon="@drawable/ic_notifications_black_24dp"
+            android:title="@string/notifications" />
+
+        <item
+            android:id="@+id/nav_share"
+            android:icon="@drawable/ic_baseline_share"
+            android:title="@string/share" />
+
+        <item
+            android:id="@+id/nav_about"
+            android:icon="@drawable/ic_baseline_info"
+            android:title="@string/about_us" />
+    </group>
+
+    <group>
+        <item
+            android:id="@+id/nav_faq"
+            android:icon="@drawable/faq"
+            android:title="@string/faqs" />
+
+        <item
+            android:id="@+id/nav_privacy"
+            android:icon="@drawable/privacy"
+            android:title="@string/privacy_policy" />
+
+        <item
+            android:id="@+id/nav_terms"
+            android:icon="@drawable/tcs"
+            android:title="@string/terms_and_conditions"/>
+
     </group>
     <group>
         <item
