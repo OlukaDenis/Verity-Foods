@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="16dp"
-        tools:context=".ui.settings.SettingsFragment">
+        tools:context=".ui.about.AboutFragment">
 
 
         <LinearLayout

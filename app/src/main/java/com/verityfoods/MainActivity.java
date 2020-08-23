@@ -66,7 +66,8 @@ public class MainActivity extends AppCompatActivity implements
 
         navigationView = findViewById(R.id.nav_view);
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-              R.id.nav_home, R.id.nav_account, R.id.nav_orders, R.id.nav_notifications, R.id.nav_logout)
+              R.id.nav_home, R.id.nav_account, R.id.nav_orders, R.id.nav_notifications,
+                R.id.nav_faq, R.id.nav_terms, R.id.nav_about, R.id.nav_privacy)
                 .setDrawerLayout(drawer)
                 .build();
 
@@ -103,7 +104,8 @@ public class MainActivity extends AppCompatActivity implements
                     .setPositiveButton(R.string.logout, (dialog, which) -> {
                         vars.verityApp.mAuth.signOut();
                         vars.verityApp.mAuth.signInAnonymously();
-                        navController.navigate(R.id.nav_home);
+                        startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                        Toast.makeText(this, "You have logged out.", Toast.LENGTH_SHORT).show();
                     })
                     .setNegativeButton(R.string.cancel, (dialog, which) -> {
                         navController.navigate(R.id.nav_home);

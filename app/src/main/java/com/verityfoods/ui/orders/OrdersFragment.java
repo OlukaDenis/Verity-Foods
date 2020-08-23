@@ -60,9 +60,13 @@ public class OrdersFragment extends Fragment {
         LinearLayoutManager layoutManager = new LinearLayoutManager(requireActivity());
         orderRecycler.setLayoutManager(layoutManager);
 
-        userUid = vars.verityApp.mAuth.getCurrentUser().getUid();
-
-        getSavedItemsCount();
+        if (!vars.isLoggedIn()) {
+            startActivity(new Intent(requireActivity(), SignupActivity.class));
+            Toast.makeText(requireActivity(), "You need to login to continue", Toast.LENGTH_SHORT).show();
+        } else {
+            userUid = vars.verityApp.mAuth.getCurrentUser().getUid();
+            getSavedItemsCount();
+        }
 
         return root;
     }

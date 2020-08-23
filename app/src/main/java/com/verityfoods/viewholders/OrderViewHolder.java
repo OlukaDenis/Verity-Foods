@@ -27,6 +27,9 @@ public class OrderViewHolder extends RecyclerView.ViewHolder implements View.OnC
     @BindView(R.id.tv_order_date)
     TextView orderDate;
 
+    @BindView(R.id.order_status)
+    TextView orderStatus;
+
     private CustomItemClickListener itemClickListener;
 
     public OrderViewHolder(@NonNull View itemView) {
@@ -39,6 +42,7 @@ public class OrderViewHolder extends RecyclerView.ViewHolder implements View.OnC
         orderAmount.setText(AppUtils.formatCurrency(order.getTotal()));
         orderName.setText(order.getOrder_number());
         orderDate.setText(order.getDateAdded());
+        orderStatus.setText(order.getStatus());
     }
 
 

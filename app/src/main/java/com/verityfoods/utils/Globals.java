@@ -36,4 +36,5 @@ public class Globals {
     public static final String ORDER_SHIPPED = "Order shipped";
     public static final String ORDER_IN_TRANSIT = "Order in transit";
     public static final String ORDER_DELIVERED = "Order delivered";
+    public static final String ORDER_NUMBER = "order_number";
 }

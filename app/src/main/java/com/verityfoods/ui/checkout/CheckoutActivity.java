@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -98,9 +100,9 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
     private String deliveryMethod = "";
 
     private String userUid;
-    private String strDeliveryDay;
-    private String strDeliveryTime;
-    private String strPaymentMethod;
+    private String strDeliveryDay = "";
+    private String strDeliveryTime = "";
+    private String strPaymentMethod = "";
     private int orderNumber;
     private ProgressDialog loading;
     private Order order;
@@ -127,6 +129,7 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
 
         loading = new ProgressDialog(this);
         loading.setMessage("Please wait");
+        loading.setCancelable(false);
         userUid = vars.verityApp.mAuth.getCurrentUser().getUid();
 
         subTotal = Objects.requireNonNull(getIntent().getExtras()).getInt(Globals.ORDER_TOTAL);
@@ -263,7 +266,24 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
         order.setOrder_number(String.valueOf(orderNumber));
         order.setStatus(Globals.ORDER_PLACED);
 
-        saveOrder();
+        if (deliveryMethod.isEmpty()) {
+            Toast.makeText(this, "Please select your delivery method", Toast.LENGTH_SHORT).show();
+            loading.dismiss();
+        } else if (strPaymentMethod.isEmpty()) {
+            Toast.makeText(this, "Please select your preferred payment method", Toast.LENGTH_SHORT).show();
+            loading.dismiss();
+        } else if (strDeliveryTime.isEmpty()) {
+            Toast.makeText(this, "Please select your preferred delivery time", Toast.LENGTH_SHORT).show();
+            loading.dismiss();
+        } else if (strDeliveryDay.isEmpty()) {
+            Toast.makeText(this, "Please select your preferred delivery day", Toast.LENGTH_SHORT).show();
+            loading.dismiss();
+        } else if (addressName.getText().toString().isEmpty()) {
+            Toast.makeText(this, "Please provide your address", Toast.LENGTH_SHORT).show();
+            loading.dismiss();
+        } else {
+            saveOrder();
+        }
     }
 
     public void updateDeliveryMethod(String selected) {
@@ -289,7 +309,7 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
                                 .set(order)
                                 .addOnSuccessListener(documentReference -> {
                                     deleteAllCarts();
-                                    showDialog(String.valueOf(orderNumber));
+                                    startSuccessActivity(String.valueOf(orderNumber));
                                     Toast.makeText(this, "Order successfully placed!", Toast.LENGTH_SHORT).show();
                                 })
                                 .addOnFailureListener(e -> {
@@ -331,6 +351,13 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
                 });
         dialog.setCancelable(false);
         dialog.show();
+    }
+
+    private void startSuccessActivity(String orderNo) {
+        Intent successIntent = new Intent(this, SuccessActivity.class);
+        successIntent.putExtra(Globals.ORDER_NUMBER, orderNo);
+        startActivity(successIntent);
+        finish();
     }
 
     @Override
