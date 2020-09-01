@@ -16,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -58,8 +59,7 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
     @BindView(R.id.product_mrp)
     TextView productMRP;
 
-    @BindView(R.id.product_price)
-    TextView productPrice;
+    public TextView productPrice;
 
     @BindView(R.id.discount_layout)
     FrameLayout discountLayout;
@@ -76,8 +76,7 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
     @BindView(R.id.prd_lower_layout)
     RelativeLayout lowerLayout;
 
-    @BindView(R.id.product_variable)
-    Spinner productVariable;
+    public RecyclerView variableRecycler;
 
     public Button addToCart;
     private ArrayAdapter<String> variableAdapter;
@@ -95,39 +94,14 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
         total = itemView.findViewById(R.id.counter_total);
         plusMinusButton = itemView.findViewById(R.id.plus_minus_button);
         addToCart = itemView.findViewById(R.id.add_to_cart);
-    }
+        productPrice = itemView.findViewById(R.id.product_price);
 
-    private void getProductVariables(Product product) {
-        if (product.getUuid() != null) {
-            Query query = vars.verityApp.db
-                    .collection(Globals.CATEGORIES)
-                    .document(product.getCategory_id())
-                    .collection(Globals.SUB_CATEGORIES)
-                    .document(product.getSub_category_id())
-                    .collection(Globals.PRODUCTS)
-                    .document(product.getUuid())
-                    .collection(Globals.VARIABLE);
-
-            query.get()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot snapshot : Objects.requireNonNull(task.getResult())) {
-                                variable = snapshot.toObject(Variable.class);
-                                String m = AppUtils.formatVariable(variable.getQty(), variable.getPrice());
-                                Log.d(TAG, "getProductVariables: " + m);
-                                variableList.add(m);
-                            }
-                        }
-                    })
-                    .addOnFailureListener(e -> {
-                        Log.e(TAG, "bindProduct: ", e);
-                        vars.verityApp.crashlytics.recordException(e);
-                    });
-        }
+        LinearLayoutManager layoutManager = new LinearLayoutManager(vars.context.getApplicationContext(), LinearLayoutManager.HORIZONTAL, false);
+        variableRecycler = itemView.findViewById(R.id.variable_recycler);
+        variableRecycler.setLayoutManager(layoutManager);
     }
 
     public void bindProduct(Product product) {
-        getProductVariables(product);
 
         value = Integer.parseInt(total.getText().toString());
         plusButton.setOnClickListener(view -> {
@@ -150,7 +124,7 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
             discountLayout.setVisibility(View.VISIBLE);
             offerValue.setText(AppUtils.formatOffer(product.getOffer_value()));
 
-            double discount = (product.getOffer_value() * product.getSelling_price()) / 100;
+            double discount = (product.getOffer_value() * product.getMrp()) / 100;
             double actual = product.getSelling_price() - discount;
             int m = (int) actual;
             productPrice.setText(AppUtils.formatCurrency(m));
@@ -168,12 +142,10 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
             lowerLayout.setVisibility(View.VISIBLE);
         }
 
-        productPack.setText(product.getPack());
         productName.setText(product.getName());
         productBrand.setText(product.getBrand());
         productMRP.setText(AppUtils.formatCurrency(product.getMrp()));
         productMRP.setPaintFlags(productMRP.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-        Log.d(TAG, "It is an offer: "+product.isOffer());
 
         Picasso.get()
                 .load(product.getImage())
@@ -181,27 +153,13 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
                 .placeholder(R.drawable.ic_baseline_image_24)
                 .into(productImage);
 
-//        if (!product.isSimple()) {
-//            variableArray = new String[variableList.size()];
-//            variableArray = variableList.toArray(variableArray);
-//
-//            productVariable.setVisibility(View.VISIBLE);
-//            variableAdapter = new ArrayAdapter<>(vars.context.getApplicationContext(), android.R.layout.simple_spinner_item, variableArray);
-//            variableAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-//            productVariable.setAdapter(variableAdapter);
-//            productVariable.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-//                @Override
-//                public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-//                    Toast.makeText(vars.context.getApplicationContext(), variableList.get(i), Toast.LENGTH_SHORT).show();
-//                }
-//
-//                @Override
-//                public void onNothingSelected(AdapterView<?> adapterView) {
-//                    Toast.makeText(vars.context.getApplicationContext(), "Nothing", Toast.LENGTH_SHORT).show();
-//                }
-//            });
-//        } else {
-//            productVariable.setVisibility(View.GONE);
-//        }
+        if (product.isSimple()) {
+            variableRecycler.setVisibility(View.GONE);
+            productPack.setVisibility(View.VISIBLE);
+            productPack.setText(product.getPack());
+        } else {
+            productPack.setVisibility(View.GONE);
+            variableRecycler.setVisibility(View.VISIBLE);
+        }
     }
 }

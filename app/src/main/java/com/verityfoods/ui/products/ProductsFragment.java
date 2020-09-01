@@ -33,10 +33,12 @@ import com.verityfoods.data.model.Cart;
 import com.verityfoods.data.model.Category;
 import com.verityfoods.data.model.Product;
 import com.verityfoods.data.model.SubCategory;
+import com.verityfoods.data.model.Variable;
 import com.verityfoods.utils.Globals;
 import com.verityfoods.utils.Vars;
 import com.verityfoods.viewholders.ProductViewHolder;
 import com.verityfoods.viewholders.SubCategoryViewHolder;
+import com.verityfoods.viewholders.VariableViewHolder;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -56,10 +58,12 @@ public class ProductsFragment extends Fragment {
 
     private FirestorePagingAdapter<Product, ProductViewHolder> adapter;
     private FirestorePagingAdapter<SubCategory, SubCategoryViewHolder> subAdapter;
+    private FirestorePagingAdapter<Variable, VariableViewHolder> variableAdapter;
 
     private SubCategory subCategory;
     private Category category;
     private Product product;
+    private Variable variable;
 
     private ProgressDialog loading;
     private String userUid;
@@ -332,6 +336,10 @@ public class ProductsFragment extends Fragment {
                             .set(cart)
                             .addOnSuccessListener(aVoid -> checkExistingProduct(vars.getShoppingID(), model.getUuid(), cartProduct, holder.value));
                 });
+
+                if (!model.isSimple()) {
+                    populateVariables(holder, model);
+                }
             }
 
             @NonNull
@@ -377,5 +385,48 @@ public class ProductsFragment extends Fragment {
         };
         productRecycler.setAdapter(adapter);
         adapter.notifyDataSetChanged();
+    }
+
+    private void populateVariables(ProductViewHolder holder, Product model) {
+        Query variableQuery = vars.verityApp.db
+                .collection(Globals.CATEGORIES)
+                .document(category.getUuid())
+                .collection(Globals.SUB_CATEGORIES)
+                .document(model.getSub_category_id())
+                .collection(Globals.PRODUCTS)
+                .document(model.getUuid())
+                .collection(Globals.VARIABLE);
+
+        FirestorePagingOptions<Variable> variableOptions = new FirestorePagingOptions.Builder<Variable>()
+                .setLifecycleOwner(this)
+                .setQuery(variableQuery, config, snapshot -> {
+                    variable = snapshot.toObject(Variable.class);
+                    assert variable != null;
+                    variable.setUuid(snapshot.getId());
+                    return variable;
+                })
+                .build();
+
+        variableAdapter = new FirestorePagingAdapter<Variable, VariableViewHolder>(variableOptions) {
+            @Override
+            protected void onBindViewHolder(@NonNull VariableViewHolder holder, int position, @NonNull Variable model) {
+                holder.bindVariable(model);
+            }
+
+            @NonNull
+            @Override
+            public VariableViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_variable, parent, false);
+                return new VariableViewHolder(view);
+            }
+
+            @Override
+            protected void onError(@NonNull Exception e) {
+                super.onError(e);
+                Toast.makeText(requireActivity(), "Error", Toast.LENGTH_SHORT).show();
+            }
+        };
+        holder.variableRecycler.setAdapter(variableAdapter);
+        variableAdapter.notifyDataSetChanged();
     }
 }

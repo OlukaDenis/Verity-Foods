@@ -38,6 +38,21 @@
                 app:layout_constraintTop_toTopOf="parent"
                 android:text="Address Details" />
 
+            <TextView
+                android:id="@+id/change_address"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Change"
+                app:layout_constraintStart_toEndOf="@id/txt_delivery_title"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:textStyle="bold"
+                android:layout_marginEnd="8dp"
+                android:gravity="end"
+                android:textSize="16sp"
+                android:textColor="@color/colorAccent" />
+
+
             <LinearLayout
                 android:id="@+id/address_layout"
                 android:layout_width="match_parent"
@@ -154,10 +169,11 @@
 
             <TextView
                 android:id="@+id/station_address"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="50dp"
-                android:text="Plot 45, Nakasero Road"
+                android:layout_marginEnd="8dp"
+                android:text="Plot 10-12, Mulwana Road, Opposite GT-BANK, Industrial Area, Kampala Uganda"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/pickup_station" />
 

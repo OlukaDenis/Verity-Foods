@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.RadioButton;
@@ -19,6 +20,12 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.api.Status;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.AutocompleteActivity;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.verityfoods.MainActivity;
@@ -31,6 +38,7 @@ import com.verityfoods.utils.Globals;
 import com.verityfoods.utils.Vars;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -109,6 +117,8 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
     private List<Cart> cartList;
     private Cart cart;
 
+    private List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG, Place.Field.ADDRESS);
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -118,6 +128,10 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         this.getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_baseline_close_24);
+
+        if (!Places.isInitialized()) {
+            Places.initialize(getApplicationContext(), getString(R.string.google_maps_key));
+        }
 
         ButterKnife.bind(this);
         vars = new Vars(this);
@@ -177,6 +191,14 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
                 });
     }
 
+    private void pickLocation() {
+        Log.d(TAG, "pickLocation called: ");
+
+        Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields).setCountry("UG")
+                .build(this);
+        startActivityForResult(intent, Globals.AUTOCOMPLETE_REQUEST_CODE);
+    }
+
     public void populateUserDetails() {
         vars.verityApp.db.collection(Globals.USERS)
                 .document(userUid)
@@ -209,7 +231,7 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
             if (id == R.id.standard_shipping){
                 pickupStation.setChecked(false);
                 updateDeliveryMethod(standardShipping.getText().toString());
-                updateTotals(2000);
+                updateTotals(3000);
             }
 
             if (id == R.id.pickup_station) {
@@ -249,40 +271,49 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
 
     }
 
-    @OnClick(R.id.submit_order_btn)
-    void submitOrder() {
-        loading.show();
-        order.setDeliveryDay(strDeliveryDay);
-        order.setDeliveryTime(strDeliveryTime);
-        order.setDeliveryMethod(deliveryMethod);
-        order.setPaymentMethod(strPaymentMethod);
-        order.setDateAdded(AppUtils.currentDate());
-        order.setTimeAdded(AppUtils.currentTime());
-        order.setUser(user);
-        order.setShippingFee(shipping);
-        order.setTotal(total);
-        order.setSubTotal(subTotal);
-        order.setProducts(cartList);
-        order.setOrder_number(String.valueOf(orderNumber));
-        order.setStatus(Globals.ORDER_PLACED);
+    @OnClick({R.id.submit_order_btn, R.id.change_address})
+    void submitOrder(View view) {
+        switch (view.getId()) {
+            case R.id.submit_order_btn:
+                loading.show();
+                order.setDeliveryDay(strDeliveryDay);
+                order.setDeliveryTime(strDeliveryTime);
+                order.setDeliveryMethod(deliveryMethod);
+                order.setPaymentMethod(strPaymentMethod);
+                order.setDateAdded(AppUtils.currentDate());
+                order.setTimeAdded(AppUtils.currentTime());
+                order.setUser(user);
+                order.setShippingFee(shipping);
+                order.setTotal(total);
+                order.setSubTotal(subTotal);
+                order.setProducts(cartList);
+                order.setOrder_number(String.valueOf(orderNumber));
+                order.setStatus(Globals.ORDER_PLACED);
 
-        if (deliveryMethod.isEmpty()) {
-            Toast.makeText(this, "Please select your delivery method", Toast.LENGTH_SHORT).show();
-            loading.dismiss();
-        } else if (strPaymentMethod.isEmpty()) {
-            Toast.makeText(this, "Please select your preferred payment method", Toast.LENGTH_SHORT).show();
-            loading.dismiss();
-        } else if (strDeliveryTime.isEmpty()) {
-            Toast.makeText(this, "Please select your preferred delivery time", Toast.LENGTH_SHORT).show();
-            loading.dismiss();
-        } else if (strDeliveryDay.isEmpty()) {
-            Toast.makeText(this, "Please select your preferred delivery day", Toast.LENGTH_SHORT).show();
-            loading.dismiss();
-        } else if (addressName.getText().toString().isEmpty()) {
-            Toast.makeText(this, "Please provide your address", Toast.LENGTH_SHORT).show();
-            loading.dismiss();
-        } else {
-            saveOrder();
+                if (deliveryMethod.isEmpty()) {
+                    Toast.makeText(this, "Please select your delivery method", Toast.LENGTH_SHORT).show();
+                    loading.dismiss();
+                } else if (strPaymentMethod.isEmpty()) {
+                    Toast.makeText(this, "Please select your preferred payment method", Toast.LENGTH_SHORT).show();
+                    loading.dismiss();
+                } else if (strDeliveryTime.isEmpty()) {
+                    Toast.makeText(this, "Please select your preferred delivery time", Toast.LENGTH_SHORT).show();
+                    loading.dismiss();
+                } else if (strDeliveryDay.isEmpty()) {
+                    Toast.makeText(this, "Please select your preferred delivery day", Toast.LENGTH_SHORT).show();
+                    loading.dismiss();
+                } else if (addressName.getText().toString().isEmpty()) {
+                    Toast.makeText(this, "Please provide your address", Toast.LENGTH_SHORT).show();
+                    loading.dismiss();
+                } else {
+                    saveOrder();
+                }
+                break;
+            case R.id.change_address:
+                pickLocation();
+                break;
+            default:
+                break;
         }
     }
 
@@ -358,6 +389,23 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
         successIntent.putExtra(Globals.ORDER_NUMBER, orderNo);
         startActivity(successIntent);
         finish();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == Globals.AUTOCOMPLETE_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                Place place = Autocomplete.getPlaceFromIntent(data);
+                addressName.setText(place.getAddress());
+            } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
+                Status status = Autocomplete.getStatusFromIntent(data);
+                Log.d(TAG, "Error while picking location: "+status.getStatusMessage());
+                Toast.makeText(this, status.getStatusMessage(), Toast.LENGTH_SHORT).show();
+            } else if (resultCode == RESULT_CANCELED) {
+                Log.d(TAG, "onActivityResult: " + "Cancelled...");
+            }
+        }
     }
 
     @Override

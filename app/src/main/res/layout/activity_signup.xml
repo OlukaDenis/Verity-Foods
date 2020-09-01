@@ -106,7 +106,7 @@
         android:id="@+id/step_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="gone"
+        android:visibility="visible"
         android:orientation="vertical"
         android:layout_marginTop="30dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -148,20 +148,20 @@
                 android:inputType="textEmailAddress" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/location_layout"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp">
 
-            <AutoCompleteTextView
+            <TextView
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_marginTop="16dp"
                 android:id="@+id/location"
-                style="@style/textInputStyle"
-                android:hint="@string/your_address"
-                android:text="Kitintale, Port Bell Road"
-                android:inputType="textCapWords" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:drawableEnd="@drawable/ic_keyboard_arrow_down"
+                android:textSize="16sp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColorHint="@color/blackish"
+                android:layout_gravity="center"
+                android:background="@drawable/pick_address_bng"
+                android:hint="@string/your_address" />
 
     </LinearLayout>
 

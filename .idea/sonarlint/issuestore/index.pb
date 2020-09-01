@@ -57,3 +57,9 @@ r
 Bapp/src/main/java/com/verityfoods/viewholders/DealsViewHolder.java,6/5/657adb70a6ee14f31a3d621b8a370a866cbc17c4
 q
 Aapp/src/main/java/com/verityfoods/data/adapters/DealsAdapter.java,e/4/e44814d49d7a3ea1c9b2bf10314e1dcda8c128ae
+q
+Aapp/src/main/java/com/verityfoods/ui/privacy/PrivacyFragment.java,a/c/ac281e4c7e966426156cb0e21dcb8f4ae519ea8f
+}
+Mapp/src/main/java/com/verityfoods/ui/notifications/NotificationsFragment.java,7/d/7d6ff3fd2c7522975ced8d10551a16e78d1e8c6d
+m
+=app/src/main/java/com/verityfoods/ui/auth/SignupActivity.java,3/a/3a099430532645e3ef752e8ff16ad850bb5607f4

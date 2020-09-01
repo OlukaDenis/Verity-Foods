@@ -149,14 +149,13 @@ public class MainActivity extends AppCompatActivity implements
                                 currentUserAddress.setText(user.getAddress());
                                 currentUserName.setText(user.getName());
 
-                                if (!user.getImage().isEmpty() || user.getImage() != null) {
+                                if (user.getImage() != null) {
                                     Picasso.get()
                                             .load(user.getImage())
                                             .placeholder(R.drawable.avatar)
                                             .error(R.drawable.avatar)
                                             .into(currentUserImage);
                                 } else {
-
                                     currentUserImage.setBackgroundResource(R.drawable.avatar);
                                 }
                             }

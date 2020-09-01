@@ -11,7 +11,7 @@ public class Globals {
     public static final String MY_CART = "my_cart";
     public static final String ORDERS = "orders";
     public static final String MY_ORDERS = "my-orders";
-    public static final String VARIABLE = "variable";
+    public static final String VARIABLE = "variables";
     public static final String USERS = "users";
     public static final int AUTOCOMPLETE_REQUEST_CODE = 103;
 
