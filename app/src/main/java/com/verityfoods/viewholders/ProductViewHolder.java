@@ -56,16 +56,10 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
     @BindView(R.id.product_brand)
     TextView productBrand;
 
-    @BindView(R.id.product_mrp)
-    TextView productMRP;
-
+    public TextView productMRP;
     public TextView productPrice;
-
-    @BindView(R.id.discount_layout)
-    FrameLayout discountLayout;
-
-    @BindView(R.id.offer_value)
-    TextView offerValue;
+    public FrameLayout discountLayout;
+    public TextView offerValue;
 
     @BindView(R.id.product_pack)
     TextView productPack;
@@ -95,6 +89,9 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
         plusMinusButton = itemView.findViewById(R.id.plus_minus_button);
         addToCart = itemView.findViewById(R.id.add_to_cart);
         productPrice = itemView.findViewById(R.id.product_price);
+        discountLayout = itemView.findViewById(R.id.discount_layout);
+        offerValue = itemView.findViewById(R.id.offer_value);
+        productMRP = itemView.findViewById(R.id.product_mrp);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(vars.context.getApplicationContext(), LinearLayoutManager.HORIZONTAL, false);
         variableRecycler = itemView.findViewById(R.id.variable_recycler);
@@ -125,7 +122,7 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
             offerValue.setText(AppUtils.formatOffer(product.getOffer_value()));
 
             double discount = (product.getOffer_value() * product.getMrp()) / 100;
-            double actual = product.getSelling_price() - discount;
+            double actual = product.getMrp() - discount;
             int m = (int) actual;
             productPrice.setText(AppUtils.formatCurrency(m));
         } else {

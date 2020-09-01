@@ -34,6 +34,7 @@ import com.verityfoods.data.model.Category;
 import com.verityfoods.data.model.Product;
 import com.verityfoods.data.model.SubCategory;
 import com.verityfoods.data.model.Variable;
+import com.verityfoods.utils.AppUtils;
 import com.verityfoods.utils.Globals;
 import com.verityfoods.utils.Vars;
 import com.verityfoods.viewholders.ProductViewHolder;
@@ -64,6 +65,7 @@ public class ProductsFragment extends Fragment {
     private Category category;
     private Product product;
     private Variable variable;
+    private int currentProductPrice;
 
     private ProgressDialog loading;
     private String userUid;
@@ -305,7 +307,6 @@ public class ProductsFragment extends Fragment {
                 holder.bindProduct(model);
 
                 holder.addToCart.setOnClickListener(view -> {
-                    Log.d(TAG, "Quantity: "+ holder.value);
                     loading.setMessage("Adding to cart ...");
                     loading.show();
                     Map<String, Object> cart = new HashMap<>();
@@ -387,14 +388,14 @@ public class ProductsFragment extends Fragment {
         adapter.notifyDataSetChanged();
     }
 
-    private void populateVariables(ProductViewHolder holder, Product model) {
+    private void populateVariables(ProductViewHolder productViewHolder, Product productModel) {
         Query variableQuery = vars.verityApp.db
                 .collection(Globals.CATEGORIES)
                 .document(category.getUuid())
                 .collection(Globals.SUB_CATEGORIES)
-                .document(model.getSub_category_id())
+                .document(productModel.getSub_category_id())
                 .collection(Globals.PRODUCTS)
-                .document(model.getUuid())
+                .document(productModel.getUuid())
                 .collection(Globals.VARIABLE);
 
         FirestorePagingOptions<Variable> variableOptions = new FirestorePagingOptions.Builder<Variable>()
@@ -411,13 +412,17 @@ public class ProductsFragment extends Fragment {
             @Override
             protected void onBindViewHolder(@NonNull VariableViewHolder holder, int position, @NonNull Variable model) {
                 holder.bindVariable(model);
+
+                holder.itemView.setOnClickListener(view -> {
+                    calculatePrice(productViewHolder, productModel, model);
+                });
             }
 
             @NonNull
             @Override
             public VariableViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_variable, parent, false);
-                return new VariableViewHolder(view);
+                return new VariableViewHolder(view, getContext());
             }
 
             @Override
@@ -426,7 +431,20 @@ public class ProductsFragment extends Fragment {
                 Toast.makeText(requireActivity(), "Error", Toast.LENGTH_SHORT).show();
             }
         };
-        holder.variableRecycler.setAdapter(variableAdapter);
+        productViewHolder.variableRecycler.setAdapter(variableAdapter);
         variableAdapter.notifyDataSetChanged();
+    }
+
+    private void calculatePrice(ProductViewHolder holder, Product product, Variable model) {
+        if (product.isOffer()) {
+            int newMrp = model.getPrice() + 2000;
+            holder.productMRP.setText(AppUtils.formatCurrency(newMrp));
+            double discount = (product.getOffer_value() * newMrp) / 100;
+            double actual = newMrp - discount;
+            int m = (int) actual;
+            holder.productPrice.setText(AppUtils.formatCurrency(m));
+        } else {
+            holder.productPrice.setText(AppUtils.formatCurrency(model.getPrice()));
+        }
     }
 }
