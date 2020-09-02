@@ -1,6 +1,7 @@
 package com.verityfoods.ui.checkout;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -21,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.Autocomplete;
@@ -28,8 +30,12 @@ import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.verityfoods.MainActivity;
 import com.verityfoods.R;
 import com.verityfoods.data.model.Cart;
@@ -183,7 +189,15 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
             } else  {
                 loading.setMessage("Applying coupon...");
                 loading.show();
-                applyCoupon(mCoupon);
+
+                checkFieldIsExist("code", mCoupon, aBoolean -> {
+                    if(aBoolean){
+                        loading.dismiss();
+                        Toast.makeText(getApplicationContext(), "Invalid coupon", Toast.LENGTH_SHORT).show();
+                    }else{
+                        Log.d(TAG, "Exists: ");
+                    }
+                });
             }
         });
 
@@ -192,34 +206,75 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
         updateTotals(shipping);
     }
 
+    public void checkFieldIsExist(String key, String value, OnSuccessListener<Boolean> onSuccessListener) {
+        vars.verityApp.db.collection(Globals.COUPONS).whereEqualTo(key, value).addSnapshotListener(new EventListener<QuerySnapshot>() {
+            private boolean isRunOneTime = false;
+
+            @Override
+            public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
+                if (!isRunOneTime) {
+                    isRunOneTime = true;
+                    List<DocumentSnapshot> snapshotList = queryDocumentSnapshots.getDocuments();
+                    if (e != null) {
+                        e.printStackTrace();
+                        String message = e.getMessage();
+                        Log.e(TAG, "onEvent: ",e );
+                        onSuccessListener.onSuccess(false);
+                        return;
+                    }
+
+                    if (snapshotList.size() > 0) {
+                        onSuccessListener.onSuccess(false);
+                        vars.verityApp.db
+                                .collection(Globals.COUPONS)
+                                .document(snapshotList.get(0).getId())
+                                .get()
+                                .addOnCompleteListener(task -> {
+                                    if (task.isSuccessful()) {
+                                        coupon = Objects.requireNonNull(task.getResult()).toObject(Coupon.class);
+
+                                        assert coupon != null;
+                                        Log.d(TAG, "Id found: "+coupon.getValue());
+                                        loading.dismiss();
+                                       total = total - coupon.getValue();
+                                       totalSum.setText(String.valueOf(total));
+                                       couponCode.setText("");
+                                       deleteCoupon(task.getResult().getId());
+                                        Toast.makeText(getApplicationContext(), "Coupon applied successfully!", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+
+                    } else {
+                        onSuccessListener.onSuccess(true);
+                    }
+
+                }
+            }
+        });
+    }
+
     private void applyCoupon(String code) {
         vars.verityApp.db
                 .collection(Globals.COUPONS)
+                .whereEqualTo("code", code)
                 .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        for(QueryDocumentSnapshot document: Objects.requireNonNull(task.getResult())){
-                            coupon = document.toObject(Coupon.class);
 
-                            if (coupon.getCode().equals(code)) {
-                                loading.dismiss();
 
-                                total = total - coupon.getValue();
-                                totalSum.setText(String.valueOf(total));
-                                couponCode.setText("");
-                                Toast.makeText(getApplicationContext(), "It is correct", Toast.LENGTH_SHORT).show();
-                            } else {
-                                loading.dismiss();
-                                Toast.makeText(getApplicationContext(), "Invalid coupon", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    }
-                })
                 .addOnFailureListener(e -> {
                     loading.dismiss();
                     vars.verityApp.crashlytics.recordException(e);
                     Log.e(TAG, "Error while saving data: ",e);
+                    Toast.makeText(getApplicationContext(), "Invalid coupon", Toast.LENGTH_SHORT).show();
                 });
+    }
+
+
+
+    private void deleteCoupon(String id) {
+        vars.verityApp.db
+                .collection(Globals.COUPONS)
+                .document(id)
+                .delete();
     }
 
     public void getAllCart() {
