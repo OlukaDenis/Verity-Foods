@@ -27,8 +27,11 @@ import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.firebase.ui.firestore.paging.LoadingState;
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.verityfoods.MainActivity;
 import com.verityfoods.R;
 import com.verityfoods.data.model.Cart;
 import com.verityfoods.data.model.Category;
@@ -347,12 +350,14 @@ public class BasketFragment extends Fragment {
                 .addOnCompleteListener(task -> {
 
                     if (task.isSuccessful()) {
+                        int mrp = 0;
                         int sum = 0;
                         for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
                             Cart cartProduct = document.toObject(Cart.class);
                             sum += cartProduct.getAmount();
+                            mrp += cartProduct.getMrp();
                         }
-                        displaySum(sum);
+                        displaySum(sum, mrp);
                     }
                 })
                 .addOnFailureListener(e -> {
@@ -362,12 +367,15 @@ public class BasketFragment extends Fragment {
 
     }
 
-    private void displaySum(int sum) {
+    private void displaySum(int sum, int mrp) {
         total = sum;
+        int s = mrp - sum;
         String mTotal = "Total: " + AppUtils.formatCurrency(sum);
+        String mSaved = "Saved: " + AppUtils.formatCurrency(s);
         totalLoading.setVisibility(View.GONE);
         totalCartSum.setVisibility(View.VISIBLE);
         totalCartSum.setText(mTotal);
+        totalSavings.setText(mSaved);
     }
 
 }

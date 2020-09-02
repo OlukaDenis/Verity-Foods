@@ -8,6 +8,7 @@ public class Cart implements Serializable {
     private String product_id;
     private String product_name;
     private String product_image;
+    private int mrp;
     private int quantity;
     private boolean completed;
     private int amount;
@@ -15,12 +16,13 @@ public class Cart implements Serializable {
     public Cart() {
     }
 
-    public Cart(String category_id, String category_name, String product_id, String product_name, String product_image, int quantity, int amount) {
+    public Cart(String category_id, String category_name, String product_id, String product_name, String product_image, int mrp, int quantity, int amount) {
         this.category_id = category_id;
         this.category_name = category_name;
         this.product_id = product_id;
         this.product_name = product_name;
         this.product_image = product_image;
+        this.mrp = mrp;
         this.quantity = quantity;
         this.completed = false;
         this.amount = amount;
@@ -88,5 +90,13 @@ public class Cart implements Serializable {
 
     public void setAmount(int amount) {
         this.amount = amount;
+    }
+
+    public int getMrp() {
+        return mrp;
+    }
+
+    public void setMrp(int mrp) {
+        this.mrp = mrp;
     }
 }

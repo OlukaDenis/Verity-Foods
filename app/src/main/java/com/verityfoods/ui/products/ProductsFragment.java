@@ -328,6 +328,7 @@ public class ProductsFragment extends Fragment {
                             model.getUuid(),
                             model.getName(),
                             model.getImage(),
+                            model.getMrp(),
                             holder.value,
                             amount
                     );

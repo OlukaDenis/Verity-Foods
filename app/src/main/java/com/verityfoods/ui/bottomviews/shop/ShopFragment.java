@@ -210,6 +210,7 @@ public class ShopFragment extends Fragment {
                             model.getUuid(),
                             model.getName(),
                             model.getImage(),
+                            model.getMrp(),
                             holder.value,
                             amount
                     );

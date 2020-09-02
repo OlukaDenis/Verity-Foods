@@ -26,11 +26,14 @@ import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.verityfoods.MainActivity;
 import com.verityfoods.R;
 import com.verityfoods.data.model.Cart;
+import com.verityfoods.data.model.Coupon;
 import com.verityfoods.data.model.Order;
 import com.verityfoods.data.model.User;
 import com.verityfoods.utils.AppUtils;
@@ -111,11 +114,15 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
     private String strDeliveryDay = "";
     private String strDeliveryTime = "";
     private String strPaymentMethod = "";
+    private Coupon coupon;
     private int orderNumber;
     private ProgressDialog loading;
     private Order order;
     private List<Cart> cartList;
     private Cart cart;
+
+    private TextInputEditText couponCode;
+    private MaterialButton submitCouponBtn;
 
     private List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG, Place.Field.ADDRESS);
 
@@ -149,6 +156,8 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
         subTotal = Objects.requireNonNull(getIntent().getExtras()).getInt(Globals.ORDER_TOTAL);
         totalSum = findViewById(R.id.total_order_summary);
         totalSum.setText(AppUtils.formatCurrency(total));
+        couponCode = findViewById(R.id.coupon_code);
+        submitCouponBtn = findViewById(R.id.submit_coupon);
 
         standardShipping.setOnCheckedChangeListener(this);
         pickupStation.setOnCheckedChangeListener(this);
@@ -167,9 +176,50 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
             strPaymentMethod = radioButtonPayment.getText().toString();
         });
 
+        submitCouponBtn.setOnClickListener(view -> {
+            String mCoupon = couponCode.getText().toString().trim();
+            if (mCoupon.isEmpty()) {
+                couponCode.setError("Please enter the coupon code here");
+            } else  {
+                loading.setMessage("Applying coupon...");
+                loading.show();
+                applyCoupon(mCoupon);
+            }
+        });
+
         getAllCart();
         populateUserDetails();
         updateTotals(shipping);
+    }
+
+    private void applyCoupon(String code) {
+        vars.verityApp.db
+                .collection(Globals.COUPONS)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        for(QueryDocumentSnapshot document: Objects.requireNonNull(task.getResult())){
+                            coupon = document.toObject(Coupon.class);
+
+                            if (coupon.getCode().equals(code)) {
+                                loading.dismiss();
+
+                                total = total - coupon.getValue();
+                                totalSum.setText(String.valueOf(total));
+                                couponCode.setText("");
+                                Toast.makeText(getApplicationContext(), "It is correct", Toast.LENGTH_SHORT).show();
+                            } else {
+                                loading.dismiss();
+                                Toast.makeText(getApplicationContext(), "Invalid coupon", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    loading.dismiss();
+                    vars.verityApp.crashlytics.recordException(e);
+                    Log.e(TAG, "Error while saving data: ",e);
+                });
     }
 
     public void getAllCart() {

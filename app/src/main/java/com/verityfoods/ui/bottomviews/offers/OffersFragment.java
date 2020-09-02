@@ -204,6 +204,7 @@ public class OffersFragment extends Fragment {
                             model.getName(),
                             model.getImage(),
                             holder.value,
+                            model.getMrp(),
                             amount
                     );
 

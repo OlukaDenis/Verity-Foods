@@ -30,10 +30,13 @@ import com.verityfoods.data.model.Cart;
 import com.verityfoods.data.model.Category;
 import com.verityfoods.data.model.Product;
 import com.verityfoods.data.model.SubCategory;
+import com.verityfoods.data.model.Variable;
+import com.verityfoods.utils.AppUtils;
 import com.verityfoods.utils.Globals;
 import com.verityfoods.utils.Vars;
 import com.verityfoods.viewholders.ProductViewHolder;
 import com.verityfoods.viewholders.SubCategoryViewHolder;
+import com.verityfoods.viewholders.VariableViewHolder;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -51,12 +54,15 @@ public class SubCategoriesFragment extends Fragment {
     private Vars vars;
     private RecyclerView productRecycler;
     private FirestorePagingAdapter<Product, ProductViewHolder> adapter;
+    private FirestorePagingAdapter<Variable, VariableViewHolder> variableAdapter;
     private LinearLayoutManager productsLayoutManager;
 
     private SubCategory subCategory;
     private Product product;
     private String categoryID;
     private String categoryName;
+
+    private Variable variable;
 
     public SubCategoriesFragment() {
         // Required empty public constructor
@@ -149,6 +155,7 @@ public class SubCategoriesFragment extends Fragment {
                             model.getUuid(),
                             model.getName(),
                             model.getImage(),
+                            model.getMrp(),
                             holder.value,
                             amount
                     );
@@ -158,6 +165,10 @@ public class SubCategoriesFragment extends Fragment {
                             .set(cart)
                             .addOnSuccessListener(aVoid -> checkExistingProduct(vars.getShoppingID(), model.getUuid(), cartProduct, holder.value));
                 });
+
+                if (!model.isSimple()) {
+                    populateVariables(holder, model);
+                }
             }
 
             @NonNull
@@ -275,5 +286,65 @@ public class SubCategoriesFragment extends Fragment {
                     vars.verityApp.crashlytics.recordException(e);
                     Log.e(TAG, "Error while getting cart count: ",e );
                 });
+    }
+
+    private void populateVariables(ProductViewHolder productViewHolder, Product productModel) {
+        Query variableQuery = vars.verityApp.db
+                .collection(Globals.CATEGORIES)
+                .document(productModel.getCategory_id())
+                .collection(Globals.SUB_CATEGORIES)
+                .document(productModel.getSub_category_id())
+                .collection(Globals.PRODUCTS)
+                .document(productModel.getUuid())
+                .collection(Globals.VARIABLE);
+
+        FirestorePagingOptions<Variable> variableOptions = new FirestorePagingOptions.Builder<Variable>()
+                .setLifecycleOwner(this)
+                .setQuery(variableQuery, config, snapshot -> {
+                    variable = snapshot.toObject(Variable.class);
+                    assert variable != null;
+                    variable.setUuid(snapshot.getId());
+                    return variable;
+                })
+                .build();
+
+        variableAdapter = new FirestorePagingAdapter<Variable, VariableViewHolder>(variableOptions) {
+            @Override
+            protected void onBindViewHolder(@NonNull VariableViewHolder holder, int position, @NonNull Variable model) {
+                holder.bindVariable(model);
+
+                holder.itemView.setOnClickListener(view -> {
+                    calculatePrice(productViewHolder, productModel, model);
+                });
+            }
+
+            @NonNull
+            @Override
+            public VariableViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_variable, parent, false);
+                return new VariableViewHolder(view, getContext());
+            }
+
+            @Override
+            protected void onError(@NonNull Exception e) {
+                super.onError(e);
+                Toast.makeText(requireActivity(), "Error", Toast.LENGTH_SHORT).show();
+            }
+        };
+        productViewHolder.variableRecycler.setAdapter(variableAdapter);
+        variableAdapter.notifyDataSetChanged();
+    }
+
+    private void calculatePrice(ProductViewHolder holder, Product product, Variable model) {
+        if (product.isOffer()) {
+            int newMrp = model.getPrice() + 2000;
+            holder.productMRP.setText(AppUtils.formatCurrency(newMrp));
+            double discount = (product.getOffer_value() * newMrp) / 100;
+            double actual = newMrp - discount;
+            int m = (int) actual;
+            holder.productPrice.setText(AppUtils.formatCurrency(m));
+        } else {
+            holder.productPrice.setText(AppUtils.formatCurrency(model.getPrice()));
+        }
     }
 }

@@ -13,6 +13,7 @@ public class Globals {
     public static final String MY_ORDERS = "my-orders";
     public static final String VARIABLE = "variables";
     public static final String USERS = "users";
+    public static final String COUPONS = "coupons";
     public static final int AUTOCOMPLETE_REQUEST_CODE = 103;
 
     public static final String CATEGORY_OBJ  = "Category_Object";
