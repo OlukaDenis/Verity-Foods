@@ -75,7 +75,10 @@ public class ProductsFragment extends Fragment {
     BottomNavigationView bottomNav;
     private PagedList.Config config;
 
+    private int modifiedAmount;
+
     private ImageView categoryBanner;
+    Map<String, Object> cartPath;
 
     public ProductsFragment() {
         // Required empty public constructor
@@ -93,6 +96,7 @@ public class ProductsFragment extends Fragment {
 
         vars = new Vars(requireContext());
         loading = new ProgressDialog(requireActivity());
+        loading.setMessage("Adding to cart ...");
 
         Bundle bundle = getArguments();
         assert bundle != null;
@@ -123,6 +127,9 @@ public class ProductsFragment extends Fragment {
                 .error(R.drawable.ic_baseline_image_24)
                 .placeholder(R.drawable.ic_baseline_image_24)
                 .into(categoryBanner);
+
+        cartPath = new HashMap<>();
+        cartPath.put("name", "Cart");
 
         populateProducts();
         populateSubCategories();
@@ -306,40 +313,35 @@ public class ProductsFragment extends Fragment {
             protected void onBindViewHolder(@NonNull ProductViewHolder holder, int position, @NonNull Product model) {
                 holder.bindProduct(model);
 
-                holder.addToCart.setOnClickListener(view -> {
-                    loading.setMessage("Adding to cart ...");
-                    loading.show();
-                    Map<String, Object> cart = new HashMap<>();
-                    cart.put("name", "Cart");
+                if (model.isSimple()) {
+                    holder.addToCart.setOnClickListener(view -> {
 
-                    int amount;
-                    if (model.isOffer()) {
-                        double discount = (model.getOffer_value() * model.getSelling_price()) / 100;
-                        double m = model.getSelling_price() - discount;
-                        int actual = (int) m;
-                        amount = actual * holder.value;
-                    } else {
-                        amount = model.getSelling_price() * holder.value;
-                    }
+                        loading.show();
+                            int amount;
+                            if (model.isOffer()) {
+                                double discount = (model.getOffer_value() * model.getMrp()) / 100;
+                                double m = model.getMrp() - discount;
+                                int actual = (int) m;
+                                amount = actual * holder.value;
+                            } else {
+                                amount = model.getSelling_price() * holder.value;
+                            }
 
-                    Cart cartProduct = new Cart(
-                            category.getUuid(),
-                            category.getName(),
-                            model.getUuid(),
-                            model.getName(),
-                            model.getImage(),
-                            model.getMrp(),
-                            holder.value,
-                            amount
-                    );
+                            Cart cartProduct = new Cart(
+                                    category.getUuid(),
+                                    category.getName(),
+                                    model.getUuid(),
+                                    model.getName(),
+                                    model.getImage(),
+                                    model.getMrp(),
+                                    holder.value,
+                                    amount
+                            );
 
-                    vars.verityApp.db.collection(Globals.CART)
-                            .document(vars.getShoppingID())
-                            .set(cart)
-                            .addOnSuccessListener(aVoid -> checkExistingProduct(vars.getShoppingID(), model.getUuid(), cartProduct, holder.value));
-                });
+                        addProductCart(cartProduct, holder);
+                    });
 
-                if (!model.isSimple()) {
+                } else {
                     populateVariables(holder, model);
                 }
             }
@@ -389,6 +391,13 @@ public class ProductsFragment extends Fragment {
         adapter.notifyDataSetChanged();
     }
 
+    private void addProductCart(Cart cartProduct, ProductViewHolder holder) {
+        vars.verityApp.db.collection(Globals.CART)
+                .document(vars.getShoppingID())
+                .set(cartPath)
+                .addOnSuccessListener(aVoid -> checkExistingProduct(vars.getShoppingID(), cartProduct.getProduct_id(), cartProduct, holder.value));
+    }
+
     private void populateVariables(ProductViewHolder productViewHolder, Product productModel) {
         Query variableQuery = vars.verityApp.db
                 .collection(Globals.CATEGORIES)
@@ -434,6 +443,25 @@ public class ProductsFragment extends Fragment {
         };
         productViewHolder.variableRecycler.setAdapter(variableAdapter);
         variableAdapter.notifyDataSetChanged();
+
+        //handle add to cart
+        productViewHolder.addToCart.setOnClickListener(view -> {
+            loading.show();
+            int mAmount = modifiedAmount * productViewHolder.value;
+            Log.d(TAG, "populateVariables: "+productViewHolder.value);
+            Cart cartProduct = new Cart(
+                    category.getUuid(),
+                    category.getName(),
+                    productModel.getUuid(),
+                    productModel.getName(),
+                    productModel.getImage(),
+                    productModel.getMrp(),
+                    productViewHolder.value,
+                    mAmount
+            );
+
+            addProductCart(cartProduct, productViewHolder);
+        });
     }
 
     private void calculatePrice(ProductViewHolder holder, Product product, Variable model) {
@@ -443,9 +471,13 @@ public class ProductsFragment extends Fragment {
             double discount = (product.getOffer_value() * newMrp) / 100;
             double actual = newMrp - discount;
             int m = (int) actual;
+            //update the amount
+            modifiedAmount = (int) actual;
+            Log.d(TAG, "calculatePrice: "+ modifiedAmount);
             holder.productPrice.setText(AppUtils.formatCurrency(m));
         } else {
             holder.productPrice.setText(AppUtils.formatCurrency(model.getPrice()));
+            modifiedAmount = model.getPrice();
         }
     }
 }
