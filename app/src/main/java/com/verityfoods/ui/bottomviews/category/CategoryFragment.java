@@ -22,12 +22,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.firebase.ui.firestore.paging.FirestorePagingAdapter;
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.firebase.ui.firestore.paging.LoadingState;
+import com.google.android.material.button.MaterialButton;
 import com.google.firebase.firestore.Query;
 import com.verityfoods.R;
 import com.verityfoods.data.model.Category;
 import com.verityfoods.utils.Globals;
 import com.verityfoods.utils.Vars;
 import com.verityfoods.viewholders.CategoryViewHolder;
+
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 
 public class CategoryFragment extends Fragment {
@@ -43,6 +47,7 @@ public class CategoryFragment extends Fragment {
 
         View root = inflater.inflate(R.layout.fragment_category, container, false);
         vars = new Vars(requireActivity());
+        ButterKnife.bind(this, root);
         navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
 
         categoryRecycler = root.findViewById(R.id.shop_category_recycler);
@@ -52,6 +57,11 @@ public class CategoryFragment extends Fragment {
 
         populateCategories();
         return root;
+    }
+
+    @OnClick(R.id.shop_by_brands)
+    void shopByBrand() {
+        navController.navigate(R.id.navigation_brands);
     }
 
     private void populateCategories() {

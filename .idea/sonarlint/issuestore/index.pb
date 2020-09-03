@@ -63,3 +63,17 @@ Aapp/src/main/java/com/verityfoods/ui/privacy/PrivacyFragment.java,a/c/ac281e4c
 Mapp/src/main/java/com/verityfoods/ui/notifications/NotificationsFragment.java,7/d/7d6ff3fd2c7522975ced8d10551a16e78d1e8c6d
 m
 =app/src/main/java/com/verityfoods/ui/auth/SignupActivity.java,3/a/3a099430532645e3ef752e8ff16ad850bb5607f4
+
+Oapp/src/main/java/com/verityfoods/ui/bottomviews/category/CategoryFragment.java,5/a/5acd38a0c9c55d17a631094cf7c42e63fb8eb02b
+j
+:app/src/main/java/com/verityfoods/data/model/Variable.java,c/0/c0761138a897ae4d6d0a11ce117e3a2c3efe84e5
+u
+Eapp/src/main/java/com/verityfoods/viewholders/VariableViewHolder.java,3/2/32fe361bd3463e308737d7a3bb6cc9c3d88b6b4e
+q
+Aapp/src/main/java/com/verityfoods/viewholders/CartViewHolder.java,0/8/0832a37deddae6811b05d0a0149cfa974ea581ec
+o
+?app/src/main/java/com/verityfoods/ui/search/SearchActivity.java,1/d/1dd42bdb5b2296c52419ebed4821c9ff580b9da1
+h
+8app/src/main/java/com/verityfoods/data/model/Coupon.java,d/1/d17adf07697d175a1a9a0cfea32eba3c0c131f47
+l
+<app/src/main/java/com/verityfoods/ui/auth/LoginActivity.java,6/e/6e1a5885c6860548f954ac0863b473f7e6b907e1

@@ -253,23 +253,6 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
         });
     }
 
-    private void applyCoupon(String code) {
-        vars.verityApp.db
-                .collection(Globals.COUPONS)
-                .whereEqualTo("code", code)
-                .get()
-
-
-                .addOnFailureListener(e -> {
-                    loading.dismiss();
-                    vars.verityApp.crashlytics.recordException(e);
-                    Log.e(TAG, "Error while saving data: ",e);
-                    Toast.makeText(getApplicationContext(), "Invalid coupon", Toast.LENGTH_SHORT).show();
-                });
-    }
-
-
-
     private void deleteCoupon(String id) {
         vars.verityApp.db
                 .collection(Globals.COUPONS)

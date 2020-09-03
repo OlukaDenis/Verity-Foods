@@ -72,6 +72,12 @@
         tools:layout="@layout/fragment_shop" />
 
     <fragment
+        android:id="@+id/navigation_brands"
+        android:name="com.verityfoods.ui.brands.BrandFragment"
+        android:label="Brands"
+        tools:layout="@layout/fragment_brand" />
+
+    <fragment
         android:id="@+id/navigation_offers"
         android:name="com.verityfoods.ui.bottomviews.offers.OffersFragment"
         android:label="@string/offers"
