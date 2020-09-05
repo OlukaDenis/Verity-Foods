@@ -54,7 +54,6 @@ public class CategoryFragment extends Fragment {
         gridLayoutManager = new GridLayoutManager(requireActivity(), 3);
         categoryRecycler.setLayoutManager(gridLayoutManager);
 
-
         populateCategories();
         return root;
     }

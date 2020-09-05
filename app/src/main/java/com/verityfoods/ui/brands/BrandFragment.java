@@ -70,7 +70,7 @@ public class BrandFragment extends Fragment {
 
         navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
 
-        layoutManager = new GridLayoutManager(requireActivity(), 4);
+        layoutManager = new GridLayoutManager(requireActivity(), 3);
         brandRecycler = root.findViewById(R.id.brand_recycler);
         brandRecycler.setLayoutManager(layoutManager);
 

@@ -23,6 +23,6 @@ public class BrandViewHolder extends RecyclerView.ViewHolder {
 
     public void bindBrand(Product product) {
         brandName.setText(product.getBrand());
-        brandName.setBackground(context.getResources().getDrawable(R.drawable.varible_bg));
+//        brandName.setBackground(context.getResources().getDrawable(R.drawable.varible_bg));
     }
 }

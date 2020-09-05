@@ -11,7 +11,9 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.paging.PagedList;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SnapHelper;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,11 +26,14 @@ import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.firebase.ui.firestore.paging.LoadingState;
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.verityfoods.R;
+import com.verityfoods.data.adapters.DealsAdapter;
 import com.verityfoods.data.model.Cart;
 import com.verityfoods.data.model.Category;
+import com.verityfoods.data.model.Deal;
 import com.verityfoods.data.model.Product;
 import com.verityfoods.data.model.Variable;
 import com.verityfoods.utils.AppUtils;
@@ -37,9 +42,15 @@ import com.verityfoods.utils.Vars;
 import com.verityfoods.viewholders.ProductViewHolder;
 import com.verityfoods.viewholders.VariableViewHolder;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import static com.verityfoods.utils.Globals.MAX_LIST_SIZE;
 
 public class OffersFragment extends Fragment {
     private static final String TAG = "OffersFragment";
@@ -61,6 +72,14 @@ public class OffersFragment extends Fragment {
 
     private int modifiedAmount;
     private Map<String, Object> cartPath;
+
+    private Timer dealsTimer;
+    private TimerTask dealsTimerTask;
+    private int dealsPosition;
+    private LinearLayoutManager dealsLayoutManager;
+    private RecyclerView dealsRecycler;
+    private List<Deal> deals;
+    private DealsAdapter dealsAdapter;
 
     public OffersFragment() {
     }
@@ -89,6 +108,36 @@ public class OffersFragment extends Fragment {
 
         cartPath = new HashMap<>();
         cartPath.put("name", "Cart");
+
+        deals = new ArrayList<>();
+        //Deals slider
+        dealsRecycler = root.findViewById(R.id.deals_slider);
+        dealsLayoutManager = new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false);
+        dealsRecycler.setLayoutManager(dealsLayoutManager);
+        populateDeals();//populate sliders
+
+        if (deals != null) {
+            dealsPosition = MAX_LIST_SIZE / 2;
+            dealsRecycler.scrollToPosition(dealsPosition);
+        }
+
+        SnapHelper dealHelper = new LinearSnapHelper();
+        dealHelper.attachToRecyclerView(dealsRecycler);
+        dealsRecycler.smoothScrollBy(5, 0);
+
+        dealsRecycler.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+
+                if (newState == 1) {
+                    stopAutoScrollDeals();
+                } else if (newState == 0) {
+                    dealsPosition = dealsLayoutManager.findFirstCompletelyVisibleItemPosition();
+                    runAutoScrollDeals();
+                }
+            }
+        });
 
         populateProducts();
         return root;
@@ -164,6 +213,57 @@ public class OffersFragment extends Fragment {
                     vars.verityApp.crashlytics.recordException(e);
                     Log.e(TAG, "Error while getting cart count: ",e );
                 });
+    }
+
+    private void populateDeals() {
+        vars.verityApp.db
+                .collection(Globals.DEALS)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        for (DocumentSnapshot snapshot : Objects.requireNonNull(task.getResult())) {
+                            Deal mDeal = snapshot.toObject(Deal.class);
+                            Log.d(TAG, "populateDeals: "+ mDeal.getImage());
+                            deals.add(mDeal);
+                        }
+
+                        dealsAdapter = new DealsAdapter(requireActivity(), deals);
+                        dealsRecycler.setAdapter(dealsAdapter);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "populateDeals: ", e);
+                });
+    }
+
+    private void stopAutoScrollDeals() {
+        if (dealsTimer != null && dealsTimerTask != null) {
+            dealsTimerTask.cancel();
+            dealsTimer.cancel();
+            dealsTimer = null;
+            dealsTimerTask = null;
+            dealsPosition = dealsLayoutManager.findFirstCompletelyVisibleItemPosition();
+        }
+    }
+
+    private void runAutoScrollDeals() {
+        if (dealsTimer == null && dealsTimerTask == null) {
+            dealsTimer = new Timer();
+            dealsTimerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    if (dealsPosition == MAX_LIST_SIZE) {
+                        dealsPosition = MAX_LIST_SIZE / 2;
+                        dealsRecycler.scrollToPosition(dealsPosition);
+                        dealsRecycler.smoothScrollBy(5, 0);
+                    } else {
+                        dealsPosition++;
+                        dealsRecycler.smoothScrollToPosition(dealsPosition);
+                    }
+                }
+            };
+            dealsTimer.schedule(dealsTimerTask, 5000, 5000);
+        }
     }
 
     private void populateProducts() {
@@ -355,4 +455,16 @@ public class OffersFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        runAutoScrollDeals();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        stopAutoScrollDeals();
+        MAX_LIST_SIZE = 10;
+    }
 }

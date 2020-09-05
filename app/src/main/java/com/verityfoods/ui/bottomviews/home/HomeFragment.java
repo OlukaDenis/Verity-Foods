@@ -79,8 +79,6 @@ public class HomeFragment extends Fragment {
     private int dealsPosition;
     private LinearLayoutManager dealsLayoutManager;
     private RecyclerView dealsRecycler;
-
-    
     
     private List<ProductSlider> sliders;
     private List<Deal> deals;
@@ -125,10 +123,10 @@ public class HomeFragment extends Fragment {
                 super.onScrollStateChanged(recyclerView, newState);
 
                 if (newState == 1) {
-                    stopAutoScrollBanner();
+                    stopAutoScrollDeals();
                 } else if (newState == 0) {
                     dealsPosition = dealsLayoutManager.findFirstCompletelyVisibleItemPosition();
-                    runAutoScrollBanner();
+                    runAutoScrollDeals();
                 }
             }
         });

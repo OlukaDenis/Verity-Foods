@@ -11,6 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:listitem="@layout/layout_cart"
+        android:visibility="visible"
         android:layout_marginBottom="100dp"/>
 
     <LinearLayout
@@ -89,6 +90,17 @@
             android:layout_height="wrap_content"
             android:textSize="18sp"
             android:text="Empty Cart"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/cart_continue_shopping"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:backgroundTint="@color/colorAccent"
+            android:text="Continue shopping"
+            android:layout_marginTop="100dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginStart="20dp"/>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

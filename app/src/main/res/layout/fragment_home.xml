@@ -49,17 +49,13 @@
         <RelativeLayout
             android:id="@+id/dealsSliderLayout"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="80dp"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="8dp"
             android:orientation="vertical">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/deals_slider"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"
-                tools:listitem="@layout/layout_deals"/>
+            <include layout="@layout/layout_deals_recycler" />
+
         </RelativeLayout>
 
         <RelativeLayout
