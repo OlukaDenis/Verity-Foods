@@ -16,6 +16,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.paging.PagedList;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -45,6 +47,8 @@ public class OrdersFragment extends Fragment {
     private LinearLayout emptyOrders;
     private String userUid;
 
+    private NavController navController;
+
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         ordersViewModel =
@@ -52,6 +56,7 @@ public class OrdersFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_orders, container, false);
 
         vars = new Vars(requireActivity());
+        navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
 
         orderRecycler = root.findViewById(R.id.orders_recyclerview);
         mShimmerViewContainer = root.findViewById(R.id.order_shimmer_container);
@@ -97,7 +102,8 @@ public class OrdersFragment extends Fragment {
 
     private void populateOrders() {
         mShimmerViewContainer.setVisibility(View.VISIBLE);
-        Query orderQuery = vars.verityApp.db.collection(Globals.ORDERS)
+        Query orderQuery = vars.verityApp.db
+                .collection(Globals.ORDERS)
                 .document(userUid)
                 .collection(Globals.MY_ORDERS)
                 .orderBy("dateAdded");
@@ -123,6 +129,14 @@ public class OrdersFragment extends Fragment {
             @Override
             protected void onBindViewHolder(@NonNull OrderViewHolder holder, int position, @NonNull Order model) {
                 holder.bindOrderTo(model);
+
+                holder.itemView.setOnClickListener( v -> {
+
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable(Globals.ORDER_OBJ, model);
+                    navController.navigate(R.id.navigation_orders_details, bundle);
+                });
+
                 mShimmerViewContainer.setVisibility(View.GONE);
             }
 
