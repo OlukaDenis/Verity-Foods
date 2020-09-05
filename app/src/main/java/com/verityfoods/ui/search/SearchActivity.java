@@ -44,9 +44,15 @@ public class SearchActivity extends AppCompatActivity {
     private static final String TAG = "SearchActivity";
     private Vars vars;
     private Product product;
+
     private LinearLayoutManager layoutManager;
     private RecyclerView searchRecycler;
+
+    private LinearLayoutManager brandLayoutManager;
+    private RecyclerView brandSearchRecycler;
+
     private FirestoreRecyclerAdapter<Product, ProductViewHolder> searchAdapter;
+    private FirestoreRecyclerAdapter<Product, ProductViewHolder> brandSearchAdapter;
     private FirestorePagingAdapter<Variable, VariableViewHolder> variableAdapter;
 
     private PagedList.Config config;
@@ -61,8 +67,12 @@ public class SearchActivity extends AppCompatActivity {
         loading = new ProgressDialog(this);
 
         layoutManager = new LinearLayoutManager(this);
-        searchRecycler = findViewById(R.id.products_recycler);
+        searchRecycler = findViewById(R.id.product_search_recycler);
         searchRecycler.setLayoutManager(layoutManager);
+
+        brandSearchRecycler = findViewById(R.id.brand_searh_recycler);
+        brandLayoutManager = new LinearLayoutManager(this);
+        brandSearchRecycler.setLayoutManager(brandLayoutManager);
 
         Toolbar toolbar = findViewById(R.id.search_toolbar);
         setSupportActionBar(toolbar);
@@ -163,86 +173,170 @@ public class SearchActivity extends AppCompatActivity {
 
         if (text.length() > 0) {
             text = text.substring(0, 1).toUpperCase() + text.substring(1).toLowerCase();
-
-            Query searchQuery = vars.verityApp.db
-                    .collectionGroup(Globals.PRODUCTS)
-                    .orderBy("name")
-                    .startAt(text)
-                    .endAt(text+"\uf8ff");
-
-            FirestoreRecyclerOptions<Product> options = new FirestoreRecyclerOptions.Builder<Product>()
-                    .setQuery(searchQuery, snapshot -> {
-                        product = snapshot.toObject(Product.class);
-                        assert product != null;
-                        product.setUuid(snapshot.getId());
-                        return product;
-                    })
-                    .build();
-
-            searchAdapter = new FirestoreRecyclerAdapter<Product, ProductViewHolder>(options) {
-                @Override
-                protected void onBindViewHolder(@NonNull ProductViewHolder holder, int position, @NonNull Product model) {
-                    holder.bindProduct(model);
-
-                    holder.addToCart.setOnClickListener(view -> {
-                        Log.d(TAG, "Quantity: "+ holder.value);
-                        loading.setMessage("Adding to cart ...");
-                        loading.show();
-                        Map<String, Object> cart = new HashMap<>();
-                        cart.put("name", "Cart");
-
-                        int amount;
-                        if (model.isOffer()) {
-                            double discount = (model.getOffer_value() * model.getSelling_price()) / 100;
-                            double m = model.getSelling_price() - discount;
-                            int actual = (int) m;
-                            amount = actual * holder.value;
-                        } else {
-                            amount = model.getSelling_price() * holder.value;
-                        }
-
-                        Cart cartProduct = new Cart(
-                                model.getCategory_id(),
-                                model.getCategory_name(),
-                                model.getUuid(),
-                                model.getName(),
-                                model.getImage(),
-                                model.getMrp(),
-                                holder.value,
-                                amount
-                        );
-
-                        vars.verityApp.db.collection(Globals.CART)
-                                .document(vars.getShoppingID())
-                                .set(cart)
-                                .addOnSuccessListener(aVoid -> checkExistingProduct(vars.getShoppingID(), model.getUuid(), cartProduct, holder.value));
-                    });
-
-
-                    if (!model.isSimple()) {
-                        populateVariables(holder, model);
-                    }
-                }
-
-                @NonNull
-                @Override
-                public ProductViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                    View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_products, parent, false);
-                    return new ProductViewHolder(view, vars);
-                }
-
-                @Override
-                public void onError(@NonNull FirebaseFirestoreException e) {
-                    super.onError(e);
-                    Log.e(TAG, "onError: ", e);
-                    vars.verityApp.crashlytics.recordException(e);
-                }
-            };
-            searchRecycler.setAdapter(searchAdapter);
-            searchAdapter.startListening(); //connects to firebase collection
-            searchAdapter.notifyDataSetChanged();
-
+            searchByName(text);
+            searchByBrand(text);
         }
+    }
+
+    private void searchByBrand(String brand) {
+        Query searchQuery = vars.verityApp.db
+                .collectionGroup(Globals.PRODUCTS)
+                .whereEqualTo("brand", brand)
+                .orderBy("brand")
+                .startAt(brand)
+                .endAt(brand+"\uf8ff");
+
+        FirestoreRecyclerOptions<Product> options = new FirestoreRecyclerOptions.Builder<Product>()
+                .setQuery(searchQuery, snapshot -> {
+                    product = snapshot.toObject(Product.class);
+                    assert product != null;
+                    product.setUuid(snapshot.getId());
+                    return product;
+                })
+                .build();
+
+        brandSearchAdapter = new FirestoreRecyclerAdapter<Product, ProductViewHolder>(options) {
+            @Override
+            protected void onBindViewHolder(@NonNull ProductViewHolder holder, int position, @NonNull Product model) {
+                holder.bindProduct(model);
+
+                holder.addToCart.setOnClickListener(view -> {
+                    Log.d(TAG, "Quantity: "+ holder.value);
+                    loading.setMessage("Adding to cart ...");
+                    loading.show();
+                    Map<String, Object> cart = new HashMap<>();
+                    cart.put("name", "Cart");
+
+                    int amount;
+                    if (model.isOffer()) {
+                        double discount = (model.getOffer_value() * model.getSelling_price()) / 100;
+                        double m = model.getSelling_price() - discount;
+                        int actual = (int) m;
+                        amount = actual * holder.value;
+                    } else {
+                        amount = model.getSelling_price() * holder.value;
+                    }
+
+                    Cart cartProduct = new Cart(
+                            model.getCategory_id(),
+                            model.getCategory_name(),
+                            model.getUuid(),
+                            model.getName(),
+                            model.getImage(),
+                            model.getMrp(),
+                            holder.value,
+                            amount
+                    );
+
+                    vars.verityApp.db.collection(Globals.CART)
+                            .document(vars.getShoppingID())
+                            .set(cart)
+                            .addOnSuccessListener(aVoid -> checkExistingProduct(vars.getShoppingID(), model.getUuid(), cartProduct, holder.value));
+                });
+
+
+                if (!model.isSimple()) {
+                    populateVariables(holder, model);
+                }
+            }
+
+            @NonNull
+            @Override
+            public ProductViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_products, parent, false);
+                return new ProductViewHolder(view, vars);
+            }
+
+            @Override
+            public void onError(@NonNull FirebaseFirestoreException e) {
+                super.onError(e);
+                Log.e(TAG, "onError: ", e);
+                vars.verityApp.crashlytics.recordException(e);
+            }
+        };
+        brandSearchRecycler.setAdapter(searchAdapter);
+        brandSearchAdapter.startListening(); //connects to firebase collection
+        brandSearchAdapter.notifyDataSetChanged();
+    }
+
+    private void searchByName(String name) {
+        Query searchQuery = vars.verityApp.db
+                .collectionGroup(Globals.PRODUCTS)
+                .orderBy("name")
+                .startAt(name)
+                .endAt(name+"\uf8ff");
+
+        FirestoreRecyclerOptions<Product> options = new FirestoreRecyclerOptions.Builder<Product>()
+                .setQuery(searchQuery, snapshot -> {
+                    product = snapshot.toObject(Product.class);
+                    assert product != null;
+                    product.setUuid(snapshot.getId());
+                    return product;
+                })
+                .build();
+
+        searchAdapter = new FirestoreRecyclerAdapter<Product, ProductViewHolder>(options) {
+            @Override
+            protected void onBindViewHolder(@NonNull ProductViewHolder holder, int position, @NonNull Product model) {
+                holder.bindProduct(model);
+
+                holder.addToCart.setOnClickListener(view -> {
+                    Log.d(TAG, "Quantity: "+ holder.value);
+                    loading.setMessage("Adding to cart ...");
+                    loading.show();
+                    Map<String, Object> cart = new HashMap<>();
+                    cart.put("name", "Cart");
+
+                    int amount;
+                    if (model.isOffer()) {
+                        double discount = (model.getOffer_value() * model.getSelling_price()) / 100;
+                        double m = model.getSelling_price() - discount;
+                        int actual = (int) m;
+                        amount = actual * holder.value;
+                    } else {
+                        amount = model.getSelling_price() * holder.value;
+                    }
+
+                    Cart cartProduct = new Cart(
+                            model.getCategory_id(),
+                            model.getCategory_name(),
+                            model.getUuid(),
+                            model.getName(),
+                            model.getImage(),
+                            model.getMrp(),
+                            holder.value,
+                            amount
+                    );
+
+                    vars.verityApp.db.collection(Globals.CART)
+                            .document(vars.getShoppingID())
+                            .set(cart)
+                            .addOnSuccessListener(aVoid -> checkExistingProduct(vars.getShoppingID(), model.getUuid(), cartProduct, holder.value));
+                });
+
+
+                if (!model.isSimple()) {
+                    populateVariables(holder, model);
+                }
+            }
+
+            @NonNull
+            @Override
+            public ProductViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_products, parent, false);
+                return new ProductViewHolder(view, vars);
+            }
+
+            @Override
+            public void onError(@NonNull FirebaseFirestoreException e) {
+                super.onError(e);
+                Log.e(TAG, "onError: ", e);
+                vars.verityApp.crashlytics.recordException(e);
+            }
+        };
+        searchRecycler.setAdapter(searchAdapter);
+        searchAdapter.startListening(); //connects to firebase collection
+        searchAdapter.notifyDataSetChanged();
     }
 
     private void populateVariables(ProductViewHolder productViewHolder, Product productModel) {

@@ -76,9 +76,9 @@ public class ProductsFragment extends Fragment {
     private PagedList.Config config;
 
     private int modifiedAmount;
+    private Map<String, Object> cartPath;
 
     private ImageView categoryBanner;
-    Map<String, Object> cartPath;
 
     public ProductsFragment() {
         // Required empty public constructor
@@ -101,7 +101,7 @@ public class ProductsFragment extends Fragment {
         Bundle bundle = getArguments();
         assert bundle != null;
         category = (Category) bundle.getSerializable(Globals.CATEGORY_OBJ);
-       getActionBar().setTitle(category.getName());
+        getActionBar().setTitle(category.getName());
 
         productsLayoutManager = new LinearLayoutManager(requireActivity());
         productRecycler = root.findViewById(R.id.products_recycler);
@@ -473,7 +473,6 @@ public class ProductsFragment extends Fragment {
             int m = (int) actual;
             //update the amount
             modifiedAmount = (int) actual;
-            Log.d(TAG, "calculatePrice: "+ modifiedAmount);
             holder.productPrice.setText(AppUtils.formatCurrency(m));
         } else {
             holder.productPrice.setText(AppUtils.formatCurrency(model.getPrice()));

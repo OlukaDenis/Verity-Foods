@@ -283,7 +283,6 @@ public class HomeFragment extends Fragment {
     }
 
     private void populateCategories() {
-        Log.d(TAG, "populateCategories called: ");
         Query catQuery = vars.verityApp.db
                 .collection(Globals.CATEGORIES)
                 .orderBy("name")

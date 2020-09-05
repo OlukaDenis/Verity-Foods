@@ -1,12 +1,10 @@
-package com.verityfoods.ui.bottomviews.offers;
-
-import androidx.lifecycle.ViewModelProviders;
+package com.verityfoods.ui.brands;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.paging.PagedList;
@@ -26,11 +24,13 @@ import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.verityfoods.MainActivity;
 import com.verityfoods.R;
 import com.verityfoods.data.model.Cart;
 import com.verityfoods.data.model.Category;
 import com.verityfoods.data.model.Product;
 import com.verityfoods.data.model.Variable;
+import com.verityfoods.ui.bottomviews.shop.ShopViewModel;
 import com.verityfoods.utils.AppUtils;
 import com.verityfoods.utils.Globals;
 import com.verityfoods.utils.Vars;
@@ -41,9 +41,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class OffersFragment extends Fragment {
-    private static final String TAG = "OffersFragment";
+public class BrandProductsFragment extends Fragment {
 
+    private static final String TAG = "BrandProductsFragment";
     private Vars vars;
     private Product product;
     private RecyclerView productRecycler;
@@ -53,22 +53,27 @@ public class OffersFragment extends Fragment {
     private ProgressDialog loading;
 
     private NavController navController;
-    BadgeDrawable badgeDrawable;
-    BottomNavigationView bottomNav;
+    private BadgeDrawable badgeDrawable;
+    private BottomNavigationView bottomNav;
+
+    private ShopViewModel shopViewModel;
 
     private PagedList.Config config;
     private Variable variable;
 
     private int modifiedAmount;
     private Map<String, Object> cartPath;
+    private String brandName;
 
-    public OffersFragment() {
+    public BrandProductsFragment() {
+        // Required empty public constructor
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_offers, container, false);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View root = inflater.inflate(R.layout.fragment_brand_products, container, false);
 
         bottomNav = requireActivity().findViewById(R.id.bottom_navigation);
         badgeDrawable = bottomNav.getBadge(R.id.navigation_cart);
@@ -81,6 +86,13 @@ public class OffersFragment extends Fragment {
         productRecycler = root.findViewById(R.id.products_recycler);
         productRecycler.setLayoutManager(layoutManager);
 
+        Bundle bundle = getArguments();
+        assert bundle != null;
+        brandName = bundle.getString(Globals.SELECTED_BRAND_OBJ);
+        if (brandName != null) {
+            getActionBar().setTitle(brandName);
+        }
+
         config = new PagedList.Config.Builder()
                 .setEnablePlaceholders(false)
                 .setPrefetchDistance(10)
@@ -91,7 +103,12 @@ public class OffersFragment extends Fragment {
         cartPath.put("name", "Cart");
 
         populateProducts();
+
         return root;
+    }
+
+    private ActionBar getActionBar() {
+        return ((MainActivity) requireActivity()).getSupportActionBar();
     }
 
     private void checkExistingProduct(String userId, String productID, Cart cart, int qty) {
@@ -134,7 +151,6 @@ public class OffersFragment extends Fragment {
                                     .addOnSuccessListener(documentReference -> {
                                         Toast.makeText(requireActivity(), "Product added to Cart", Toast.LENGTH_SHORT).show();
                                         updateCartCount();
-//                                        viewModel.cartTotalCount(userId);
                                         loading.dismiss();
                                     })
                                     .addOnFailureListener(e -> {
@@ -167,11 +183,10 @@ public class OffersFragment extends Fragment {
     }
 
     private void populateProducts() {
-        Log.d(TAG, "populateProducts called");
 
         Query catQuery = vars.verityApp.db
                 .collectionGroup(Globals.PRODUCTS)
-                .whereEqualTo("offer", true);
+                .whereEqualTo("brand", brandName);
 
         FirestorePagingOptions<Product> options = new FirestorePagingOptions.Builder<Product>()
                 .setLifecycleOwner(this)
@@ -354,5 +369,4 @@ public class OffersFragment extends Fragment {
             modifiedAmount = model.getPrice();
         }
     }
-
 }

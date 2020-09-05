@@ -6,6 +6,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.paging.PagedList;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -67,6 +68,8 @@ public class BrandFragment extends Fragment {
         vars = new Vars(requireActivity());
         loading = new ProgressDialog(requireActivity());
 
+        navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+
         layoutManager = new GridLayoutManager(requireActivity(), 4);
         brandRecycler = root.findViewById(R.id.brand_recycler);
         brandRecycler.setLayoutManager(layoutManager);
@@ -106,6 +109,13 @@ public class BrandFragment extends Fragment {
             @Override
             protected void onBindViewHolder(@NonNull BrandViewHolder holder, int position, @NonNull Product model) {
                 holder.bindBrand(model);
+
+
+                holder.itemView.setOnClickListener( v -> {
+                    Bundle bundle = new Bundle();
+                    bundle.putString(Globals.SELECTED_BRAND_OBJ, model.getBrand());
+                    navController.navigate(R.id.navigation_brand_products, bundle);
+                });
             }
 
             @NonNull

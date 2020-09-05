@@ -18,6 +18,7 @@ public class Globals {
 
     public static final String CATEGORY_OBJ  = "Category_Object";
     public static final String SUB_CATEGORY_OBJ = "Sub_category_object";
+    public static final String SELECTED_BRAND_OBJ = "Selected_brand_obj";
     public static String CATEGORY_ID;
     public static String CATEGORY_NAME;
     public static String CATEGORY_COVER;
