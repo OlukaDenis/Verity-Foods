@@ -24,7 +24,9 @@ import com.firebase.ui.firestore.paging.LoadingState;
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.verityfoods.R;
+import com.verityfoods.data.adapters.BrandsAdapter;
 import com.verityfoods.data.model.Cart;
 import com.verityfoods.data.model.Category;
 import com.verityfoods.data.model.Product;
@@ -34,15 +36,17 @@ import com.verityfoods.utils.Vars;
 import com.verityfoods.viewholders.BrandViewHolder;
 import com.verityfoods.viewholders.ProductViewHolder;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class BrandFragment extends Fragment {
     private static final String TAG = "BrandFragment";
     private Vars vars;
     private Product product;
     private RecyclerView brandRecycler;
-    private FirestorePagingAdapter<Product, BrandViewHolder> adapter;
     private GridLayoutManager layoutManager;
     private ProgressDialog loading;
 
@@ -51,6 +55,7 @@ public class BrandFragment extends Fragment {
     private BottomNavigationView bottomNav;
 
     private PagedList.Config config;
+    private List<String> brands;
 
     public BrandFragment() {
         // Required empty public constructor
@@ -67,6 +72,7 @@ public class BrandFragment extends Fragment {
 
         vars = new Vars(requireActivity());
         loading = new ProgressDialog(requireActivity());
+        brands = new ArrayList<>();
 
         navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
 
@@ -74,91 +80,35 @@ public class BrandFragment extends Fragment {
         brandRecycler = root.findViewById(R.id.brand_recycler);
         brandRecycler.setLayoutManager(layoutManager);
 
-        config = new PagedList.Config.Builder()
-                .setEnablePlaceholders(false)
-                .setPrefetchDistance(10)
-                .setPageSize(20)
-                .build();
-
-        populateProducts();
-
+        fetchBrands();
         return root;
     }
 
-    private void populateProducts() {
+    private void fetchBrands() {
         Query catQuery = vars.verityApp.db
                 .collectionGroup(Globals.PRODUCTS);
 
-        PagedList.Config config = new PagedList.Config.Builder()
-                .setEnablePlaceholders(false)
-                .setPrefetchDistance(10)
-                .setPageSize(20)
-                .build();
+        catQuery.get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+                            Product prd = document.toObject(Product.class);
+                            if (!brands.contains(prd.getBrand())) {
+                                brands.add(prd.getBrand());
+                            }
+                        }
 
-        FirestorePagingOptions<Product> options = new FirestorePagingOptions.Builder<Product>()
-                .setLifecycleOwner(this)
-                .setQuery(catQuery, config, snapshot -> {
-                    product = snapshot.toObject(Product.class);
-                    assert product != null;
-                    product.setUuid(snapshot.getId());
-                    return product;
+                        populateProducts();
+                    }
                 })
-                .build();
-
-        adapter = new FirestorePagingAdapter<Product, BrandViewHolder>(options) {
-            @Override
-            protected void onBindViewHolder(@NonNull BrandViewHolder holder, int position, @NonNull Product model) {
-                holder.bindBrand(model);
-
-
-                holder.itemView.setOnClickListener( v -> {
-                    Bundle bundle = new Bundle();
-                    bundle.putString(Globals.SELECTED_BRAND_OBJ, model.getBrand());
-                    navController.navigate(R.id.navigation_brand_products, bundle);
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "fetchBrands: ",e );
+                    vars.verityApp.crashlytics.recordException(e);
                 });
-            }
+    }
 
-            @NonNull
-            @Override
-            public BrandViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_brand, parent, false);
-                return new BrandViewHolder(view, getContext());
-            }
-
-            @Override
-            protected void onError(@NonNull Exception e) {
-                super.onError(e);
-                Toast.makeText(requireActivity(), "Error", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            protected void onLoadingStateChanged(@NonNull LoadingState state) {
-                switch (state) {
-                    case LOADING_INITIAL:
-
-                        break;
-
-                    case LOADING_MORE:
-//                        mShimmerViewContainer.setVisibility(View.VISIBLE);
-                        break;
-
-                    case LOADED:
-//                        mShimmerViewContainer.setVisibility(View.GONE);
-                        notifyDataSetChanged();
-                        break;
-
-                    case ERROR:
-                        Toast.makeText(requireActivity(), "Error", Toast.LENGTH_SHORT).show();
-
-//                        mShimmerViewContainer.setVisibility(View.GONE);
-                        break;
-
-                    case FINISHED:
-//                        mShimmerViewContainer.setVisibility(View.GONE);
-                        break;
-                }
-            }
-        };
+    private void populateProducts() {
+        BrandsAdapter adapter = new BrandsAdapter(brands, requireActivity());
         brandRecycler.setAdapter(adapter);
         adapter.notifyDataSetChanged();
     }
