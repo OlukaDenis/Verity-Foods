@@ -31,24 +31,31 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-            <TextView
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Products"/>
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/product_search_recycler"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                tools:listitem="@layout/layout_products" />
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Brands"/>
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/brand_searh_recycler"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                tools:listitem="@layout/layout_products" />
+                android:layout_height="wrap_content">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/brand_search_recycler"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    tools:listitem="@layout/layout_brand_search_item"/>
+            </RelativeLayout>
+
+           <RelativeLayout
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content">
+
+               <androidx.recyclerview.widget.RecyclerView
+                   android:id="@+id/product_search_recycler"
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   tools:listitem="@layout/layout_products" />
+
+           </RelativeLayout>
+
+
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
