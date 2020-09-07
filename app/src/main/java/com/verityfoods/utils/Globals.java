@@ -11,12 +11,16 @@ public class Globals {
     public static final String MY_CART = "my_cart";
     public static final String ORDERS = "orders";
     public static final String MY_ORDERS = "my-orders";
-    public static final String VARIABLE = "variable";
+    public static final String VARIABLE = "variables";
     public static final String USERS = "users";
+    public static final String COUPONS = "coupons";
     public static final int AUTOCOMPLETE_REQUEST_CODE = 103;
 
     public static final String CATEGORY_OBJ  = "Category_Object";
     public static final String SUB_CATEGORY_OBJ = "Sub_category_object";
+    public static final String SELECTED_BRAND_OBJ = "Selected_brand_obj";
+    public static final String ORDER_OBJ = "Order_obj";
+    public static final String BRAND_SEARCH_RESULT = "Brand_search_result";
     public static String CATEGORY_ID;
     public static String CATEGORY_NAME;
     public static String CATEGORY_COVER;

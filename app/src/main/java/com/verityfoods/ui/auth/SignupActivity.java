@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
@@ -70,7 +71,7 @@ public class SignupActivity extends AppCompatActivity {
     TextInputEditText userEmail;
 
     @BindView(R.id.location)
-    AutoCompleteTextView userAddress;
+    TextView userAddress;
 
     @BindView(R.id.signup_btn)
     MaterialButton signUpBtn;
@@ -105,7 +106,7 @@ public class SignupActivity extends AppCompatActivity {
         Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields).setCountry("UG")
                 .build(this);
         startActivityForResult(intent, Globals.AUTOCOMPLETE_REQUEST_CODE);
-}
+    }
 
     @OnClick({ R.id.location})
     public void onItemClicked(View view) {

@@ -4,6 +4,7 @@ public class Variable {
     private String uuid;
     private String qty;
     private int price;
+    private boolean preferred;
 
     public Variable() {
     }
@@ -30,5 +31,13 @@ public class Variable {
 
     public void setPrice(int price) {
         this.price = price;
+    }
+
+    public boolean isPreferred() {
+        return preferred;
+    }
+
+    public void setPreferred(boolean preferred) {
+        this.preferred = preferred;
     }
 }

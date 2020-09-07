@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:background="@color/bg"
+    android:layout_height="match_parent"
+    tools:context=".ui.orders.OrderDetailFragment">
+
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="vertical">
+
+      <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:paddingEnd="16dp"
+        android:paddingStart="16dp"
+        android:paddingTop="18dp"
+        android:paddingBottom="14dp">
+
+        <TextView
+            android:id="@+id/detail_order_no"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ORDER NO: "
+            android:textColor="@color/colorPrimaryDark"
+            android:textAllCaps="true"
+            android:textStyle="bold"
+            android:layout_alignParentStart="true"/>
+
+        <TextView
+            android:id="@+id/detail_order_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Aug 2, 2020"
+            android:layout_alignParentEnd="true"/>
+    </RelativeLayout>
+
+      <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:weightSum="10"
+          android:paddingEnd="18dp"
+          android:paddingStart="18dp"
+          android:paddingTop="16dp"
+          android:paddingBottom="16dp"
+          android:background="@color/white"
+          android:orientation="horizontal">
+
+          <LinearLayout
+              android:layout_width="0dp"
+              android:layout_weight="5"
+              android:layout_height="wrap_content"
+              android:orientation="vertical">
+
+              <TextView
+                  android:id="@+id/detail_order_count"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:textColor="@color/black"
+                  android:text="2 items"/>
+
+              <TextView
+                  android:id="@+id/detail_order_total"
+                  android:layout_width="wrap_content"
+                  android:textColor="@color/colorPrimary"
+                  android:layout_height="wrap_content"
+                  android:text="UGX 30,000"/>
+
+              <TextView
+                  android:id="@+id/detail_order_status"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:textColor="@color/colorAccent"
+                  android:text="Order place"/>
+
+          </LinearLayout>
+
+          <View
+              android:layout_width="0dp"
+              android:layout_weight="0.1"
+              android:layout_height="match_parent"
+              android:background="@color/bg" />
+
+          <LinearLayout
+              android:layout_width="0dp"
+              android:layout_weight="5"
+              android:paddingStart="16dp"
+              android:layout_height="wrap_content"
+              android:orientation="vertical">
+
+              <TextView
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="Payment"
+                  android:textColor="@color/black"/>
+
+              <TextView
+                  android:id="@+id/detail_order_payment_method"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="Cash on delivery" />
+
+              <TextView
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="Delivery"
+                  android:layout_marginTop="8dp"
+                  android:textColor="@color/black"/>
+
+              <TextView
+                  android:id="@+id/detail_order_delivery_method"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="Standard delivery" />
+
+          </LinearLayout>
+      </LinearLayout>
+
+      <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:paddingTop="16dp"
+          android:layout_marginTop="1dp"
+          android:background="@color/white"
+          android:paddingStart="16dp"
+          android:paddingEnd="16dp"
+          android:paddingBottom="16dp"
+          android:orientation="vertical">
+
+          <TextView
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:text="Shipping"
+              android:textColor="@color/black"/>
+
+          <TextView
+              android:id="@+id/detail_order_address_user"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="User"/>
+
+          <TextView
+              android:id="@+id/detail_order_address_name"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="Nakasero Rd"/>
+
+          <TextView
+              android:id="@+id/detail_order_address_phone"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="0779 393032"/>
+
+      </LinearLayout>
+
+      <TextView
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="order items"
+          android:textColor="@color/black"
+          android:textAllCaps="true"
+          android:paddingBottom="16dp"
+          android:paddingTop="16dp"
+          android:paddingStart="16dp"
+          android:textStyle="bold"/>
+
+      <RelativeLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:paddingTop="16dp"
+          android:background="@color/white"
+          android:paddingStart="16dp"
+          android:paddingEnd="16dp">
+
+          <androidx.recyclerview.widget.RecyclerView
+              android:id="@+id/detail_order_items_recycler"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              tools:listitem="@layout/layout_detail_order_item"/>
+
+      </RelativeLayout>
+
+  </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>

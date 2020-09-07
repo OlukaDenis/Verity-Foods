@@ -33,10 +33,13 @@ import com.verityfoods.data.model.Cart;
 import com.verityfoods.data.model.Category;
 import com.verityfoods.data.model.Product;
 import com.verityfoods.data.model.SubCategory;
+import com.verityfoods.data.model.Variable;
+import com.verityfoods.utils.AppUtils;
 import com.verityfoods.utils.Globals;
 import com.verityfoods.utils.Vars;
 import com.verityfoods.viewholders.ProductViewHolder;
 import com.verityfoods.viewholders.SubCategoryViewHolder;
+import com.verityfoods.viewholders.VariableViewHolder;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -56,10 +59,13 @@ public class ProductsFragment extends Fragment {
 
     private FirestorePagingAdapter<Product, ProductViewHolder> adapter;
     private FirestorePagingAdapter<SubCategory, SubCategoryViewHolder> subAdapter;
+    private FirestorePagingAdapter<Variable, VariableViewHolder> variableAdapter;
 
     private SubCategory subCategory;
     private Category category;
     private Product product;
+    private Variable variable;
+    private int currentProductPrice;
 
     private ProgressDialog loading;
     private String userUid;
@@ -69,7 +75,11 @@ public class ProductsFragment extends Fragment {
     BottomNavigationView bottomNav;
     private PagedList.Config config;
 
+    private int modifiedAmount;
+    private Map<String, Object> cartPath;
+
     private ImageView categoryBanner;
+    private static int index = 0;
 
     public ProductsFragment() {
         // Required empty public constructor
@@ -87,11 +97,12 @@ public class ProductsFragment extends Fragment {
 
         vars = new Vars(requireContext());
         loading = new ProgressDialog(requireActivity());
+        loading.setMessage("Adding to cart ...");
 
         Bundle bundle = getArguments();
         assert bundle != null;
         category = (Category) bundle.getSerializable(Globals.CATEGORY_OBJ);
-       getActionBar().setTitle(category.getName());
+        getActionBar().setTitle(category.getName());
 
         productsLayoutManager = new LinearLayoutManager(requireActivity());
         productRecycler = root.findViewById(R.id.products_recycler);
@@ -117,6 +128,9 @@ public class ProductsFragment extends Fragment {
                 .error(R.drawable.ic_baseline_image_24)
                 .placeholder(R.drawable.ic_baseline_image_24)
                 .into(categoryBanner);
+
+        cartPath = new HashMap<>();
+        cartPath.put("name", "Cart");
 
         populateProducts();
         populateSubCategories();
@@ -300,38 +314,37 @@ public class ProductsFragment extends Fragment {
             protected void onBindViewHolder(@NonNull ProductViewHolder holder, int position, @NonNull Product model) {
                 holder.bindProduct(model);
 
-                holder.addToCart.setOnClickListener(view -> {
-                    Log.d(TAG, "Quantity: "+ holder.value);
-                    loading.setMessage("Adding to cart ...");
-                    loading.show();
-                    Map<String, Object> cart = new HashMap<>();
-                    cart.put("name", "Cart");
+                if (model.isSimple()) {
+                    holder.addToCart.setOnClickListener(view -> {
 
-                    int amount;
-                    if (model.isOffer()) {
-                        double discount = (model.getOffer_value() * model.getSelling_price()) / 100;
-                        double m = model.getSelling_price() - discount;
-                        int actual = (int) m;
-                        amount = actual * holder.value;
-                    } else {
-                        amount = model.getSelling_price() * holder.value;
-                    }
+                        loading.show();
+                            int amount;
+                            if (model.isOffer()) {
+                                double discount = (model.getOffer_value() * model.getMrp()) / 100;
+                                double m = model.getMrp() - discount;
+                                int actual = (int) m;
+                                amount = actual * holder.value;
+                            } else {
+                                amount = model.getSelling_price() * holder.value;
+                            }
 
-                    Cart cartProduct = new Cart(
-                            category.getUuid(),
-                            category.getName(),
-                            model.getUuid(),
-                            model.getName(),
-                            model.getImage(),
-                            holder.value,
-                            amount
-                    );
+                            Cart cartProduct = new Cart(
+                                    category.getUuid(),
+                                    category.getName(),
+                                    model.getUuid(),
+                                    model.getName(),
+                                    model.getImage(),
+                                    model.getMrp(),
+                                    holder.value,
+                                    amount
+                            );
 
-                    vars.verityApp.db.collection(Globals.CART)
-                            .document(vars.getShoppingID())
-                            .set(cart)
-                            .addOnSuccessListener(aVoid -> checkExistingProduct(vars.getShoppingID(), model.getUuid(), cartProduct, holder.value));
-                });
+                        addProductCart(cartProduct, holder);
+                    });
+
+                } else {
+                    populateVariables(holder, model);
+                }
             }
 
             @NonNull
@@ -377,5 +390,108 @@ public class ProductsFragment extends Fragment {
         };
         productRecycler.setAdapter(adapter);
         adapter.notifyDataSetChanged();
+    }
+
+    private void addProductCart(Cart cartProduct, ProductViewHolder holder) {
+        vars.verityApp.db.collection(Globals.CART)
+                .document(vars.getShoppingID())
+                .set(cartPath)
+                .addOnSuccessListener(aVoid -> checkExistingProduct(vars.getShoppingID(), cartProduct.getProduct_id(), cartProduct, holder.value));
+    }
+
+    private void populateVariables(ProductViewHolder productViewHolder, Product productModel) {
+        Query variableQuery = vars.verityApp.db
+                .collection(Globals.CATEGORIES)
+                .document(category.getUuid())
+                .collection(Globals.SUB_CATEGORIES)
+                .document(productModel.getSub_category_id())
+                .collection(Globals.PRODUCTS)
+                .document(productModel.getUuid())
+                .collection(Globals.VARIABLE);
+
+        FirestorePagingOptions<Variable> variableOptions = new FirestorePagingOptions.Builder<Variable>()
+                .setLifecycleOwner(this)
+                .setQuery(variableQuery, config, snapshot -> {
+                    variable = snapshot.toObject(Variable.class);
+                    assert variable != null;
+                    variable.setUuid(snapshot.getId());
+                    return variable;
+                })
+                .build();
+
+        variableAdapter = new FirestorePagingAdapter<Variable, VariableViewHolder>(variableOptions) {
+            @Override
+            protected void onBindViewHolder(@NonNull VariableViewHolder holder, int position, @NonNull Variable model) {
+                holder.bindVariable(model);
+
+                holder.itemView.setOnClickListener(view -> {
+                    calculatePrice(productViewHolder, productModel, model);
+                    index = position;
+                    changeVariableColor(holder, position);
+                });
+            }
+
+            @NonNull
+            @Override
+            public VariableViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_variable, parent, false);
+                return new VariableViewHolder(view, getContext());
+            }
+
+            @Override
+            protected void onError(@NonNull Exception e) {
+                super.onError(e);
+                Toast.makeText(requireActivity(), "Error", Toast.LENGTH_SHORT).show();
+            }
+        };
+        productViewHolder.variableRecycler.setAdapter(variableAdapter);
+        variableAdapter.notifyDataSetChanged();
+
+        //handle add to cart
+        productViewHolder.addToCart.setOnClickListener(view -> {
+            loading.show();
+            int mAmount = modifiedAmount * productViewHolder.value;
+            Log.d(TAG, "populateVariables: "+productViewHolder.value);
+            Cart cartProduct = new Cart(
+                    category.getUuid(),
+                    category.getName(),
+                    productModel.getUuid(),
+                    productModel.getName(),
+                    productModel.getImage(),
+                    productModel.getMrp(),
+                    productViewHolder.value,
+                    mAmount
+            );
+
+            addProductCart(cartProduct, productViewHolder);
+        });
+    }
+
+    private void calculatePrice(ProductViewHolder holder, Product product, Variable model) {
+        if (product.isOffer()) {
+            int newMrp = model.getPrice() + 2000;
+            holder.productMRP.setText(AppUtils.formatCurrency(newMrp));
+            double discount = (product.getOffer_value() * newMrp) / 100;
+            double actual = newMrp - discount;
+            int m = (int) actual;
+            //update the amount
+            modifiedAmount = (int) actual;
+            holder.productPrice.setText(AppUtils.formatCurrency(m));
+        } else {
+            holder.productPrice.setText(AppUtils.formatCurrency(model.getPrice()));
+            modifiedAmount = model.getPrice();
+        }
+    }
+
+    private void changeVariableColor(VariableViewHolder holder, int position) {
+        Log.d(TAG, "Position: "+position);
+        Log.d(TAG, "Index: "+index);
+        if (index == position) {
+            holder.variableName.setBackground(requireActivity().getResources().getDrawable(R.drawable.variable_filled_bg));
+            holder.variableName.setTextColor(requireActivity().getResources().getColor(R.color.white));
+        } else {
+            holder.variableName.setBackground(requireActivity().getResources().getDrawable(R.drawable.varible_bg));
+            holder.variableName.setTextColor(requireActivity().getResources().getColor(R.color.black));
+        }
     }
 }
