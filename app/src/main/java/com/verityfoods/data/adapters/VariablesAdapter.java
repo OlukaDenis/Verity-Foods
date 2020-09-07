@@ -24,7 +24,7 @@ public class VariablesAdapter extends RecyclerView.Adapter<VariableViewHolder> {
     private static final String TAG = "VariablesAdapter";
     private List<Variable> variableList;
     private Activity activity;
-    private int index = 0;
+    private int index = -1;
     private int modifiedAmount;
     private ProductViewHolder productViewHolder;
     private Product product;
@@ -54,11 +54,9 @@ public class VariablesAdapter extends RecyclerView.Adapter<VariableViewHolder> {
         });
 
         if (index == position) {
-            Log.d(TAG, "Index is equal: "+index);
             holder.variableName.setBackground(activity.getResources().getDrawable(R.drawable.variable_filled_bg));
             holder.variableName.setTextColor(activity.getResources().getColor(R.color.white));
         } else {
-            Log.d(TAG, "Index not equal: ");
             holder.variableName.setBackground(activity.getResources().getDrawable(R.drawable.varible_bg));
             holder.variableName.setTextColor(activity.getResources().getColor(R.color.black));
         }
@@ -67,13 +65,14 @@ public class VariablesAdapter extends RecyclerView.Adapter<VariableViewHolder> {
             productViewHolder.addToCart.setOnClickListener(v -> {
                 productViewHolder.loading.show();
                 int mAmount = modifiedAmount * productViewHolder.value;
+
                 Cart cart = new Cart(
                         product.getCategory_id(),
                         product.getCategory_name(),
                         product.getUuid(),
                         product.getName(),
                         product.getImage(),
-                        product.getMrp(),
+                        product.getMrp() * productViewHolder.value,
                         productViewHolder.value,
                         mAmount
                 );
@@ -91,22 +90,10 @@ public class VariablesAdapter extends RecyclerView.Adapter<VariableViewHolder> {
         return variableList == null ? 0 : variableList.size();
     }
 
-    private void changeColor(VariableViewHolder holder, int position) {
-        if (index == position) {
-            Log.d(TAG, "Index is equal: "+index);
-            holder.variableName.setBackground(activity.getResources().getDrawable(R.drawable.variable_filled_bg));
-            holder.variableName.setTextColor(activity.getResources().getColor(R.color.white));
-        } else {
-            Log.d(TAG, "Index not equal: ");
-            holder.variableName.setBackground(activity.getResources().getDrawable(R.drawable.varible_bg));
-            holder.variableName.setTextColor(activity.getResources().getColor(R.color.black));
-        }
-    }
 
     private void calculatePrice(Variable model) {
         if (product.isOffer()) {
-            int newMrp = model.getPrice() + 2000;
-            productViewHolder.productMRP.setText(AppUtils.formatCurrency(newMrp));
+            int newMrp = model.getPrice() + 1000;
             double discount = (product.getOffer_value() * newMrp) / 100;
             double actual = newMrp - discount;
             int m = (int) actual;

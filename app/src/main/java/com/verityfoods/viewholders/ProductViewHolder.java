@@ -186,7 +186,7 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
                         product.getUuid(),
                         product.getName(),
                         product.getImage(),
-                        product.getMrp(),
+                        product.getMrp() * value,
                         value,
                         amount
                 );
