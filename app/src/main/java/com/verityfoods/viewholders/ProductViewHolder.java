@@ -1,17 +1,15 @@
 package com.verityfoods.viewholders;
 
+import android.app.Activity;
+import android.app.ProgressDialog;
 import android.graphics.Paint;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,19 +17,21 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.Query;
+import com.google.android.material.badge.BadgeDrawable;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.squareup.picasso.Picasso;
 import com.verityfoods.R;
+import com.verityfoods.data.adapters.VariablesAdapter;
+import com.verityfoods.data.model.Cart;
 import com.verityfoods.data.model.Product;
 import com.verityfoods.data.model.Variable;
 import com.verityfoods.utils.AppUtils;
 import com.verityfoods.utils.Globals;
 import com.verityfoods.utils.Vars;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 import butterknife.BindView;
@@ -39,14 +39,30 @@ import butterknife.ButterKnife;
 
 public class ProductViewHolder extends RecyclerView.ViewHolder {
     private static final String TAG = "ProductViewHolder";
+    private Activity activity;
     private LinearLayout plusMinusButton;
     public TextView plusButton;
     public TextView minusButton;
-    public TextView total;
+    public TextView counterTotal;
     public int value;
+    public int index = 0;
+    public static int modifiedAmount;
     private Variable variable;
+    public TextView productMRP;
+    public TextView productPrice;
+    public FrameLayout discountLayout;
+    public TextView offerValue;
+    public RecyclerView variableRecycler;
+
+    public Button addToCart;
+    private Map<String, Object> cartPath;
+
+    private BadgeDrawable badgeDrawable;
+    private BottomNavigationView bottomNav;
 
     private Vars vars;
+    public ProgressDialog loading;
+
     @BindView(R.id.prduct_image)
     ImageView productImage;
 
@@ -55,11 +71,6 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
 
     @BindView(R.id.product_brand)
     TextView productBrand;
-
-    public TextView productMRP;
-    public TextView productPrice;
-    public FrameLayout discountLayout;
-    public TextView offerValue;
 
     @BindView(R.id.product_pack)
     TextView productPack;
@@ -70,22 +81,25 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
     @BindView(R.id.prd_lower_layout)
     RelativeLayout lowerLayout;
 
-    public RecyclerView variableRecycler;
-
-    public Button addToCart;
-    private ArrayAdapter<String> variableAdapter;
-    private List<String> variableList;
-    private String[] variableArray;
-
-    public ProductViewHolder(@NonNull View itemView, Vars vars) {
+    public ProductViewHolder(@NonNull View itemView, Vars vars, Activity activity) {
         super(itemView);
         this.vars = vars;
-        variableList = new ArrayList<>();
+        this.activity = activity;
+        loading = new ProgressDialog(activity);
+        loading.setMessage("Adding to cart ...");
+
+        cartPath = new HashMap<>();
+        cartPath.put("name", "Cart");
+
+        bottomNav = activity.findViewById(R.id.bottom_navigation);
+        if (bottomNav != null) {
+            badgeDrawable = bottomNav.getBadge(R.id.navigation_cart);
+        }
 
         ButterKnife.bind(this, itemView);
         plusButton = itemView.findViewById(R.id.plus_btn);
         minusButton = itemView.findViewById(R.id.minus_btn);
-        total = itemView.findViewById(R.id.counter_total);
+        counterTotal = itemView.findViewById(R.id.counter_total);
         plusMinusButton = itemView.findViewById(R.id.plus_minus_button);
         addToCart = itemView.findViewById(R.id.add_to_cart);
         productPrice = itemView.findViewById(R.id.product_price);
@@ -100,21 +114,19 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
 
     public void bindProduct(Product product) {
 
-        value = Integer.parseInt(total.getText().toString());
+        value = Integer.parseInt(counterTotal.getText().toString());
         plusButton.setOnClickListener(view -> {
-            int p = Integer.parseInt(total.getText().toString());
-            total.setText(String.valueOf(p += 1));
-            value = Integer.parseInt(total.getText().toString());
-            Log.d(TAG, "on Plus: "+value);
+            int p = Integer.parseInt(counterTotal.getText().toString());
+            counterTotal.setText(String.valueOf(p += 1));
+            value = Integer.parseInt(counterTotal.getText().toString());
         });
 
         minusButton.setOnClickListener(view -> {
-            int m = Integer.parseInt(total.getText().toString());
+            int m = Integer.parseInt(counterTotal.getText().toString());
             if (m > 1) {
-                total.setText(String.valueOf(m -= 1));
-                value = Integer.parseInt(total.getText().toString());
+                counterTotal.setText(String.valueOf(m -= 1));
+                value = Integer.parseInt(counterTotal.getText().toString());
             }
-            Log.d(TAG, "on Minus: "+value);
         });
 
         if (product.isOffer()) {
@@ -154,9 +166,125 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
             variableRecycler.setVisibility(View.GONE);
             productPack.setVisibility(View.VISIBLE);
             productPack.setText(product.getPack());
+
+            addToCart.setOnClickListener(view -> {
+                Log.d(TAG, "Simple add to cart: ");
+                loading.show();
+                int amount;
+                if (product.isOffer()) {
+                    double discount = (product.getOffer_value() * product.getMrp()) / 100;
+                    double m = product.getMrp() - discount;
+                    int actual = (int) m;
+                    amount = actual * value;
+                } else {
+                    amount = product.getSelling_price() * value;
+                }
+
+                Cart cartProduct = new Cart(
+                        product.getCategory_id(),
+                        product.getCategory_name(),
+                        product.getUuid(),
+                        product.getName(),
+                        product.getImage(),
+                        product.getMrp(),
+                        value,
+                        amount
+                );
+
+                addProductCart(cartProduct, product);
+
+            });
         } else {
             productPack.setVisibility(View.GONE);
             variableRecycler.setVisibility(View.VISIBLE);
+
+            populateVariables(product);
         }
+    }
+
+    private void checkExistingProduct(Product product, String userId, String productID, Cart cart, int qty) {
+
+        vars.verityApp.db.collection(Globals.CART + "/" + userId + "/" + Globals.MY_CART)
+                .whereEqualTo("product_id", productID)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        if (Objects.requireNonNull(task.getResult()).size() > 0) {
+
+                            for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+                                Cart cartProduct = document.toObject(Cart.class);
+
+                                if (product.isOffer()) {
+                                    double discount = (product.getOffer_value() * product.getSelling_price()) / 100;
+                                    double m = product.getSelling_price() - discount;
+                                    int actual = (int) m;
+
+                                    cartProduct.setAmount((actual * qty + cartProduct.getAmount()));
+                                } else {
+                                    cartProduct.setAmount((product.getSelling_price() * qty + cartProduct.getAmount()));
+                                }
+                                cartProduct.setQuantity(qty + cartProduct.getQuantity());
+
+                                vars.verityApp.db.collection(Globals.CART)
+                                        .document(userId)
+                                        .collection(Globals.MY_CART)
+                                        .document(document.getId())
+                                        .set(cartProduct);
+
+                                Toast.makeText(activity, "Product added to Cart", Toast.LENGTH_SHORT).show();
+                                loading.dismiss();
+                            }
+                        } else {
+                            vars.verityApp.db.collection(Globals.CART)
+                                    .document(userId)
+                                    .collection(Globals.MY_CART)
+                                    .add(cart)
+                                    .addOnSuccessListener(documentReference -> {
+                                        Toast.makeText(activity, "Product added to Cart", Toast.LENGTH_SHORT).show();
+                                        updateCartCount();
+                                        loading.dismiss();
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        vars.verityApp.crashlytics.recordException(e);
+                                        Log.e(TAG, "Error while adding to cart:: ",e );
+                                        loading.dismiss();
+                                    });
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    vars.verityApp.crashlytics.recordException(e);
+                    Log.e(TAG, "Error while adding to cart: ",e );
+                });
+    }
+
+    public void updateCartCount() {
+        if (bottomNav != null) {
+            vars.verityApp.db.collection(Globals.CART)
+                    .document(vars.getShoppingID())
+                    .collection(Globals.MY_CART)
+                    .get()
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        int count = queryDocumentSnapshots.size();
+                        badgeDrawable.setNumber(count);
+                    })
+                    .addOnFailureListener(e -> {
+                        vars.verityApp.crashlytics.recordException(e);
+                        Log.e(TAG, "Error while getting cart count: ", e);
+                    });
+        }
+    }
+
+    public void addProductCart(Cart cartProduct, Product product) {
+        vars.verityApp.db.collection(Globals.CART)
+                .document(vars.getShoppingID())
+                .set(cartPath)
+                .addOnSuccessListener(aVoid -> checkExistingProduct(product, vars.getShoppingID(), cartProduct.getProduct_id(), cartProduct, value));
+    }
+
+    private void populateVariables(Product productModel) {
+        VariablesAdapter variableAdapter = new VariablesAdapter(productModel.getVariables(), activity, this, productModel);
+        variableRecycler.setAdapter(variableAdapter);
+        variableAdapter.notifyDataSetChanged();
     }
 }
