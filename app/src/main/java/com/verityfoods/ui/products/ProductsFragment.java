@@ -79,6 +79,7 @@ public class ProductsFragment extends Fragment {
     private Map<String, Object> cartPath;
 
     private ImageView categoryBanner;
+    private static int index = 0;
 
     public ProductsFragment() {
         // Required empty public constructor
@@ -425,6 +426,8 @@ public class ProductsFragment extends Fragment {
 
                 holder.itemView.setOnClickListener(view -> {
                     calculatePrice(productViewHolder, productModel, model);
+                    index = position;
+                    changeVariableColor(holder, position);
                 });
             }
 
@@ -477,6 +480,18 @@ public class ProductsFragment extends Fragment {
         } else {
             holder.productPrice.setText(AppUtils.formatCurrency(model.getPrice()));
             modifiedAmount = model.getPrice();
+        }
+    }
+
+    private void changeVariableColor(VariableViewHolder holder, int position) {
+        Log.d(TAG, "Position: "+position);
+        Log.d(TAG, "Index: "+index);
+        if (index == position) {
+            holder.variableName.setBackground(requireActivity().getResources().getDrawable(R.drawable.variable_filled_bg));
+            holder.variableName.setTextColor(requireActivity().getResources().getColor(R.color.white));
+        } else {
+            holder.variableName.setBackground(requireActivity().getResources().getDrawable(R.drawable.varible_bg));
+            holder.variableName.setTextColor(requireActivity().getResources().getColor(R.color.black));
         }
     }
 }

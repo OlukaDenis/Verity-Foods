@@ -57,6 +57,7 @@ public class BrandSearchResults extends AppCompatActivity {
     private int modifiedAmount;
     private Map<String, Object> cartPath;
     private String brandName;
+    private int index;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
