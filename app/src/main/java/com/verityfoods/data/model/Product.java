@@ -9,6 +9,7 @@ public class Product implements Serializable {
     private String sub_category_id;
     private String uuid;
     private String name;
+    private String description;
     private String image;
     private String pack;
     private boolean stock;
@@ -53,6 +54,14 @@ public class Product implements Serializable {
 
     public void setSub_category_id(String sub_category_id) {
         this.sub_category_id = sub_category_id;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getName() {

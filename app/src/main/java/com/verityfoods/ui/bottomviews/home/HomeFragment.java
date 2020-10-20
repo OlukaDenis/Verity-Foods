@@ -19,6 +19,7 @@ import androidx.paging.PagedList;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.facebook.shimmer.ShimmerFrameLayout;
 import com.firebase.ui.firestore.paging.FirestorePagingAdapter;
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.firebase.ui.firestore.paging.LoadingState;
@@ -63,6 +64,9 @@ public class HomeFragment extends Fragment {
 
     @BindView(R.id.dealSlider)
     SliderView dealSlider;
+
+    @BindView(R.id.category_shimmer_container)
+    ShimmerFrameLayout categoryShimmerContainer;
 
     private BannerSliderAdapter sliderAdapter;
     private DealSliderAdapter dealAdapter;
@@ -187,6 +191,7 @@ public class HomeFragment extends Fragment {
                     bundle.putSerializable(Globals.CATEGORY_OBJ, model);
                     navController.navigate(R.id.navigation_products, bundle);
                 });
+                categoryShimmerContainer.setVisibility(View.GONE);
             }
 
             @NonNull
@@ -210,22 +215,22 @@ public class HomeFragment extends Fragment {
                         break;
 
                     case LOADING_MORE:
-//                        mShimmerViewContainer.setVisibility(View.VISIBLE);
+                        categoryShimmerContainer.setVisibility(View.VISIBLE);
                         break;
 
                     case LOADED:
-//                        mShimmerViewContainer.setVisibility(View.GONE);
+                        categoryShimmerContainer.setVisibility(View.GONE);
                         notifyDataSetChanged();
                         break;
 
                     case ERROR:
                         Toast.makeText(requireActivity(), "Error", Toast.LENGTH_SHORT).show();
 
-//                        mShimmerViewContainer.setVisibility(View.GONE);
+                        categoryShimmerContainer.setVisibility(View.GONE);
                         break;
 
                     case FINISHED:
-//                        mShimmerViewContainer.setVisibility(View.GONE);
+                        categoryShimmerContainer.setVisibility(View.GONE);
                         break;
                 }
             }
@@ -235,12 +240,14 @@ public class HomeFragment extends Fragment {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onStart() {
+        super.onStart();
+        categoryShimmerContainer.startShimmer();
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
+    public void onStop() {
+        super.onStop();
+        categoryShimmerContainer.stopShimmer();
     }
 }
