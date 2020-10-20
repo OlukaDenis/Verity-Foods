@@ -6,13 +6,14 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.smarteist.autoimageslider.SliderViewAdapter;
 import com.squareup.picasso.Picasso;
 import com.verityfoods.R;
 import com.verityfoods.data.model.Deal;
 
 import butterknife.ButterKnife;
 
-public class DealsViewHolder extends RecyclerView.ViewHolder {
+public class DealsViewHolder extends SliderViewAdapter.ViewHolder {
 
     private ImageView dealImage;
 

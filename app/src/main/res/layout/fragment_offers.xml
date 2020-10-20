@@ -20,7 +20,7 @@
             android:layout_marginStart="8dp"
             android:orientation="vertical">
 
-            <include layout="@layout/layout_deals_recycler" />
+            <include layout="@layout/layout_deals_slider" />
 
         </RelativeLayout>
 

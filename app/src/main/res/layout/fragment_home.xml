@@ -31,7 +31,7 @@
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                android:layout_marginStart="8dp"
-                android:tint="@android:color/darker_gray"
+                app:tint="@android:color/darker_gray"
                 app:srcCompat="@drawable/ic_search" />
 
             <TextView
@@ -54,7 +54,13 @@
             android:layout_marginBottom="8dp"
             android:orientation="vertical">
 
-            <include layout="@layout/layout_deals_recycler" />
+            <ProgressBar
+                android:id="@+id/deal_loader"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_centerInParent="true"/>
+
+            <include layout="@layout/layout_deals_slider" />
 
         </RelativeLayout>
 
@@ -75,7 +81,7 @@
                 android:id="@+id/bannerSlider"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:sliderAnimationDuration="600"
+                app:sliderAnimationDuration="1000"
                 app:sliderAutoCycleDirection="back_and_forth"
                 app:sliderAutoCycleEnabled="true"
                 app:sliderIndicatorAnimationDuration="600"

@@ -17,10 +17,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.paging.PagedList;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.SnapHelper;
 
 import com.firebase.ui.firestore.paging.FirestorePagingAdapter;
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
@@ -33,7 +30,7 @@ import com.smarteist.autoimageslider.SliderAnimations;
 import com.smarteist.autoimageslider.SliderView;
 import com.verityfoods.R;
 import com.verityfoods.data.adapters.BannerSliderAdapter;
-import com.verityfoods.data.adapters.DealsAdapter;
+import com.verityfoods.data.adapters.DealSliderAdapter;
 import com.verityfoods.data.model.Category;
 import com.verityfoods.data.model.Deal;
 import com.verityfoods.data.model.ProductSlider;
@@ -42,16 +39,11 @@ import com.verityfoods.utils.Globals;
 import com.verityfoods.utils.Vars;
 import com.verityfoods.viewholders.CategoryViewHolder;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static com.verityfoods.utils.Globals.MAX_LIST_SIZE;
 
 public class HomeFragment extends Fragment {
     private static final String TAG = "HomeFragment";
@@ -69,20 +61,13 @@ public class HomeFragment extends Fragment {
     @BindView(R.id.bannerSlider)
     SliderView bannerSlider;
 
+    @BindView(R.id.dealSlider)
+    SliderView dealSlider;
+
     private BannerSliderAdapter sliderAdapter;
+    private DealSliderAdapter dealAdapter;
 
-    private Timer bannerTimer;
-    private TimerTask bannerTimerTask;
-    private int bannerPosition;
 
-    private Timer dealsTimer;
-    private TimerTask dealsTimerTask;
-    private int dealsPosition;
-    private LinearLayoutManager dealsLayoutManager;
-    private RecyclerView dealsRecycler;
-
-    private List<Deal> deals;
-    private DealsAdapter dealsAdapter;
     private HomeViewModel homeViewModel;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -98,37 +83,8 @@ public class HomeFragment extends Fragment {
         searchLayout = root.findViewById(R.id.search_linearLayout);
         shopButton = root.findViewById(R.id.shop_now_btn);
 
-        deals = new ArrayList<>();
+        dealAdapter = new DealSliderAdapter(vars, requireActivity());
         sliderAdapter = new BannerSliderAdapter(vars, requireActivity());
-
-        //Deals slider
-        dealsRecycler = root.findViewById(R.id.deals_slider);
-        dealsLayoutManager = new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false);
-        dealsRecycler.setLayoutManager(dealsLayoutManager);
-        populateDeals();//populate sliders
-
-        if (deals != null) {
-            dealsPosition = MAX_LIST_SIZE / 2;
-            dealsRecycler.scrollToPosition(dealsPosition);
-        }
-
-        SnapHelper dealHelper = new LinearSnapHelper();
-        dealHelper.attachToRecyclerView(dealsRecycler);
-        dealsRecycler.smoothScrollBy(5, 0);
-
-        dealsRecycler.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-
-                if (newState == 1) {
-                    stopAutoScrollDeals();
-                } else if (newState == 0) {
-                    dealsPosition = dealsLayoutManager.findFirstCompletelyVisibleItemPosition();
-                    runAutoScrollDeals();
-                }
-            }
-        });
 
         categoryRecycler = root.findViewById(R.id.shop_category_recycler);
         gridLayoutManager = new GridLayoutManager(requireActivity(), 3);
@@ -142,11 +98,17 @@ public class HomeFragment extends Fragment {
 
         populateCategories();
         populateSliders();
+        populateDeals();
 
         return root;
     }
 
     private void populateDeals() {
+        dealSlider.startAutoCycle();
+        dealSlider.setIndicatorAnimation(IndicatorAnimations.WORM);
+        dealSlider.setSliderTransformAnimation(SliderAnimations.SIMPLETRANSFORMATION);
+        dealSlider.setScrollTimeInSec(8);
+
         vars.verityApp.db
                 .collection(Globals.DEALS)
                 .get()
@@ -154,17 +116,16 @@ public class HomeFragment extends Fragment {
                     if (task.isSuccessful()) {
                         for (DocumentSnapshot snapshot : Objects.requireNonNull(task.getResult())) {
                             Deal mDeal = snapshot.toObject(Deal.class);
-                            Log.d(TAG, "populateDeals: "+ mDeal.getImage());
-                            deals.add(mDeal);
+                            dealAdapter.addItem(mDeal);
                         }
-
-                        dealsAdapter = new DealsAdapter(requireActivity(), deals);
-                        dealsRecycler.setAdapter(dealsAdapter);
                     }
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "populateDeals: ", e);
                 });
+
+        dealSlider.setSliderAdapter(dealAdapter);
+        dealAdapter.notifyDataSetChanged();
     }
 
     private void populateSliders() {
@@ -191,37 +152,6 @@ public class HomeFragment extends Fragment {
                 });
         bannerSlider.setSliderAdapter(sliderAdapter);
         sliderAdapter.notifyDataSetChanged();
-    }
-
-
-    private void stopAutoScrollDeals() {
-        if (dealsTimer != null && dealsTimerTask != null) {
-            dealsTimerTask.cancel();
-            dealsTimer.cancel();
-            dealsTimer = null;
-            dealsTimerTask = null;
-            dealsPosition = dealsLayoutManager.findFirstCompletelyVisibleItemPosition();
-        }
-    }
-
-    private void runAutoScrollDeals() {
-        if (dealsTimer == null && dealsTimerTask == null) {
-            dealsTimer = new Timer();
-            dealsTimerTask = new TimerTask() {
-                @Override
-                public void run() {
-                    if (dealsPosition == MAX_LIST_SIZE) {
-                        dealsPosition = MAX_LIST_SIZE / 2;
-                        dealsRecycler.scrollToPosition(dealsPosition);
-                        dealsRecycler.smoothScrollBy(5, 0);
-                    } else {
-                        dealsPosition++;
-                        dealsRecycler.smoothScrollToPosition(dealsPosition);
-                    }
-                }
-            };
-            dealsTimer.schedule(dealsTimerTask, 5000, 5000);
-        }
     }
 
     private void populateCategories() {
@@ -307,13 +237,10 @@ public class HomeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        runAutoScrollDeals();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        stopAutoScrollDeals();
-        MAX_LIST_SIZE = 10;
     }
 }
