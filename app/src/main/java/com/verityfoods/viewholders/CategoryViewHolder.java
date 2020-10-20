@@ -35,17 +35,19 @@ public class CategoryViewHolder extends RecyclerView.ViewHolder implements View.
     public void bindCategory(Category category) {
         categoryName.setText(category.getName());
 
-        Picasso.get()
-                .load(category.getImage())
-                .error(R.drawable.ic_baseline_image_24)
-                .placeholder(R.drawable.ic_baseline_image_24)
-                .into(categoryImage);
-
-//        categoryImage.setOnClickListener(view -> {
-//            Intent productIntent = new Intent(context, ProductsActivity.class);
-//            productIntent.putExtra(Globals.CATEGORY_OBJ, category.getUuid());
-//            context.startActivity(productIntent);
-//        });
+        if (category.getName().isEmpty()) {
+            Picasso.get()
+                    .load(R.drawable.ic_baseline_image_24)
+                    .error(R.drawable.ic_baseline_image_24)
+                    .placeholder(R.drawable.ic_baseline_image_24)
+                    .into(categoryImage);
+        } else {
+            Picasso.get()
+                    .load(category.getImage())
+                    .error(R.drawable.ic_baseline_image_24)
+                    .placeholder(R.drawable.ic_baseline_image_24)
+                    .into(categoryImage);
+        }
     }
 
     public void setItemClickListener(CustomItemClickListener itemClickListener) {

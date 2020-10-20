@@ -156,11 +156,19 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
         productMRP.setText(AppUtils.formatCurrency(product.getMrp()));
         productMRP.setPaintFlags(productMRP.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
 
-        Picasso.get()
-                .load(product.getImage())
-                .error(R.drawable.ic_baseline_image_24)
-                .placeholder(R.drawable.ic_baseline_image_24)
-                .into(productImage);
+        if (product.getImage().isEmpty()) {
+            Picasso.get()
+                    .load(R.drawable.ic_baseline_image_24)
+                    .error(R.drawable.ic_baseline_image_24)
+                    .placeholder(R.drawable.ic_baseline_image_24)
+                    .into(productImage);
+        } else {
+            Picasso.get()
+                    .load(product.getImage())
+                    .error(R.drawable.ic_baseline_image_24)
+                    .placeholder(R.drawable.ic_baseline_image_24)
+                    .into(productImage);
+        }
 
         if (product.isSimple()) {
             variableRecycler.setVisibility(View.GONE);
