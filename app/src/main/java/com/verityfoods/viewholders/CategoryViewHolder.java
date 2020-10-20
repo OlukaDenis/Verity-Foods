@@ -8,6 +8,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.squareup.picasso.Picasso;
 import com.verityfoods.R;
 import com.verityfoods.data.interfaces.CustomItemClickListener;
@@ -36,16 +37,17 @@ public class CategoryViewHolder extends RecyclerView.ViewHolder implements View.
         categoryName.setText(category.getName());
 
         if (category.getName().isEmpty()) {
-            Picasso.get()
+            Glide.with(context)
                     .load(R.drawable.ic_baseline_image_24)
-                    .error(R.drawable.ic_baseline_image_24)
+                    .centerCrop()
                     .placeholder(R.drawable.ic_baseline_image_24)
                     .into(categoryImage);
         } else {
-            Picasso.get()
+            Glide.with(context)
                     .load(category.getImage())
-                    .error(R.drawable.ic_baseline_image_24)
+                    .centerCrop()
                     .placeholder(R.drawable.ic_baseline_image_24)
+                    .error(R.drawable.ic_baseline_image_24)
                     .into(categoryImage);
         }
     }
