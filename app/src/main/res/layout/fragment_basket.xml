@@ -18,7 +18,7 @@
         android:id="@+id/checkout_layout"
         android:layout_width="match_parent"
         android:layout_height="100dp"
-        android:background="#000911"
+        android:background="@color/colorPrimary"
         android:orientation="horizontal"
         android:padding="16dp"
         android:weightSum="10"
@@ -56,7 +56,7 @@
                 android:layout_height="wrap_content"
                 android:text="Saved"
                 android:textSize="14sp"
-                android:textColor="@color/colorPrimary"/>
+                android:textColor="@android:color/darker_gray"/>
         </LinearLayout>
 
         <Button
