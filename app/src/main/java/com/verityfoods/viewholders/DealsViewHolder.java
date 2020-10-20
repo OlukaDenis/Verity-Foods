@@ -13,7 +13,6 @@ import com.verityfoods.data.model.Deal;
 import butterknife.ButterKnife;
 
 public class DealsViewHolder extends RecyclerView.ViewHolder {
-    private static final String TAG = "ProductSliderViewHolder";
 
     private ImageView dealImage;
 

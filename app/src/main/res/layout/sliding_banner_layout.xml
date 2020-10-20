@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/sliding_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:adjustViewBounds="true"
+                android:maxHeight="250dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/verity" />
+
+        </FrameLayout>
+
+<!--        <TextView-->
+<!--            android:id="@+id/sliding_text"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_alignParentBottom="true"-->
+<!--            android:layout_gravity="bottom"-->
+<!--            android:layout_marginStart="18dp"-->
+<!--            android:layout_marginLeft="18dp"-->
+<!--            android:layout_marginBottom="16dp"-->
+<!--            android:text="@string/teheca_shop"-->
+<!--            android:textColor="@color/white"-->
+<!--            android:textSize="18sp"-->
+<!--            android:textStyle="bold" />-->
+
+
+    </RelativeLayout>
+
+</androidx.cardview.widget.CardView>

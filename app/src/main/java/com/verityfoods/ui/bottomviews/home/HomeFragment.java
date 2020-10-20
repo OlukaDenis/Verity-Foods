@@ -22,15 +22,17 @@ import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
-import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.paging.FirestorePagingAdapter;
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.firebase.ui.firestore.paging.LoadingState;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
+import com.smarteist.autoimageslider.IndicatorAnimations;
+import com.smarteist.autoimageslider.SliderAnimations;
+import com.smarteist.autoimageslider.SliderView;
 import com.verityfoods.R;
-import com.verityfoods.data.adapters.BannerAdapter;
+import com.verityfoods.data.adapters.BannerSliderAdapter;
 import com.verityfoods.data.adapters.DealsAdapter;
 import com.verityfoods.data.model.Category;
 import com.verityfoods.data.model.Deal;
@@ -39,7 +41,6 @@ import com.verityfoods.ui.search.SearchActivity;
 import com.verityfoods.utils.Globals;
 import com.verityfoods.utils.Vars;
 import com.verityfoods.viewholders.CategoryViewHolder;
-import com.verityfoods.viewholders.ProductSliderViewHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +48,7 @@ import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 import static com.verityfoods.utils.Globals.MAX_LIST_SIZE;
@@ -64,25 +66,22 @@ public class HomeFragment extends Fragment {
     private LinearLayout searchLayout;
     private MaterialButton shopButton;
 
-    //Slider
-    private FirestoreRecyclerAdapter<ProductSlider, ProductSliderViewHolder> productSliderAdapter;
-    private ProductSlider productSlider;
+    @BindView(R.id.bannerSlider)
+    SliderView bannerSlider;
+
+    private BannerSliderAdapter sliderAdapter;
 
     private Timer bannerTimer;
     private TimerTask bannerTimerTask;
     private int bannerPosition;
-    private LinearLayoutManager linearLayoutManager;
-    private RecyclerView sliderRecycler;
 
     private Timer dealsTimer;
     private TimerTask dealsTimerTask;
     private int dealsPosition;
     private LinearLayoutManager dealsLayoutManager;
     private RecyclerView dealsRecycler;
-    
-    private List<ProductSlider> sliders;
+
     private List<Deal> deals;
-    private BannerAdapter bannerAdapter;
     private DealsAdapter dealsAdapter;
     private HomeViewModel homeViewModel;
 
@@ -91,7 +90,7 @@ public class HomeFragment extends Fragment {
         homeViewModel = ViewModelProviders.of(this).get(HomeViewModel.class);
         View root = inflater.inflate(R.layout.fragment_home, container, false);
         vars = new Vars(requireActivity());
-        ButterKnife.bind(requireActivity());
+        ButterKnife.bind(this, root);
 
         navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
 
@@ -99,8 +98,8 @@ public class HomeFragment extends Fragment {
         searchLayout = root.findViewById(R.id.search_linearLayout);
         shopButton = root.findViewById(R.id.shop_now_btn);
 
-        sliders = new ArrayList<>();
         deals = new ArrayList<>();
+        sliderAdapter = new BannerSliderAdapter(vars, requireActivity());
 
         //Deals slider
         dealsRecycler = root.findViewById(R.id.deals_slider);
@@ -131,35 +130,6 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        //Banner slider
-        sliderRecycler = root.findViewById(R.id.products_slider);
-        linearLayoutManager = new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false);
-        sliderRecycler.setLayoutManager(linearLayoutManager);
-        populateSliders();//populate sliders
-
-        if (sliders != null) {
-            bannerPosition = MAX_LIST_SIZE / 2;
-            sliderRecycler.scrollToPosition(bannerPosition);
-        }
-
-        SnapHelper snapHelper = new LinearSnapHelper();
-        snapHelper.attachToRecyclerView(sliderRecycler);
-        sliderRecycler.smoothScrollBy(5, 0);
-
-        sliderRecycler.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-
-                if (newState == 1) {
-                    stopAutoScrollBanner();
-                } else if (newState == 0) {
-                    bannerPosition = linearLayoutManager.findFirstCompletelyVisibleItemPosition();
-                    runAutoScrollBanner();
-                }
-            }
-        });
-
         categoryRecycler = root.findViewById(R.id.shop_category_recycler);
         gridLayoutManager = new GridLayoutManager(requireActivity(), 3);
         categoryRecycler.setLayoutManager(gridLayoutManager);
@@ -171,6 +141,7 @@ public class HomeFragment extends Fragment {
         shopButton.setOnClickListener(view -> navController.navigate(R.id.navigation_shop));
 
         populateCategories();
+        populateSliders();
 
         return root;
     }
@@ -197,6 +168,11 @@ public class HomeFragment extends Fragment {
     }
 
     private void populateSliders() {
+        bannerSlider.startAutoCycle();
+        bannerSlider.setIndicatorAnimation(IndicatorAnimations.WORM);
+        bannerSlider.setSliderTransformAnimation(SliderAnimations.SIMPLETRANSFORMATION);
+        bannerSlider.setScrollTimeInSec(4);
+
         Log.d(TAG, "populateSliders called: ");
         vars.verityApp.db
                 .collection(Globals.SLIDERS)
@@ -205,50 +181,18 @@ public class HomeFragment extends Fragment {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         for (DocumentSnapshot snapshot : Objects.requireNonNull(task.getResult())) {
-                            productSlider = snapshot.toObject(ProductSlider.class);
-                            sliders.add(productSlider);
+                           ProductSlider productSlider = snapshot.toObject(ProductSlider.class);
+                            sliderAdapter.addItem(productSlider);
                         }
-
-                        bannerAdapter = new BannerAdapter(requireContext(), sliders);
-                        sliderRecycler.setAdapter(bannerAdapter);
                     }
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "populateSliders: ", e);
                 });
+        bannerSlider.setSliderAdapter(sliderAdapter);
+        sliderAdapter.notifyDataSetChanged();
     }
 
-    private void stopAutoScrollBanner() {
-        Log.d(TAG, "stopAutoScrollBanner called: ");
-        if (bannerTimer != null && bannerTimerTask != null) {
-            bannerTimerTask.cancel();
-            bannerTimer.cancel();
-            bannerTimer = null;
-            bannerTimerTask = null;
-            bannerPosition = linearLayoutManager.findFirstCompletelyVisibleItemPosition();
-        }
-    }
-
-    private void runAutoScrollBanner() {
-        Log.d(TAG, "runAutoScrollBanner called: ");
-        if (bannerTimer == null && bannerTimerTask == null) {
-            bannerTimer = new Timer();
-            bannerTimerTask = new TimerTask() {
-                @Override
-                public void run() {
-                    if (bannerPosition == MAX_LIST_SIZE) {
-                        bannerPosition = MAX_LIST_SIZE / 2;
-                        sliderRecycler.scrollToPosition(bannerPosition);
-                        sliderRecycler.smoothScrollBy(5, 0);
-                    } else {
-                        bannerPosition++;
-                        sliderRecycler.smoothScrollToPosition(bannerPosition);
-                    }
-                }
-            };
-            bannerTimer.schedule(bannerTimerTask, 4000, 4000);
-        }
-    }
 
     private void stopAutoScrollDeals() {
         if (dealsTimer != null && dealsTimerTask != null) {
@@ -363,14 +307,12 @@ public class HomeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        runAutoScrollBanner();
         runAutoScrollDeals();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        stopAutoScrollBanner();
         stopAutoScrollDeals();
         MAX_LIST_SIZE = 10;
     }
