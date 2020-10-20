@@ -74,9 +74,6 @@ class BannerSliderViewHolder extends SliderViewAdapter.ViewHolder {
 
         ButterKnife.bind(this, itemView);
         this.vars = vars;
-
-        image.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        image.setAdjustViewBounds(true);
     }
 
     public  void bindSlidingImage(ProductSlider slidingImage) {
