@@ -4,6 +4,7 @@ public class Variable {
     private String uuid;
     private String qty;
     private int price;
+    private int mrp;
     private boolean preferred;
 
     public Variable() {
@@ -31,6 +32,14 @@ public class Variable {
 
     public void setPrice(int price) {
         this.price = price;
+    }
+
+    public int getMrp() {
+        return mrp;
+    }
+
+    public void setMrp(int mrp) {
+        this.mrp = mrp;
     }
 
     public boolean isPreferred() {
