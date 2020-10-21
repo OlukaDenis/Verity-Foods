@@ -101,3 +101,5 @@ x
 Happ/src/main/java/com/verityfoods/data/adapters/BannerSliderAdapter.java,9/2/92621c655f81cfa16eced499cb4cc939b80fd366
 v
 Fapp/src/main/java/com/verityfoods/data/adapters/DealSliderAdapter.java,e/3/e32bd1f2e0dea60a8f820d110418c74aed418192
+<
+build.gradle,f/0/f07866736216be0ee2aba49e392191aeae700a35
