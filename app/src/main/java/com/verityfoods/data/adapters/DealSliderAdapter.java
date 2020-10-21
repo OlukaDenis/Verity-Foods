@@ -42,7 +42,7 @@ public class DealSliderAdapter extends SliderViewAdapter<DealsViewHolder> {
     @Override
     public DealsViewHolder onCreateViewHolder(ViewGroup parent) {
         View inflate = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_deals, null);
-        return new DealsViewHolder(inflate);
+        return new DealsViewHolder(inflate, context);
     }
 
     @Override

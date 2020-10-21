@@ -6,8 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
 import com.smarteist.autoimageslider.SliderViewAdapter;
-import com.squareup.picasso.Picasso;
 import com.verityfoods.R;
 import com.verityfoods.data.model.ProductSlider;
 import com.verityfoods.utils.Vars;
@@ -77,8 +77,10 @@ class BannerSliderViewHolder extends SliderViewAdapter.ViewHolder {
     }
 
     public  void bindSlidingImage(ProductSlider slidingImage) {
-        Picasso.get()
+
+        Glide.with(vars.context.getApplicationContext())
                 .load(slidingImage.getImage())
+                .centerCrop()
                 .error(R.drawable.ic_baseline_image_24)
                 .placeholder(R.drawable.ic_baseline_image_24)
                 .into(image);

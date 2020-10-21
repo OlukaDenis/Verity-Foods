@@ -1,5 +1,6 @@
 package com.verityfoods.data.adapters;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,25 +10,28 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
 import com.verityfoods.R;
 import com.verityfoods.data.model.Cart;
 import com.verityfoods.utils.AppUtils;
+import com.verityfoods.utils.Vars;
 
 import java.util.List;
 
 public class OrderItemsAdapter extends RecyclerView.Adapter<OrderItemsViewHolder> {
     private List<Cart> itemList;
+    private Context context;
 
-    public OrderItemsAdapter(List<Cart> itemList) {
+    public OrderItemsAdapter(List<Cart> itemList, Context context) {
         this.itemList = itemList;
+        this.context = context;
     }
 
     @NonNull
     @Override
     public OrderItemsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_detail_order_item, parent, false);
-        return new OrderItemsViewHolder(view);
+        return new OrderItemsViewHolder(view, context);
     }
 
     @Override
@@ -52,8 +56,11 @@ class OrderItemsViewHolder extends RecyclerView.ViewHolder {
     private TextView price;
     private TextView quantity;
 
-    public OrderItemsViewHolder(@NonNull View itemView) {
+    private Context context;
+
+    public OrderItemsViewHolder(@NonNull View itemView, Context context) {
         super(itemView);
+        this.context = context;
 
         itemImage = itemView.findViewById(R.id.detail_order_item_image);
         category = itemView.findViewById(R.id.detail_order_item_category);
@@ -69,8 +76,10 @@ class OrderItemsViewHolder extends RecyclerView.ViewHolder {
 
         String qty = "Quantity: " + cart.getQuantity();
         quantity.setText(qty);
-        Picasso.get()
+
+        Glide.with(context)
                 .load(cart.getProduct_image())
+                .centerCrop()
                 .error(R.drawable.ic_baseline_image_24)
                 .placeholder(R.drawable.ic_baseline_image_24)
                 .into(itemImage);

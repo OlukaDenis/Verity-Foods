@@ -11,12 +11,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationView;
-import com.squareup.picasso.Picasso;
 import com.verityfoods.data.model.User;
 import com.verityfoods.ui.auth.SignupActivity;
 import com.verityfoods.ui.search.SearchActivity;
@@ -150,10 +150,13 @@ public class MainActivity extends AppCompatActivity implements
                                 currentUserName.setText(user.getName());
 
                                 if (user.getImage() != null) {
-                                    Picasso.get()
+
+                                    Glide.with(this)
                                             .load(user.getImage())
-                                            .placeholder(R.drawable.avatar)
-                                            .error(R.drawable.avatar)
+                                            .centerCrop()
+                                            .circleCrop()
+                                            .error(R.drawable.ic_baseline_image_24)
+                                            .placeholder(R.drawable.ic_baseline_image_24)
                                             .into(currentUserImage);
                                 } else {
                                     currentUserImage.setBackgroundResource(R.drawable.avatar);

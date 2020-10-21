@@ -23,7 +23,6 @@ import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.squareup.picasso.Picasso;
 import com.verityfoods.R;
 import com.verityfoods.data.adapters.VariablesAdapter;
 import com.verityfoods.data.model.Cart;

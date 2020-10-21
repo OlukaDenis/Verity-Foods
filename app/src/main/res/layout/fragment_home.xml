@@ -67,7 +67,7 @@
         <RelativeLayout
             android:id="@+id/imageSliderLayout"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="190dp"
             android:layout_marginTop="16dp"
             android:orientation="vertical">
 
@@ -101,6 +101,7 @@
             android:id="@+id/shop_now_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
             android:layout_marginBottom="12dp"
             android:backgroundTint="@color/colorAccent"
             android:text="@string/shop_now"

@@ -9,7 +9,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.squareup.picasso.Picasso;
 import com.verityfoods.R;
 import com.verityfoods.data.interfaces.CustomItemClickListener;
 import com.verityfoods.data.model.Category;

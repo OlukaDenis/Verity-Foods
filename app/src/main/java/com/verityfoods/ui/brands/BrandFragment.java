@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.Query;
@@ -28,6 +29,8 @@ import com.verityfoods.utils.Vars;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import butterknife.BindView;
 
 public class BrandFragment extends Fragment {
     private static final String TAG = "BrandFragment";

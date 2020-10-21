@@ -309,7 +309,7 @@ public class BasketFragment extends Fragment {
             @Override
             public CartViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_cart, parent, false);
-                return new CartViewHolder(view);
+                return new CartViewHolder(view, requireContext());
             }
 
             @Override

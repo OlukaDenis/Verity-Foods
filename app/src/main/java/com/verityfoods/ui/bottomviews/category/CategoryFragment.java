@@ -19,6 +19,7 @@ import androidx.paging.PagedList;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.facebook.shimmer.ShimmerFrameLayout;
 import com.firebase.ui.firestore.paging.FirestorePagingAdapter;
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.firebase.ui.firestore.paging.LoadingState;
@@ -30,6 +31,7 @@ import com.verityfoods.utils.Globals;
 import com.verityfoods.utils.Vars;
 import com.verityfoods.viewholders.CategoryViewHolder;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
@@ -42,6 +44,9 @@ public class CategoryFragment extends Fragment {
     private GridLayoutManager gridLayoutManager;
     private NavController navController;
     private RecyclerView categoryRecycler;
+
+    @BindView(R.id.category_shimmer_container)
+    ShimmerFrameLayout categoryShimmerContainer;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -96,6 +101,7 @@ public class CategoryFragment extends Fragment {
                     bundle.putSerializable(Globals.CATEGORY_OBJ, model);
                     navController.navigate(R.id.navigation_products, bundle);
                 });
+                categoryShimmerContainer.setVisibility(View.GONE);
             }
 
             @NonNull
@@ -119,27 +125,39 @@ public class CategoryFragment extends Fragment {
                         break;
 
                     case LOADING_MORE:
-//                        mShimmerViewContainer.setVisibility(View.VISIBLE);
+                        categoryShimmerContainer.setVisibility(View.VISIBLE);
                         break;
 
                     case LOADED:
-//                        mShimmerViewContainer.setVisibility(View.GONE);
+                        categoryShimmerContainer.setVisibility(View.GONE);
                         notifyDataSetChanged();
                         break;
 
                     case ERROR:
                         Toast.makeText(requireActivity(), "Error", Toast.LENGTH_SHORT).show();
 
-//                        mShimmerViewContainer.setVisibility(View.GONE);
+                        categoryShimmerContainer.setVisibility(View.GONE);
                         break;
 
                     case FINISHED:
-//                        mShimmerViewContainer.setVisibility(View.GONE);
+                        categoryShimmerContainer.setVisibility(View.GONE);
                         break;
                 }
             }
         };
         categoryRecycler.setAdapter(adapter);
         adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        categoryShimmerContainer.startShimmer();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        categoryShimmerContainer.stopShimmer();
     }
 }

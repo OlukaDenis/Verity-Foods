@@ -113,7 +113,7 @@ public class OrderDetailFragment extends Fragment {
         addressName.setText(user.getAddress());
 
 
-        OrderItemsAdapter adapter  = new OrderItemsAdapter(orderItems);
+        OrderItemsAdapter adapter  = new OrderItemsAdapter(orderItems, getContext());
         orderItemsRecycler.setAdapter(adapter);
     }
 }
