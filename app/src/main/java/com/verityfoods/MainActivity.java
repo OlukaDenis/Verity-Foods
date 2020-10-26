@@ -17,6 +17,11 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.verityfoods.data.local.LocalDataSource;
+import com.verityfoods.data.model.Brand;
+import com.verityfoods.data.model.Product;
 import com.verityfoods.data.model.User;
 import com.verityfoods.ui.auth.SignupActivity;
 import com.verityfoods.ui.search.SearchActivity;
@@ -33,6 +38,11 @@ import androidx.navigation.ui.NavigationUI;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener,
@@ -94,6 +104,8 @@ public class MainActivity extends AppCompatActivity implements
         }
 
         getCurrentUserDetails();
+        //fetch available brands
+//        fetchBrands();
     }
 
     private void logoutUser() {

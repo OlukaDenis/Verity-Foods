@@ -160,7 +160,7 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
         productMRP.setText(AppUtils.formatCurrency(product.getMrp()));
         productMRP.setPaintFlags(productMRP.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
 
-        if (product.getImage().isEmpty()) {
+        if (product.getImage().isEmpty() || product.getImage() == null) {
             Glide.with(activity)
                     .load(R.drawable.ic_baseline_image_24)
                     .centerCrop()

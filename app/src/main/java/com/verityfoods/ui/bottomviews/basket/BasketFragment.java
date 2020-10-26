@@ -198,9 +198,12 @@ public class BasketFragment extends Fragment {
                                     Cart mCart = document.toObject(Cart.class);
 
                                     int price = mCart.getAmount() / mCart.getQuantity();
+                                    int mrp = mCart.getMrp() / mCart.getQuantity();
 
                                     mCart.setAmount((price * newValue));
+                                    mCart.setMrp((mrp * newValue));
                                     mCart.setQuantity(newValue);
+
                                     vars.verityApp.db.collection(Globals.CART)
                                             .document(vars.getShoppingID())
                                             .collection(Globals.MY_CART)
