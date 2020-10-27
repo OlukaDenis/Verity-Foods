@@ -17,33 +17,27 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.facebook.shimmer.ShimmerFrameLayout;
 import com.firebase.ui.firestore.paging.FirestorePagingAdapter;
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.firebase.ui.firestore.paging.LoadingState;
-import com.google.android.material.badge.BadgeDrawable;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.squareup.picasso.Picasso;
 import com.verityfoods.MainActivity;
 import com.verityfoods.R;
-import com.verityfoods.data.model.Cart;
 import com.verityfoods.data.model.Category;
 import com.verityfoods.data.model.Product;
 import com.verityfoods.data.model.SubCategory;
-import com.verityfoods.data.model.Variable;
-import com.verityfoods.utils.AppUtils;
 import com.verityfoods.utils.Globals;
 import com.verityfoods.utils.Vars;
 import com.verityfoods.viewholders.ProductViewHolder;
 import com.verityfoods.viewholders.SubCategoryViewHolder;
-import com.verityfoods.viewholders.VariableViewHolder;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -71,6 +65,9 @@ public class ProductsFragment extends Fragment {
 
     private ImageView categoryBanner;
 
+    @BindView(R.id.product_shimmer_container)
+    ShimmerFrameLayout productShimmerContainer;
+
     public ProductsFragment() {
         // Required empty public constructor
     }
@@ -79,7 +76,7 @@ public class ProductsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View root =  inflater.inflate(R.layout.fragment_products, container, false);
-        ButterKnife.bind(requireActivity());
+        ButterKnife.bind(this, root);
 
         navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
 
@@ -105,8 +102,10 @@ public class ProductsFragment extends Fragment {
                 .build();
 
         categoryBanner = root.findViewById(R.id.category_banner);
-        Picasso.get()
+
+        Glide.with(requireActivity())
                 .load(category.getImage())
+                .centerCrop()
                 .error(R.drawable.ic_baseline_image_24)
                 .placeholder(R.drawable.ic_baseline_image_24)
                 .into(categoryBanner);
@@ -154,6 +153,8 @@ public class ProductsFragment extends Fragment {
                     Globals.CATEGORY_ID = category.getUuid();
                     Globals.CATEGORY_NAME = category.getName();
                 });
+
+                productShimmerContainer.setVisibility(View.GONE);
             }
 
             @NonNull
@@ -177,22 +178,22 @@ public class ProductsFragment extends Fragment {
                         break;
 
                     case LOADING_MORE:
-//                        mShimmerViewContainer.setVisibility(View.VISIBLE);
+                        productShimmerContainer.setVisibility(View.VISIBLE);
                         break;
 
                     case LOADED:
-//                        mShimmerViewContainer.setVisibility(View.GONE);
+                        productShimmerContainer.setVisibility(View.GONE);
                         notifyDataSetChanged();
                         break;
 
                     case ERROR:
                         Toast.makeText(requireActivity(), "Error", Toast.LENGTH_SHORT).show();
 
-//                        mShimmerViewContainer.setVisibility(View.GONE);
+                        productShimmerContainer.setVisibility(View.GONE);
                         break;
 
                     case FINISHED:
-//                        mShimmerViewContainer.setVisibility(View.GONE);
+                        productShimmerContainer.setVisibility(View.GONE);
                         break;
                 }
             }
@@ -222,6 +223,7 @@ public class ProductsFragment extends Fragment {
             @Override
             protected void onBindViewHolder(@NonNull ProductViewHolder holder, int position, @NonNull Product model) {
                 holder.bindProduct(model);
+                productShimmerContainer.setVisibility(View.GONE);
             }
 
             @NonNull
@@ -245,28 +247,40 @@ public class ProductsFragment extends Fragment {
                         break;
 
                     case LOADING_MORE:
-//                        mShimmerViewContainer.setVisibility(View.VISIBLE);
+                        productShimmerContainer.setVisibility(View.VISIBLE);
                         break;
 
                     case LOADED:
-//                        mShimmerViewContainer.setVisibility(View.GONE);
+                        productShimmerContainer.setVisibility(View.GONE);
                         notifyDataSetChanged();
                         break;
 
                     case ERROR:
                         Toast.makeText(requireActivity(), "Error", Toast.LENGTH_SHORT).show();
 
-//                        mShimmerViewContainer.setVisibility(View.GONE);
+                        productShimmerContainer.setVisibility(View.GONE);
                         break;
 
                     case FINISHED:
-//                        mShimmerViewContainer.setVisibility(View.GONE);
+                        productShimmerContainer.setVisibility(View.GONE);
                         break;
                 }
             }
         };
         productRecycler.setAdapter(adapter);
         adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        productShimmerContainer.startShimmer();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        productShimmerContainer.stopShimmer();
     }
 
 }

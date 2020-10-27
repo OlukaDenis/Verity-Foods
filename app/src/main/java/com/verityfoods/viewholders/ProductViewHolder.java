@@ -17,10 +17,12 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.afollestad.materialdialogs.MaterialDialog;
+import com.bumptech.glide.Glide;
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.squareup.picasso.Picasso;
 import com.verityfoods.R;
 import com.verityfoods.data.adapters.VariablesAdapter;
 import com.verityfoods.data.model.Cart;
@@ -59,6 +61,7 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
 
     private BadgeDrawable badgeDrawable;
     private BottomNavigationView bottomNav;
+    private BottomSheetDialog detailDialog;
 
     private Vars vars;
     public ProgressDialog loading;
@@ -87,6 +90,7 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
         this.activity = activity;
         loading = new ProgressDialog(activity);
         loading.setMessage("Adding to cart ...");
+        detailDialog = new BottomSheetDialog(activity);
 
         cartPath = new HashMap<>();
         cartPath.put("name", "Cart");
@@ -156,11 +160,20 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
         productMRP.setText(AppUtils.formatCurrency(product.getMrp()));
         productMRP.setPaintFlags(productMRP.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
 
-        Picasso.get()
-                .load(product.getImage())
-                .error(R.drawable.ic_baseline_image_24)
-                .placeholder(R.drawable.ic_baseline_image_24)
-                .into(productImage);
+        if (product.getImage().isEmpty() || product.getImage() == null) {
+            Glide.with(activity)
+                    .load(R.drawable.ic_baseline_image_24)
+                    .centerCrop()
+                    .placeholder(R.drawable.ic_baseline_image_24)
+                    .into(productImage);
+        } else {
+            Glide.with(activity)
+                    .load(product.getImage())
+                    .centerCrop()
+                    .error(R.drawable.ic_baseline_image_24)
+                    .placeholder(R.drawable.ic_baseline_image_24)
+                    .into(productImage);
+        }
 
         if (product.isSimple()) {
             variableRecycler.setVisibility(View.GONE);
@@ -200,6 +213,9 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
 
             populateVariables(product);
         }
+
+        //Product detail
+        this.itemView.setOnClickListener(v -> showProductDetail(product));
     }
 
     private void checkExistingProduct(Product product, String userId, String productID, Cart cart, int qty) {
@@ -286,5 +302,44 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
         VariablesAdapter variableAdapter = new VariablesAdapter(productModel.getVariables(), activity, this, productModel);
         variableRecycler.setAdapter(variableAdapter);
         variableAdapter.notifyDataSetChanged();
+    }
+
+    private void showProductDetail(Product product) {
+        final View view = activity.getLayoutInflater().inflate(R.layout.layout_product_detail, null);
+
+        TextView name = view.findViewById(R.id.product_detail_name);
+        TextView price = view.findViewById(R.id.product_detail_price);
+        TextView desc = view.findViewById(R.id.product_detail_desc);
+        TextView qty = view.findViewById(R.id.product_detail_quantity);
+        ImageView image = view.findViewById(R.id.product_detail_image);
+
+        name.setText(product.getName());
+        price.setText(AppUtils.formatCurrency(product.getSelling_price()));
+        qty.setText(product.getPack());
+
+        if (product.getDescription() == null) {
+            desc.setText("Product description");
+        } else {
+            desc.setText(product.getDescription());
+        }
+
+
+        if (product.getImage().isEmpty()) {
+            Glide.with(activity)
+                    .load(R.drawable.ic_baseline_image_24)
+                    .centerCrop()
+                    .placeholder(R.drawable.ic_baseline_image_24)
+                    .into(image);
+        } else {
+            Glide.with(activity)
+                    .load(product.getImage())
+                    .centerCrop()
+                    .error(R.drawable.ic_baseline_image_24)
+                    .placeholder(R.drawable.ic_baseline_image_24)
+                    .into(image);
+        }
+
+        detailDialog.setContentView(view);
+        detailDialog.show();
     }
 }

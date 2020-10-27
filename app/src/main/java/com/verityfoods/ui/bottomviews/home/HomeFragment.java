@@ -17,21 +17,21 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.paging.PagedList;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.SnapHelper;
 
-import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
+import com.facebook.shimmer.ShimmerFrameLayout;
 import com.firebase.ui.firestore.paging.FirestorePagingAdapter;
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.firebase.ui.firestore.paging.LoadingState;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
+import com.smarteist.autoimageslider.IndicatorAnimations;
+import com.smarteist.autoimageslider.SliderAnimations;
+import com.smarteist.autoimageslider.SliderView;
 import com.verityfoods.R;
-import com.verityfoods.data.adapters.BannerAdapter;
-import com.verityfoods.data.adapters.DealsAdapter;
+import com.verityfoods.data.adapters.BannerSliderAdapter;
+import com.verityfoods.data.adapters.DealSliderAdapter;
 import com.verityfoods.data.model.Category;
 import com.verityfoods.data.model.Deal;
 import com.verityfoods.data.model.ProductSlider;
@@ -39,17 +39,12 @@ import com.verityfoods.ui.search.SearchActivity;
 import com.verityfoods.utils.Globals;
 import com.verityfoods.utils.Vars;
 import com.verityfoods.viewholders.CategoryViewHolder;
-import com.verityfoods.viewholders.ProductSliderViewHolder;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
-import java.util.Timer;
-import java.util.TimerTask;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static com.verityfoods.utils.Globals.MAX_LIST_SIZE;
 
 public class HomeFragment extends Fragment {
     private static final String TAG = "HomeFragment";
@@ -64,26 +59,19 @@ public class HomeFragment extends Fragment {
     private LinearLayout searchLayout;
     private MaterialButton shopButton;
 
-    //Slider
-    private FirestoreRecyclerAdapter<ProductSlider, ProductSliderViewHolder> productSliderAdapter;
-    private ProductSlider productSlider;
+    @BindView(R.id.bannerSlider)
+    SliderView bannerSlider;
 
-    private Timer bannerTimer;
-    private TimerTask bannerTimerTask;
-    private int bannerPosition;
-    private LinearLayoutManager linearLayoutManager;
-    private RecyclerView sliderRecycler;
+    @BindView(R.id.dealSlider)
+    SliderView dealSlider;
 
-    private Timer dealsTimer;
-    private TimerTask dealsTimerTask;
-    private int dealsPosition;
-    private LinearLayoutManager dealsLayoutManager;
-    private RecyclerView dealsRecycler;
-    
-    private List<ProductSlider> sliders;
-    private List<Deal> deals;
-    private BannerAdapter bannerAdapter;
-    private DealsAdapter dealsAdapter;
+    @BindView(R.id.category_shimmer_container)
+    ShimmerFrameLayout categoryShimmerContainer;
+
+    private BannerSliderAdapter sliderAdapter;
+    private DealSliderAdapter dealAdapter;
+
+
     private HomeViewModel homeViewModel;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -91,7 +79,7 @@ public class HomeFragment extends Fragment {
         homeViewModel = ViewModelProviders.of(this).get(HomeViewModel.class);
         View root = inflater.inflate(R.layout.fragment_home, container, false);
         vars = new Vars(requireActivity());
-        ButterKnife.bind(requireActivity());
+        ButterKnife.bind(this, root);
 
         navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
 
@@ -99,66 +87,8 @@ public class HomeFragment extends Fragment {
         searchLayout = root.findViewById(R.id.search_linearLayout);
         shopButton = root.findViewById(R.id.shop_now_btn);
 
-        sliders = new ArrayList<>();
-        deals = new ArrayList<>();
-
-        //Deals slider
-        dealsRecycler = root.findViewById(R.id.deals_slider);
-        dealsLayoutManager = new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false);
-        dealsRecycler.setLayoutManager(dealsLayoutManager);
-        populateDeals();//populate sliders
-
-        if (deals != null) {
-            dealsPosition = MAX_LIST_SIZE / 2;
-            dealsRecycler.scrollToPosition(dealsPosition);
-        }
-
-        SnapHelper dealHelper = new LinearSnapHelper();
-        dealHelper.attachToRecyclerView(dealsRecycler);
-        dealsRecycler.smoothScrollBy(5, 0);
-
-        dealsRecycler.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-
-                if (newState == 1) {
-                    stopAutoScrollDeals();
-                } else if (newState == 0) {
-                    dealsPosition = dealsLayoutManager.findFirstCompletelyVisibleItemPosition();
-                    runAutoScrollDeals();
-                }
-            }
-        });
-
-        //Banner slider
-        sliderRecycler = root.findViewById(R.id.products_slider);
-        linearLayoutManager = new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false);
-        sliderRecycler.setLayoutManager(linearLayoutManager);
-        populateSliders();//populate sliders
-
-        if (sliders != null) {
-            bannerPosition = MAX_LIST_SIZE / 2;
-            sliderRecycler.scrollToPosition(bannerPosition);
-        }
-
-        SnapHelper snapHelper = new LinearSnapHelper();
-        snapHelper.attachToRecyclerView(sliderRecycler);
-        sliderRecycler.smoothScrollBy(5, 0);
-
-        sliderRecycler.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-
-                if (newState == 1) {
-                    stopAutoScrollBanner();
-                } else if (newState == 0) {
-                    bannerPosition = linearLayoutManager.findFirstCompletelyVisibleItemPosition();
-                    runAutoScrollBanner();
-                }
-            }
-        });
+        dealAdapter = new DealSliderAdapter(vars, requireActivity());
+        sliderAdapter = new BannerSliderAdapter(vars, requireActivity());
 
         categoryRecycler = root.findViewById(R.id.shop_category_recycler);
         gridLayoutManager = new GridLayoutManager(requireActivity(), 3);
@@ -171,11 +101,18 @@ public class HomeFragment extends Fragment {
         shopButton.setOnClickListener(view -> navController.navigate(R.id.navigation_shop));
 
         populateCategories();
+        populateSliders();
+        populateDeals();
 
         return root;
     }
 
     private void populateDeals() {
+        dealSlider.startAutoCycle();
+        dealSlider.setIndicatorAnimation(IndicatorAnimations.WORM);
+        dealSlider.setSliderTransformAnimation(SliderAnimations.SIMPLETRANSFORMATION);
+        dealSlider.setScrollTimeInSec(8);
+
         vars.verityApp.db
                 .collection(Globals.DEALS)
                 .get()
@@ -183,20 +120,24 @@ public class HomeFragment extends Fragment {
                     if (task.isSuccessful()) {
                         for (DocumentSnapshot snapshot : Objects.requireNonNull(task.getResult())) {
                             Deal mDeal = snapshot.toObject(Deal.class);
-                            Log.d(TAG, "populateDeals: "+ mDeal.getImage());
-                            deals.add(mDeal);
+                            dealAdapter.addItem(mDeal);
                         }
-
-                        dealsAdapter = new DealsAdapter(requireActivity(), deals);
-                        dealsRecycler.setAdapter(dealsAdapter);
                     }
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "populateDeals: ", e);
                 });
+
+        dealSlider.setSliderAdapter(dealAdapter);
+        dealAdapter.notifyDataSetChanged();
     }
 
     private void populateSliders() {
+        bannerSlider.startAutoCycle();
+        bannerSlider.setIndicatorAnimation(IndicatorAnimations.WORM);
+        bannerSlider.setSliderTransformAnimation(SliderAnimations.SIMPLETRANSFORMATION);
+        bannerSlider.setScrollTimeInSec(4);
+
         Log.d(TAG, "populateSliders called: ");
         vars.verityApp.db
                 .collection(Globals.SLIDERS)
@@ -205,79 +146,16 @@ public class HomeFragment extends Fragment {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         for (DocumentSnapshot snapshot : Objects.requireNonNull(task.getResult())) {
-                            productSlider = snapshot.toObject(ProductSlider.class);
-                            sliders.add(productSlider);
+                           ProductSlider productSlider = snapshot.toObject(ProductSlider.class);
+                            sliderAdapter.addItem(productSlider);
                         }
-
-                        bannerAdapter = new BannerAdapter(requireContext(), sliders);
-                        sliderRecycler.setAdapter(bannerAdapter);
                     }
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "populateSliders: ", e);
                 });
-    }
-
-    private void stopAutoScrollBanner() {
-        Log.d(TAG, "stopAutoScrollBanner called: ");
-        if (bannerTimer != null && bannerTimerTask != null) {
-            bannerTimerTask.cancel();
-            bannerTimer.cancel();
-            bannerTimer = null;
-            bannerTimerTask = null;
-            bannerPosition = linearLayoutManager.findFirstCompletelyVisibleItemPosition();
-        }
-    }
-
-    private void runAutoScrollBanner() {
-        Log.d(TAG, "runAutoScrollBanner called: ");
-        if (bannerTimer == null && bannerTimerTask == null) {
-            bannerTimer = new Timer();
-            bannerTimerTask = new TimerTask() {
-                @Override
-                public void run() {
-                    if (bannerPosition == MAX_LIST_SIZE) {
-                        bannerPosition = MAX_LIST_SIZE / 2;
-                        sliderRecycler.scrollToPosition(bannerPosition);
-                        sliderRecycler.smoothScrollBy(5, 0);
-                    } else {
-                        bannerPosition++;
-                        sliderRecycler.smoothScrollToPosition(bannerPosition);
-                    }
-                }
-            };
-            bannerTimer.schedule(bannerTimerTask, 4000, 4000);
-        }
-    }
-
-    private void stopAutoScrollDeals() {
-        if (dealsTimer != null && dealsTimerTask != null) {
-            dealsTimerTask.cancel();
-            dealsTimer.cancel();
-            dealsTimer = null;
-            dealsTimerTask = null;
-            dealsPosition = dealsLayoutManager.findFirstCompletelyVisibleItemPosition();
-        }
-    }
-
-    private void runAutoScrollDeals() {
-        if (dealsTimer == null && dealsTimerTask == null) {
-            dealsTimer = new Timer();
-            dealsTimerTask = new TimerTask() {
-                @Override
-                public void run() {
-                    if (dealsPosition == MAX_LIST_SIZE) {
-                        dealsPosition = MAX_LIST_SIZE / 2;
-                        dealsRecycler.scrollToPosition(dealsPosition);
-                        dealsRecycler.smoothScrollBy(5, 0);
-                    } else {
-                        dealsPosition++;
-                        dealsRecycler.smoothScrollToPosition(dealsPosition);
-                    }
-                }
-            };
-            dealsTimer.schedule(dealsTimerTask, 5000, 5000);
-        }
+        bannerSlider.setSliderAdapter(sliderAdapter);
+        sliderAdapter.notifyDataSetChanged();
     }
 
     private void populateCategories() {
@@ -313,6 +191,7 @@ public class HomeFragment extends Fragment {
                     bundle.putSerializable(Globals.CATEGORY_OBJ, model);
                     navController.navigate(R.id.navigation_products, bundle);
                 });
+                categoryShimmerContainer.setVisibility(View.GONE);
             }
 
             @NonNull
@@ -336,22 +215,22 @@ public class HomeFragment extends Fragment {
                         break;
 
                     case LOADING_MORE:
-//                        mShimmerViewContainer.setVisibility(View.VISIBLE);
+                        categoryShimmerContainer.setVisibility(View.VISIBLE);
                         break;
 
                     case LOADED:
-//                        mShimmerViewContainer.setVisibility(View.GONE);
+                        categoryShimmerContainer.setVisibility(View.GONE);
                         notifyDataSetChanged();
                         break;
 
                     case ERROR:
                         Toast.makeText(requireActivity(), "Error", Toast.LENGTH_SHORT).show();
 
-//                        mShimmerViewContainer.setVisibility(View.GONE);
+                        categoryShimmerContainer.setVisibility(View.GONE);
                         break;
 
                     case FINISHED:
-//                        mShimmerViewContainer.setVisibility(View.GONE);
+                        categoryShimmerContainer.setVisibility(View.GONE);
                         break;
                 }
             }
@@ -361,17 +240,14 @@ public class HomeFragment extends Fragment {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        runAutoScrollBanner();
-        runAutoScrollDeals();
+    public void onStart() {
+        super.onStart();
+        categoryShimmerContainer.startShimmer();
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-        stopAutoScrollBanner();
-        stopAutoScrollDeals();
-        MAX_LIST_SIZE = 10;
+    public void onStop() {
+        super.onStop();
+        categoryShimmerContainer.stopShimmer();
     }
 }

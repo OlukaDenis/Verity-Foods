@@ -23,6 +23,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.shimmer.ShimmerFrameLayout;
 import com.firebase.ui.firestore.paging.FirestorePagingAdapter;
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.firebase.ui.firestore.paging.LoadingState;
@@ -48,6 +49,7 @@ import com.verityfoods.viewholders.ProductViewHolder;
 
 import java.util.Objects;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
@@ -75,6 +77,10 @@ public class BasketFragment extends Fragment {
     BottomNavigationView bottomNav;
     private String userUid;
     private int totalNumberOfCart;
+
+
+    @BindView(R.id.cart_shimmer_container)
+    ShimmerFrameLayout cartShimmerContainer;
 
 
     public BasketFragment() {
@@ -151,7 +157,7 @@ public class BasketFragment extends Fragment {
             cartRecycler.setVisibility(View.GONE);
             emptyCart.setVisibility(View.VISIBLE);
             checkoutLayout.setVisibility(View.GONE);
-//            mShimmerViewContainer.setVisibility(View.GONE);
+            cartShimmerContainer.setVisibility(View.GONE);
 
         }
     }
@@ -192,9 +198,12 @@ public class BasketFragment extends Fragment {
                                     Cart mCart = document.toObject(Cart.class);
 
                                     int price = mCart.getAmount() / mCart.getQuantity();
+                                    int mrp = mCart.getMrp() / mCart.getQuantity();
 
                                     mCart.setAmount((price * newValue));
+                                    mCart.setMrp((mrp * newValue));
                                     mCart.setQuantity(newValue);
+
                                     vars.verityApp.db.collection(Globals.CART)
                                             .document(vars.getShoppingID())
                                             .collection(Globals.MY_CART)
@@ -214,7 +223,7 @@ public class BasketFragment extends Fragment {
 
 
     public void populateCart() {
-//        mShimmerViewContainer.setVisibility(View.VISIBLE);
+        cartShimmerContainer.setVisibility(View.VISIBLE);
         Query cartQuery = vars.verityApp.db.collection(Globals.CART)
                 .document(vars.getShoppingID())
                 .collection(Globals.MY_CART);
@@ -260,9 +269,10 @@ public class BasketFragment extends Fragment {
                 holder.removeCart.setOnClickListener(v -> {
                     loading.show();
                     totalLoading.setVisibility(View.VISIBLE);
+                    cartShimmerContainer.setVisibility(View.VISIBLE);
                     totalCartSum.setVisibility(View.GONE);
                     vars.verityApp.db.collection(Globals.CART + "/" + vars.getShoppingID() + "/" + Globals.MY_CART)
-                            .whereEqualTo("product_id", cart.getProduct_id())
+                            .whereEqualTo("product_id", model.getProduct_id())
                             .get()
                             .addOnCompleteListener(task -> {
                                 if (task.isSuccessful()) {
@@ -280,10 +290,12 @@ public class BasketFragment extends Fragment {
                                                         getCartItemsCount();
                                                         Toast.makeText(requireActivity(), "Product successfully removed from Cart", Toast.LENGTH_SHORT).show();
                                                         loading.dismiss();
+                                                        cartShimmerContainer.setVisibility(View.GONE);
                                                     })
                                                     .addOnFailureListener(e -> {
                                                         vars.verityApp.crashlytics.log("An error occurred while deleting cart" + e.getMessage());
                                                         loading.dismiss();
+                                                        cartShimmerContainer.setVisibility(View.GONE);
                                                     });
                                         }
                                     }
@@ -291,25 +303,14 @@ public class BasketFragment extends Fragment {
                             });
                 });
 
-
-
-//                holder..setOnClickListener(v -> {
-//                    Intent productIntent = new Intent(getApplicationContext(), ProductDetailActivity.class);
-//                    productIntent.putExtra(Globals.ACTIVE_PRODUCT_ID, model.getProduct_id());
-//                    productIntent.putExtra(Globals.ACTIVE_SHOP_ID, model.getShop_id());
-//
-//                    startActivity(productIntent);
-//
-//                });
-
-//                mShimmerViewContainer.setVisibility(View.GONE);
+                cartShimmerContainer.setVisibility(View.GONE);
             }
 
             @NonNull
             @Override
             public CartViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_cart, parent, false);
-                return new CartViewHolder(view);
+                return new CartViewHolder(view, requireContext());
             }
 
             @Override
@@ -327,21 +328,21 @@ public class BasketFragment extends Fragment {
                         break;
 
                     case LOADING_MORE:
-//                        mShimmerViewContainer.setVisibility(View.VISIBLE);
+                        cartShimmerContainer.setVisibility(View.VISIBLE);
                         break;
 
                     case LOADED:
-//                        mShimmerViewContainer.setVisibility(View.GONE);
+                        cartShimmerContainer.setVisibility(View.GONE);
                         notifyDataSetChanged();
                         break;
 
                     case ERROR:
                         Toast.makeText(requireActivity(), "Error while fetching cart", Toast.LENGTH_SHORT).show();
-//                        mShimmerViewContainer.setVisibility(View.GONE);
+                        cartShimmerContainer.setVisibility(View.GONE);
                         break;
 
                     case FINISHED:
-//                        mShimmerViewContainer.setVisibility(View.GONE);
+                        cartShimmerContainer.setVisibility(View.GONE);
                         break;
                 }
             }
@@ -386,6 +387,19 @@ public class BasketFragment extends Fragment {
         totalCartSum.setVisibility(View.VISIBLE);
         totalCartSum.setText(mTotal);
         totalSavings.setText(mSaved);
+    }
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        cartShimmerContainer.startShimmer();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        cartShimmerContainer.stopShimmer();
     }
 
 }

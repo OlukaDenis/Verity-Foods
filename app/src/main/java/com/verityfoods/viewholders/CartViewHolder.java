@@ -1,5 +1,6 @@
 package com.verityfoods.viewholders;
 
+import android.content.Context;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -10,7 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
 import com.verityfoods.R;
 import com.verityfoods.data.model.Cart;
 import com.verityfoods.utils.AppUtils;
@@ -38,9 +39,11 @@ public class CartViewHolder extends RecyclerView.ViewHolder {
     TextView cartPrice;
 
     public ImageButton removeCart;
+    private Context context;
 
-    public CartViewHolder(@NonNull View itemView) {
+    public CartViewHolder(@NonNull View itemView, Context context) {
         super(itemView);
+        this.context = context;
         ButterKnife.bind(this, itemView);
         plusButton = itemView.findViewById(R.id.plus_btn);
         minusButton = itemView.findViewById(R.id.minus_btn);
@@ -54,8 +57,10 @@ public class CartViewHolder extends RecyclerView.ViewHolder {
         cartCategory.setText(cart.getCategory_name());
         cartPrice.setText(AppUtils.formatCurrency(cart.getAmount()));
         total.setText(String.valueOf(cart.getQuantity()));
-        Picasso.get()
+
+        Glide.with(context)
                 .load(cart.getProduct_image())
+                .centerCrop()
                 .error(R.drawable.ic_baseline_image_24)
                 .placeholder(R.drawable.ic_baseline_image_24)
                 .into(cartImage);

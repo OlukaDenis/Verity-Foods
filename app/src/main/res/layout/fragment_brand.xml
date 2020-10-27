@@ -3,10 +3,216 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:shimmer="http://schemas.android.com/apk/res-auto"
     android:layout_marginTop="16dp"
     android:layout_marginEnd="12dp"
     android:layout_marginStart="12dp"
     tools:context=".ui.brands.BrandFragment">
+
+    <com.facebook.shimmer.ShimmerFrameLayout
+        android:id="@+id/brand_shimmer_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        shimmer:layout_constraintTop_toTopOf="parent"
+        shimmer:layout_constraintEnd_toEndOf="parent"
+        shimmer:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="14dp"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="8dp"
+                android:weightSum="9">
+
+                <include
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_weight="3"
+                    layout="@layout/brand_shimmer_layout"
+                    android:layout_marginEnd="6dp"/>
+
+                <include
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_weight="3"
+                    layout="@layout/brand_shimmer_layout"
+                    android:layout_marginEnd="6dp"/>
+
+                <include
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_weight="3"
+                    layout="@layout/brand_shimmer_layout"
+                    android:layout_marginEnd="6dp"/>
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="8dp"
+                android:weightSum="9">
+
+                <include
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_weight="3"
+                    layout="@layout/brand_shimmer_layout"
+                    android:layout_marginEnd="6dp"/>
+
+                <include
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_weight="3"
+                    layout="@layout/brand_shimmer_layout"
+                    android:layout_marginEnd="6dp"/>
+
+                <include
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_weight="3"
+                    layout="@layout/brand_shimmer_layout"
+                    android:layout_marginEnd="6dp"/>
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="8dp"
+                android:weightSum="9">
+
+                <include
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_weight="3"
+                    layout="@layout/brand_shimmer_layout"
+                    android:layout_marginEnd="6dp"/>
+
+                <include
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_weight="3"
+                    layout="@layout/brand_shimmer_layout"
+                    android:layout_marginEnd="6dp"/>
+
+                <include
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_weight="3"
+                    layout="@layout/brand_shimmer_layout"
+                    android:layout_marginEnd="6dp"/>
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="8dp"
+                android:weightSum="9">
+
+                <include
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_weight="3"
+                    layout="@layout/brand_shimmer_layout"
+                    android:layout_marginEnd="6dp"/>
+
+                <include
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_weight="3"
+                    layout="@layout/brand_shimmer_layout"
+                    android:layout_marginEnd="6dp"/>
+
+                <include
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_weight="3"
+                    layout="@layout/brand_shimmer_layout"
+                    android:layout_marginEnd="6dp"/>
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="8dp"
+                android:weightSum="9">
+
+                <include
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_weight="3"
+                    layout="@layout/brand_shimmer_layout"
+                    android:layout_marginEnd="6dp"/>
+
+                <include
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_weight="3"
+                    layout="@layout/brand_shimmer_layout"
+                    android:layout_marginEnd="6dp"/>
+
+                <include
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_weight="3"
+                    layout="@layout/brand_shimmer_layout"
+                    android:layout_marginEnd="6dp"/>
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="8dp"
+                android:weightSum="9">
+
+                <include
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_weight="3"
+                    layout="@layout/brand_shimmer_layout"
+                    android:layout_marginEnd="6dp"/>
+
+                <include
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_weight="3"
+                    layout="@layout/brand_shimmer_layout"
+                    android:layout_marginEnd="6dp"/>
+
+                <include
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_weight="3"
+                    layout="@layout/brand_shimmer_layout"
+                    android:layout_marginEnd="6dp"/>
+
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </com.facebook.shimmer.ShimmerFrameLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/brand_recycler"

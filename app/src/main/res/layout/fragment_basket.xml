@@ -6,6 +6,29 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ui.bottomviews.basket.BasketFragment">
 
+    <com.facebook.shimmer.ShimmerFrameLayout
+        android:id="@+id/cart_shimmer_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:layout_marginTop="14dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <include layout="@layout/layout_product_shimmer" />
+            <include layout="@layout/layout_product_shimmer" />
+            <include layout="@layout/layout_product_shimmer" />
+            <include layout="@layout/layout_product_shimmer" />
+
+        </LinearLayout>
+
+
+    </com.facebook.shimmer.ShimmerFrameLayout>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/cart_recycler"
         android:layout_width="match_parent"
@@ -18,7 +41,7 @@
         android:id="@+id/checkout_layout"
         android:layout_width="match_parent"
         android:layout_height="100dp"
-        android:background="#000911"
+        android:background="@color/colorPrimary"
         android:orientation="horizontal"
         android:padding="16dp"
         android:weightSum="10"
@@ -56,7 +79,7 @@
                 android:layout_height="wrap_content"
                 android:text="Saved"
                 android:textSize="14sp"
-                android:textColor="@color/colorPrimary"/>
+                android:textColor="@android:color/darker_gray"/>
         </LinearLayout>
 
         <Button
@@ -83,7 +106,7 @@
             android:layout_width="80dp"
             android:layout_height="80dp"
             app:srcCompat="@drawable/cart"
-            android:tint="@color/colorPrimaryDark"/>
+            app:tint="@color/colorPrimaryDark" />
 
         <TextView
             android:layout_width="wrap_content"

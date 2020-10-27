@@ -43,17 +43,7 @@
                     tools:listitem="@layout/layout_brand_search_item"/>
             </RelativeLayout>
 
-           <RelativeLayout
-               android:layout_width="match_parent"
-               android:layout_height="wrap_content">
-
-               <androidx.recyclerview.widget.RecyclerView
-                   android:id="@+id/product_search_recycler"
-                   android:layout_width="match_parent"
-                   android:layout_height="wrap_content"
-                   tools:listitem="@layout/layout_products" />
-
-           </RelativeLayout>
+            <include layout="@layout/products_grid" />
 
 
         </LinearLayout>
