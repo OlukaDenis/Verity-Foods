@@ -1,5 +1,6 @@
 package com.verityfoods.data.adapters;
 
+import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,11 +18,11 @@ import java.util.List;
 public class DealSliderAdapter extends SliderViewAdapter<DealsViewHolder> {
     private List<Deal> dealSliders = new ArrayList<>();
     private Vars vars;
-    private Context context;
+    private Activity activity;
 
-    public DealSliderAdapter(Vars vars, Context context) {
+    public DealSliderAdapter(Vars vars, Activity activity) {
         this.vars = vars;
-        this.context = context;
+        this.activity = activity;
     }
 
     public void renewItems(List<Deal> sliderItems) {
@@ -42,7 +43,7 @@ public class DealSliderAdapter extends SliderViewAdapter<DealsViewHolder> {
     @Override
     public DealsViewHolder onCreateViewHolder(ViewGroup parent) {
         View inflate = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_deals, null);
-        return new DealsViewHolder(inflate, context);
+        return new DealsViewHolder(inflate, activity);
     }
 
     @Override
