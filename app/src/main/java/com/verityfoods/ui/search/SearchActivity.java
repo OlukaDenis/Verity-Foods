@@ -25,6 +25,7 @@ import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.firebase.ui.firestore.paging.FirestorePagingAdapter;
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.firebase.ui.firestore.paging.LoadingState;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -165,7 +166,7 @@ public class SearchActivity extends AppCompatActivity {
         Query searchQuery = vars.verityApp.db
                 .collectionGroup(Globals.PRODUCTS)
                 .orderBy("name")
-                .whereGreaterThanOrEqualTo("name", name)
+                .whereGreaterThanOrEqualTo("name", name )
                 .whereLessThanOrEqualTo("name", name + "\uf8ff");
 
 

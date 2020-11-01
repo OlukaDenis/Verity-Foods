@@ -272,7 +272,7 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
 
     private void checkVariableExistingProduct(Product product, String userId, String productID, Cart cart, int qty) {
         vars.verityApp.db.collection(Globals.CART + "/" + userId + "/" + Globals.MY_CART)
-                .whereEqualTo("product_id", productID)
+                .whereEqualTo("simple", false)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
