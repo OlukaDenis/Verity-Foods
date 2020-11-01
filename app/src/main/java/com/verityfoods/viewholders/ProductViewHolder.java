@@ -233,9 +233,9 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         if (Objects.requireNonNull(task.getResult()).size() > 0) {
-
                             for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
                                 Cart existingCart = document.toObject(Cart.class);
+                                existingCart.setMrp((product.getMrp() * qty) + existingCart.getMrp());
 
                                 if (product.isOffer()) {
                                     double discount = (product.getOffer_value() * product.getSelling_price()) / 100;
@@ -244,7 +244,7 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
 
                                     existingCart.setAmount((actual * qty + existingCart.getAmount()));
                                 } else {
-                                    existingCart.setAmount((product.getSelling_price() * qty + existingCart.getAmount()));
+                                    existingCart.setAmount((product.getSelling_price()) * qty + existingCart.getAmount());
                                 }
 
                                 existingCart.setQuantity(qty + existingCart.getQuantity());
@@ -275,12 +275,15 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
+
                         if (Objects.requireNonNull(task.getResult()).size() > 0) {
 
                             for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
                                 Cart existingCart = document.toObject(Cart.class);
-
-                                if (existingCart.getPack().equalsIgnoreCase(cart.getPack())) {
+                                Log.d(TAG, "Found doc: "+document.getId());
+                                existingCart.setMrp((product.getMrp() * qty) + existingCart.getMrp());
+//
+                                if (existingCart.getPack().equals(product.getPack())) {
                                     if (product.isOffer()) {
                                         double discount = (product.getOffer_value() * product.getSelling_price()) / 100;
                                         double m = product.getSelling_price() - discount;
@@ -292,16 +295,10 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
                                     }
 
                                     existingCart.setQuantity(qty + existingCart.getQuantity());
-                                    vars.verityApp.db.collection(Globals.CART)
-                                            .document(userId)
-                                            .collection(Globals.MY_CART)
-                                            .document(document.getId())
-                                            .set(existingCart);
-
-                                    Toast.makeText(activity, "Product added to Cart", Toast.LENGTH_SHORT).show();
-                                    loading.dismiss();
+//
+                                    updateExistingVariable(userId, document.getId(), existingCart);
                                 } else {
-                                    createNewCartProduct(userId, cart);
+                                    createNewVariableCartProduct(userId, cart);
                                 }
                             }
                         } else {
@@ -315,7 +312,49 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
                 });
     }
 
+    private void updateExistingVariable(String userId, String docId, Cart existingCart) {
+        Log.d(TAG, "Product pack to update: "+existingCart.getPack());
+        Log.d(TAG, "Doc ID: "+docId);
+        vars.verityApp.db.collection(Globals.CART + "/" + userId + "/" + Globals.MY_CART)
+                .whereEqualTo("pack", existingCart.getPack())
+                .get()
+                .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                if (Objects.requireNonNull(task.getResult()).size() > 0) {
+
+                                    vars.verityApp.db.collection(Globals.CART)
+                                            .document(userId)
+                                            .collection(Globals.MY_CART)
+                                            .document(docId)
+                                            .set(existingCart)
+                                            .addOnSuccessListener(aVoid -> {
+                                                Toast.makeText(activity, "Cart product updated", Toast.LENGTH_SHORT).show();
+                                                loading.dismiss();
+                                            });
+                                } else {
+                                    Log.d(TAG, "no update: ");
+                                }
+                            }
+                        });
+    }
+
+    private void createNewVariableCartProduct(String userId, Cart cart) {
+        Log.d(TAG, "Pack to create is: "+cart.getPack());
+        vars.verityApp.db.collection(Globals.CART + "/" + userId + "/" + Globals.MY_CART)
+                .whereEqualTo("pack", cart.getPack())
+                .get()
+                .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                if (Objects.requireNonNull(task.getResult()).size() == 0) {
+                                    Log.d(TAG, "Add here: "+task.getResult().size());
+                                    createNewCartProduct(userId, cart);
+                                }
+                            }
+                        });
+    }
+
     private void createNewCartProduct(String userId, Cart cart) {
+        
         vars.verityApp.db.collection(Globals.CART)
                 .document(userId)
                 .collection(Globals.MY_CART)

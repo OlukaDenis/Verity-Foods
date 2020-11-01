@@ -184,7 +184,6 @@ public class BasketFragment extends Fragment {
 
 
     public void updateCartQuantity(Cart model, int newValue ) {
-        Log.d(TAG, "newvalue: "+newValue);
             totalLoading.setVisibility(View.VISIBLE);
             totalCartSum.setVisibility(View.GONE);
             vars.verityApp.db.collection(Globals.CART + "/" + vars.getShoppingID() + "/" + Globals.MY_CART)

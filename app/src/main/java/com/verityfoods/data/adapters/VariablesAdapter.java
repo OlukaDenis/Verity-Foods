@@ -55,7 +55,6 @@ public class VariablesAdapter extends RecyclerView.Adapter<VariableViewHolder> {
         populateDefaultVariable();
 
         holder.variableName.setOnClickListener(view -> {
-
             index = position;
             notifyDataSetChanged();
             calculatePrice(variable);
@@ -83,7 +82,7 @@ public class VariablesAdapter extends RecyclerView.Adapter<VariableViewHolder> {
                 productViewHolder.cartProduct.setQuantity(productViewHolder.value);
                 productViewHolder.cartProduct.setProduct_image(product.getImage());
                 productViewHolder.cartProduct.setCompleted(false);
-
+                productViewHolder.cartProduct.setSimple(true);
                 productViewHolder.addProductCart(product);
             });
         }
@@ -101,6 +100,10 @@ public class VariablesAdapter extends RecyclerView.Adapter<VariableViewHolder> {
 
     private void calculatePrice(Variable model) {
         productViewHolder.updateSelectedVariable(model);
+        product.setSelling_price(model.getPrice());
+        product.setMrp(model.getMrp());
+        product.setPack(model.getQty());
+
         if (product.isOffer()) {
             int newMrp = model.getPrice() + 1000;
             double discount = (product.getOffer_value() * newMrp) / 100;
