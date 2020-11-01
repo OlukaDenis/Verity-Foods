@@ -32,6 +32,9 @@ public class CartViewHolder extends RecyclerView.ViewHolder {
     @BindView(R.id.cart_name)
     TextView cartName;
 
+    @BindView(R.id.cart_pack)
+    TextView cartPack;
+
     @BindView(R.id.cart_category)
     TextView cartCategory;
 
@@ -57,6 +60,9 @@ public class CartViewHolder extends RecyclerView.ViewHolder {
         cartCategory.setText(cart.getCategory_name());
         cartPrice.setText(AppUtils.formatCurrency(cart.getAmount()));
         total.setText(String.valueOf(cart.getQuantity()));
+        if (cart.getPack() != null) {
+            cartPack.setText(cart.getPack());
+        }
 
         Glide.with(context)
                 .load(cart.getProduct_image())

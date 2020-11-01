@@ -1,6 +1,7 @@
 package com.verityfoods.data.model;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class Cart implements Serializable {
     private String category_id;
@@ -8,7 +9,10 @@ public class Cart implements Serializable {
     private String product_id;
     private String product_name;
     private String product_image;
+    private List<Variable> variables;
+    private String pack;
     private int mrp;
+    private boolean simple;
     private int quantity;
     private boolean completed;
     private int amount;
@@ -98,5 +102,29 @@ public class Cart implements Serializable {
 
     public void setMrp(int mrp) {
         this.mrp = mrp;
+    }
+
+    public List<Variable> getVariables() {
+        return variables;
+    }
+
+    public void setVariables(List<Variable> variables) {
+        this.variables = variables;
+    }
+
+    public String getPack() {
+        return pack;
+    }
+
+    public void setPack(String pack) {
+        this.pack = pack;
+    }
+
+    public boolean isSimple() {
+        return simple;
+    }
+
+    public void setSimple(boolean simple) {
+        this.simple = simple;
     }
 }

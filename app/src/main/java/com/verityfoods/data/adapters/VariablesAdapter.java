@@ -1,7 +1,6 @@
 package com.verityfoods.data.adapters;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,7 +10,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.verityfoods.R;
-import com.verityfoods.data.model.Cart;
 import com.verityfoods.data.model.Product;
 import com.verityfoods.data.model.Variable;
 import com.verityfoods.utils.AppUtils;
@@ -24,7 +22,7 @@ public class VariablesAdapter extends RecyclerView.Adapter<VariableViewHolder> {
     private static final String TAG = "VariablesAdapter";
     private List<Variable> variableList;
     private Activity activity;
-    private int index = -1;
+    private int index = 0;
     private int modifiedAmount;
     private int modifiedMRP;
     private ProductViewHolder productViewHolder;
@@ -37,6 +35,13 @@ public class VariablesAdapter extends RecyclerView.Adapter<VariableViewHolder> {
         this.product = product;
     }
 
+    public void populateDefaultVariable() {
+        if (index == 0) {
+            Variable defaultVariable = variableList.get(0);
+            calculatePrice(defaultVariable);
+        }
+    }
+
     @NonNull
     @Override
     public VariableViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -47,8 +52,10 @@ public class VariablesAdapter extends RecyclerView.Adapter<VariableViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull VariableViewHolder holder, int position) {
         Variable variable = variableList.get(position);
+        populateDefaultVariable();
 
         holder.variableName.setOnClickListener(view -> {
+
             index = position;
             notifyDataSetChanged();
             calculatePrice(variable);
@@ -67,17 +74,17 @@ public class VariablesAdapter extends RecyclerView.Adapter<VariableViewHolder> {
                 productViewHolder.loading.show();
                 int mAmount = modifiedAmount * productViewHolder.value;
 
-                Cart cart = new Cart(
-                        product.getCategory_id(),
-                        product.getCategory_name(),
-                        product.getUuid(),
-                        product.getName(),
-                        product.getImage(),
-                        modifiedMRP * productViewHolder.value,
-                        productViewHolder.value,
-                        mAmount
-                );
-                productViewHolder.addProductCart(cart, product);
+                productViewHolder.cartProduct.setAmount(mAmount);
+                productViewHolder.cartProduct.setMrp(modifiedMRP * productViewHolder.value);
+                productViewHolder.cartProduct.setCategory_id(product.getCategory_id());
+                productViewHolder.cartProduct.setCategory_name(product.getCategory_name());
+                productViewHolder.cartProduct.setProduct_id(product.getUuid());
+                productViewHolder.cartProduct.setProduct_name(product.getName());
+                productViewHolder.cartProduct.setQuantity(productViewHolder.value);
+                productViewHolder.cartProduct.setProduct_image(product.getImage());
+                productViewHolder.cartProduct.setCompleted(false);
+
+                productViewHolder.addProductCart(product);
             });
         }
 
@@ -93,6 +100,7 @@ public class VariablesAdapter extends RecyclerView.Adapter<VariableViewHolder> {
 
 
     private void calculatePrice(Variable model) {
+        productViewHolder.updateSelectedVariable(model);
         if (product.isOffer()) {
             int newMrp = model.getPrice() + 1000;
             double discount = (product.getOffer_value() * newMrp) / 100;
