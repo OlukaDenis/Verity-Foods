@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.facebook.shimmer.ShimmerFrameLayout;
 import com.firebase.ui.firestore.paging.FirestorePagingAdapter;
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.firebase.ui.firestore.paging.LoadingState;
@@ -42,6 +43,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class SubCategoriesFragment extends Fragment {
     private static final String TAG = "SubCategoriesFragment";
     private PagedList.Config config;
@@ -56,6 +60,9 @@ public class SubCategoriesFragment extends Fragment {
     private String categoryID;
     private String categoryName;
 
+    @BindView(R.id.product_shimmer_container)
+    ShimmerFrameLayout productShimmerContainer;
+
     public SubCategoriesFragment() {
         // Required empty public constructor
     }
@@ -67,6 +74,7 @@ public class SubCategoriesFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_sub_categories, container, false);
 
         vars = new Vars(requireContext());
+        ButterKnife.bind(this, root);
 
         Bundle bundle = getArguments();
         assert bundle != null;
@@ -119,6 +127,7 @@ public class SubCategoriesFragment extends Fragment {
             @Override
             protected void onBindViewHolder(@NonNull ProductViewHolder holder, int position, @NonNull Product model) {
                 holder.bindProduct(model);
+                productShimmerContainer.setVisibility(View.GONE);
             }
 
             @NonNull
@@ -142,22 +151,22 @@ public class SubCategoriesFragment extends Fragment {
                         break;
 
                     case LOADING_MORE:
-//                        mShimmerViewContainer.setVisibility(View.VISIBLE);
+                        productShimmerContainer.setVisibility(View.VISIBLE);
                         break;
 
                     case LOADED:
-//                        mShimmerViewContainer.setVisibility(View.GONE);
+                        productShimmerContainer.setVisibility(View.GONE);
                         notifyDataSetChanged();
                         break;
 
                     case ERROR:
                         Toast.makeText(requireActivity(), "Error", Toast.LENGTH_SHORT).show();
 
-//                        mShimmerViewContainer.setVisibility(View.GONE);
+                        productShimmerContainer.setVisibility(View.GONE);
                         break;
 
                     case FINISHED:
-//                        mShimmerViewContainer.setVisibility(View.GONE);
+                        productShimmerContainer.setVisibility(View.GONE);
                         break;
                 }
             }
@@ -165,4 +174,17 @@ public class SubCategoriesFragment extends Fragment {
         productRecycler.setAdapter(adapter);
         adapter.notifyDataSetChanged();
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        productShimmerContainer.startShimmer();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        productShimmerContainer.stopShimmer();
+    }
+
 }

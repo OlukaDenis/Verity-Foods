@@ -239,7 +239,7 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
                                        total = total - coupon.getValue();
                                        totalSum.setText(String.valueOf(total));
                                        couponCode.setText("");
-                                       deleteCoupon(task.getResult().getId());
+//                                       deleteCoupon(task.getResult().getId());
                                         Toast.makeText(getApplicationContext(), "Coupon applied successfully!", Toast.LENGTH_SHORT).show();
                                     }
                                 });
