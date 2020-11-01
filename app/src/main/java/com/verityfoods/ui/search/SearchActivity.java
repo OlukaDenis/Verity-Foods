@@ -165,8 +165,9 @@ public class SearchActivity extends AppCompatActivity {
         Query searchQuery = vars.verityApp.db
                 .collectionGroup(Globals.PRODUCTS)
                 .orderBy("name")
-                .startAt(name)
-                .endAt(name+"\uf8ff");
+                .whereGreaterThanOrEqualTo("name", name)
+                .whereLessThanOrEqualTo("name", name + "\uf8ff");
+
 
         FirestoreRecyclerOptions<Product> options = new FirestoreRecyclerOptions.Builder<Product>()
                 .setQuery(searchQuery, snapshot -> {
