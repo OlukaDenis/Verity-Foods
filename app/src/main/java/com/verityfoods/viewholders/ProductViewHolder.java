@@ -204,6 +204,7 @@ public class ProductViewHolder extends RecyclerView.ViewHolder {
                 cartProduct.setQuantity(value);
                 cartProduct.setProduct_image(product.getImage());
                 cartProduct.setCompleted(false);
+                cartProduct.setSimple(true);
 
                 addProductCart(product);
 

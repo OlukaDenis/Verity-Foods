@@ -220,6 +220,110 @@ public class BasketFragment extends Fragment {
 
     }
 
+    public void updateVariableCartQuantity(Cart model, int newValue ) {
+        Log.d(TAG, "We are updating a variabale cart: ");
+        totalLoading.setVisibility(View.VISIBLE);
+        totalCartSum.setVisibility(View.GONE);
+        vars.verityApp.db.collection(Globals.CART + "/" + vars.getShoppingID() + "/" + Globals.MY_CART)
+                .whereEqualTo("simple", false)
+                .whereEqualTo("pack", model.getPack())
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        if (Objects.requireNonNull(task.getResult()).size() > 0) {
+                            for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+                                Cart mCart = document.toObject(Cart.class);
+
+                                int price = mCart.getAmount() / mCart.getQuantity();
+                                int mrp = mCart.getMrp() / mCart.getQuantity();
+
+                                mCart.setAmount((price * newValue));
+                                mCart.setMrp((mrp * newValue));
+                                mCart.setQuantity(newValue);
+
+                                vars.verityApp.db.collection(Globals.CART)
+                                        .document(vars.getShoppingID())
+                                        .collection(Globals.MY_CART)
+                                        .document(document.getId())
+                                        .set(mCart);
+                                getTotalSum();
+                                populateCart();
+                            }
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    vars.verityApp.crashlytics.log("An error occurred while updating cart" + e.getMessage());
+                });
+    }
+
+    private void deleteSimpleCart(Cart model) {
+        vars.verityApp.db.collection(Globals.CART + "/" + vars.getShoppingID() + "/" + Globals.MY_CART)
+                .whereEqualTo("product_id", model.getProduct_id())
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        if (Objects.requireNonNull(task.getResult()).size() > 0) {
+
+                            for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+                                vars.verityApp.db.collection(Globals.CART)
+                                        .document(vars.getShoppingID())
+                                        .collection(Globals.MY_CART)
+                                        .document(document.getId())
+                                        .delete()
+                                        .addOnSuccessListener(aVoid -> {
+                                            updateCartCount();
+                                            getTotalSum();
+                                            getCartItemsCount();
+                                            Toast.makeText(requireActivity(), "Product successfully removed from Cart", Toast.LENGTH_SHORT).show();
+                                            loading.dismiss();
+                                            cartShimmerContainer.setVisibility(View.GONE);
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            vars.verityApp.crashlytics.log("An error occurred while deleting cart" + e.getMessage());
+                                            loading.dismiss();
+                                            cartShimmerContainer.setVisibility(View.GONE);
+                                        });
+                            }
+                        }
+                    }
+                });
+    }
+
+    private void deleteVariableCart(Cart model) {
+        vars.verityApp.db.collection(Globals.CART + "/" + vars.getShoppingID() + "/" + Globals.MY_CART)
+                .whereEqualTo("simple", false)
+                .whereEqualTo("pack", model.getPack())
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        if (Objects.requireNonNull(task.getResult()).size() > 0) {
+
+                            for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+                                vars.verityApp.db.collection(Globals.CART)
+                                        .document(vars.getShoppingID())
+                                        .collection(Globals.MY_CART)
+                                        .document(document.getId())
+                                        .delete()
+                                        .addOnSuccessListener(aVoid -> {
+                                            updateCartCount();
+                                            getTotalSum();
+                                            getCartItemsCount();
+                                            Toast.makeText(requireActivity(), "Product successfully removed from Cart", Toast.LENGTH_SHORT).show();
+                                            loading.dismiss();
+                                            cartShimmerContainer.setVisibility(View.GONE);
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            vars.verityApp.crashlytics.log("An error occurred while deleting cart" + e.getMessage());
+                                            loading.dismiss();
+                                            cartShimmerContainer.setVisibility(View.GONE);
+                                        });
+                            }
+                        }
+                    }
+                });
+    }
+
 
     public void populateCart() {
         cartShimmerContainer.setVisibility(View.VISIBLE);
@@ -252,14 +356,25 @@ public class BasketFragment extends Fragment {
                 holder.plusButton.setOnClickListener(view -> {
                     int p = Integer.parseInt(val);
                     holder.total.setText(String.valueOf(p += 1));
-                    updateCartQuantity(model, Integer.parseInt(holder.total.getText().toString()));
+                    if (model.isSimple()) {
+                        Log.d(TAG, "Simple product: ");
+                        updateCartQuantity(model, Integer.parseInt(holder.total.getText().toString()));
+                    } else {
+                        Log.d(TAG, "Variable product: ");
+                        updateVariableCartQuantity(model, Integer.parseInt(holder.total.getText().toString()));
+                    }
                 });
 
                 holder.minusButton.setOnClickListener(v -> {
                     int m = Integer.parseInt(val);
                     if (m > 1) {
                         holder.total.setText(String.valueOf(m -= 1));
-                        updateCartQuantity(model, Integer.parseInt(holder.total.getText().toString()));
+                        if (model.isSimple()) {
+                            updateCartQuantity(model, Integer.parseInt(holder.total.getText().toString()));
+                        } else {
+                            updateVariableCartQuantity(model, Integer.parseInt(holder.total.getText().toString()));
+                        }
+//                        updateCartQuantity(model, Integer.parseInt(holder.total.getText().toString()));
                     }
                 });
 
@@ -270,36 +385,13 @@ public class BasketFragment extends Fragment {
                     totalLoading.setVisibility(View.VISIBLE);
                     cartShimmerContainer.setVisibility(View.VISIBLE);
                     totalCartSum.setVisibility(View.GONE);
-                    vars.verityApp.db.collection(Globals.CART + "/" + vars.getShoppingID() + "/" + Globals.MY_CART)
-                            .whereEqualTo("product_id", model.getProduct_id())
-                            .get()
-                            .addOnCompleteListener(task -> {
-                                if (task.isSuccessful()) {
-                                    if (Objects.requireNonNull(task.getResult()).size() > 0) {
 
-                                        for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
-                                            vars.verityApp.db.collection(Globals.CART)
-                                                    .document(vars.getShoppingID())
-                                                    .collection(Globals.MY_CART)
-                                                    .document(document.getId())
-                                                    .delete()
-                                                    .addOnSuccessListener(aVoid -> {
-                                                        updateCartCount();
-                                                        getTotalSum();
-                                                        getCartItemsCount();
-                                                        Toast.makeText(requireActivity(), "Product successfully removed from Cart", Toast.LENGTH_SHORT).show();
-                                                        loading.dismiss();
-                                                        cartShimmerContainer.setVisibility(View.GONE);
-                                                    })
-                                                    .addOnFailureListener(e -> {
-                                                        vars.verityApp.crashlytics.log("An error occurred while deleting cart" + e.getMessage());
-                                                        loading.dismiss();
-                                                        cartShimmerContainer.setVisibility(View.GONE);
-                                                    });
-                                        }
-                                    }
-                                }
-                            });
+                    if (model.isSimple()) {
+                        deleteSimpleCart(model);
+                    } else {
+                        deleteVariableCart(model);
+                    }
+
                 });
 
                 cartShimmerContainer.setVisibility(View.GONE);

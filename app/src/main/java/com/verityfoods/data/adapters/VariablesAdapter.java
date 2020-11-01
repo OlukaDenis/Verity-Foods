@@ -82,7 +82,7 @@ public class VariablesAdapter extends RecyclerView.Adapter<VariableViewHolder> {
                 productViewHolder.cartProduct.setQuantity(productViewHolder.value);
                 productViewHolder.cartProduct.setProduct_image(product.getImage());
                 productViewHolder.cartProduct.setCompleted(false);
-                productViewHolder.cartProduct.setSimple(true);
+                productViewHolder.cartProduct.setSimple(false);
                 productViewHolder.addProductCart(product);
             });
         }
