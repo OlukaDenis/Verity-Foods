@@ -21,6 +21,10 @@ public class Globals {
     public static final String SELECTED_BRAND_OBJ = "Selected_brand_obj";
     public static final String ORDER_OBJ = "Order_obj";
     public static final String BRAND_SEARCH_RESULT = "Brand_search_result";
+    public static final String ADDRESS = "address";
+    public static final String MY_ADDRESS = "my_address";
+    public static final String MY_SELECTED_ADDRESS = "my_selected_address";
+    public static final int PICK_ADDRESS_ID = 106;
     public static String CATEGORY_ID;
     public static String CATEGORY_NAME;
     public static String CATEGORY_COVER;

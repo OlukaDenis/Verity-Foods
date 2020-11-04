@@ -28,6 +28,7 @@ import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.verityfoods.MainActivity;
 import com.verityfoods.R;
+import com.verityfoods.data.model.Address;
 import com.verityfoods.data.model.User;
 import com.verityfoods.utils.Globals;
 import com.verityfoods.utils.Vars;
@@ -35,6 +36,7 @@ import com.verityfoods.utils.Vars;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
@@ -46,6 +48,7 @@ public class SignupActivity extends AppCompatActivity {
     private static String VERIFY = "verify number";
     private static String CONTINUE = "continue";
     private static String SAVE = "save";
+    private Address address;
 
     private Vars vars;
 
@@ -91,6 +94,8 @@ public class SignupActivity extends AppCompatActivity {
         vars = new Vars(this);
         progressDialog = new ProgressDialog(this);
         user = new User();
+        address = new Address();
+
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         displayPhoneLayout();
@@ -244,6 +249,7 @@ public class SignupActivity extends AppCompatActivity {
         progressDialog.show();
 
         String userID = Objects.requireNonNull(vars.verityApp.mAuth.getCurrentUser()).getUid();
+        String randomID = UUID.randomUUID().toString();
         if (!userEmail.getText().toString().isEmpty() &&
         !userAddress.getText().toString().isEmpty() &&
         !userName.getText().toString().isEmpty()) {
@@ -253,29 +259,39 @@ public class SignupActivity extends AppCompatActivity {
             user.setAddress(userAddress.getText().toString());
             user.setEmail(userEmail.getText().toString());
 
-            vars.verityApp.db.collection(Globals.USERS)
+            address.setDefault(true);
+            address.setPhone(vars.verityApp.mAuth.getCurrentUser().getPhoneNumber());
+
+            vars.verityApp.db.collection(Globals.ADDRESS)
                     .document(userID)
-                    .set(user)
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            startActivity(new Intent(getApplicationContext(), MainActivity.class));
-                            finish();
-                            progressDialog.dismiss();
-                        } else {
-                            progressDialog.dismiss();
-                            Toast.makeText(this, "Registration unsuccessful", Toast.LENGTH_SHORT).show();
-                        }
-                    })
-                    .addOnFailureListener(e -> {
-                        progressDialog.dismiss();
-                        vars.verityApp.crashlytics.recordException(e);
-                        Log.e(TAG, "Error while saving data: ",e);
+                    .collection(Globals.MY_ADDRESS)
+                    .document(randomID)
+                    .set(address)
+                    .addOnSuccessListener(aVoid -> {
+                        user.setAddressId(randomID);
+                        vars.verityApp.db.collection(Globals.USERS)
+                                .document(userID)
+                                .set(user)
+                                .addOnCompleteListener(task -> {
+                                    if (task.isSuccessful()) {
+                                        startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                                        finish();
+                                        progressDialog.dismiss();
+                                    } else {
+                                        progressDialog.dismiss();
+                                        Toast.makeText(this, "Registration unsuccessful", Toast.LENGTH_SHORT).show();
+                                    }
+                                })
+                                .addOnFailureListener(e -> {
+                                    progressDialog.dismiss();
+                                    vars.verityApp.crashlytics.recordException(e);
+                                    Log.e(TAG, "Error while saving data: ",e);
+                                });
                     });
 
         } else {
             progressDialog.dismiss();
             Toast.makeText(this, "All fields are required", Toast.LENGTH_SHORT).show();
-            return;
         }
     }
 
@@ -299,7 +315,14 @@ public class SignupActivity extends AppCompatActivity {
         if (requestCode == Globals.AUTOCOMPLETE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 Place place = Autocomplete.getPlaceFromIntent(data);
+
                 userAddress.setText(place.getAddress());
+                address.setAddress(place.getAddress());
+                address.setName(place.getName());
+                assert  place.getLatLng() != null;
+                address.setLatitude(place.getLatLng().latitude);
+                address.setLongitude(place.getLatLng().longitude);
+
             } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
                 Status status = Autocomplete.getStatusFromIntent(data);
                 Log.d(TAG, "Error while picking location: "+status.getStatusMessage());

@@ -353,13 +353,13 @@
                     android:id="@+id/online_banking"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Online Banking" />
+                    android:text="Credit/Debit/Visa Card (accepted on delivery)" />
 
                 <RadioButton
                     android:id="@+id/mobile_money"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Mobile Money" />
+                    android:text="Mobile Money (to be activated soon)" />
 
             </RadioGroup>
 

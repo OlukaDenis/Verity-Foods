@@ -1,6 +1,7 @@
 package com.verityfoods.data.model;
 
 public class User {
+    private String addressId;
     private String userID;
     private String name;
     private String phone;
@@ -9,6 +10,14 @@ public class User {
     private String image;
 
     public User() {
+    }
+
+    public String getAddressId() {
+        return addressId;
+    }
+
+    public void setAddressId(String addressId) {
+        this.addressId = addressId;
     }
 
     public String getUserID() {

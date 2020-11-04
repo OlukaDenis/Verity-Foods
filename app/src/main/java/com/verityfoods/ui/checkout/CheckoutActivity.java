@@ -8,6 +8,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -38,10 +39,12 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.verityfoods.MainActivity;
 import com.verityfoods.R;
+import com.verityfoods.data.model.Address;
 import com.verityfoods.data.model.Cart;
 import com.verityfoods.data.model.Coupon;
 import com.verityfoods.data.model.Order;
 import com.verityfoods.data.model.User;
+import com.verityfoods.ui.address.AddressActivity;
 import com.verityfoods.utils.AppUtils;
 import com.verityfoods.utils.Globals;
 import com.verityfoods.utils.Vars;
@@ -124,6 +127,7 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
     private int orderNumber;
     private ProgressDialog loading;
     private Order order;
+    private Address address;
     private List<Cart> cartList;
     private Cart cart;
 
@@ -150,6 +154,7 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
         vars = new Vars(this);
         order = new Order();
         cartList = new ArrayList<>();
+        address = new Address();
 
         Random random = new Random();
         orderNumber = random.nextInt(1000000000);
@@ -204,6 +209,33 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
         getAllCart();
         populateUserDetails();
         updateTotals(shipping);
+        getDefaultAddress();
+    }
+
+    private void getDefaultAddress() {
+        Log.d(TAG, "getDefaultAddress: called...");
+        vars.verityApp.db.collection(Globals.ADDRESS)
+                .document(userUid)
+                .collection(Globals.MY_ADDRESS)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+                            Address defaultAddress = document.toObject(Address.class);
+                            if (defaultAddress.isDefault()) {
+                                updateAddress(defaultAddress);
+                                Log.d(TAG, "getDefaultAddress: "+defaultAddress.getAddress());
+                            }
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "No default addresses found", Toast.LENGTH_LONG));
+    }
+
+    private void updateAddress(Address address) {
+        addressName.setText(address.getAddress());
+        userName.setText(address.getName());
+        userPhone.setText(address.getPhone());
     }
 
     public void checkFieldIsExist(String key, String value, OnSuccessListener<Boolean> onSuccessListener) {
@@ -282,9 +314,8 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
     private void pickLocation() {
         Log.d(TAG, "pickLocation called: ");
 
-        Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields).setCountry("UG")
-                .build(this);
-        startActivityForResult(intent, Globals.AUTOCOMPLETE_REQUEST_CODE);
+        Intent addressIntent = new Intent(getApplicationContext(), AddressActivity.class);
+        startActivityForResult(addressIntent, Globals.PICK_ADDRESS_ID);
     }
 
     public void populateUserDetails() {
@@ -294,11 +325,6 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
                         user = documentSnapshot.toObject(User.class);
-                        if (user != null) {
-                            addressName.setText(user.getAddress());
-                            userName.setText(user.getName());
-                            userPhone.setText(user.getPhone());
-                        }
                     }
                 });
     }
@@ -482,17 +508,13 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == Globals.AUTOCOMPLETE_REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
-                Place place = Autocomplete.getPlaceFromIntent(data);
-                addressName.setText(place.getAddress());
-            } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
-                Status status = Autocomplete.getStatusFromIntent(data);
-                Log.d(TAG, "Error while picking location: "+status.getStatusMessage());
-                Toast.makeText(this, status.getStatusMessage(), Toast.LENGTH_SHORT).show();
-            } else if (resultCode == RESULT_CANCELED) {
-                Log.d(TAG, "onActivityResult: " + "Cancelled...");
-            }
+
+        if (resultCode == Activity.RESULT_OK && data != null && requestCode == Globals.PICK_ADDRESS_ID) {
+
+           Address newAddress = data.getParcelableExtra(Globals.MY_SELECTED_ADDRESS);
+           assert address != null;
+           updateAddress(newAddress);
+
         }
     }
 
