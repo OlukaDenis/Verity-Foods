@@ -63,15 +63,6 @@ import butterknife.OnClick;
 
 public class CheckoutActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener  {
     private static final String TAG = "CheckoutActivity";
-    private TextView totalSum;
-    private TextView changeAddress;
-    private User user;
-    private Vars vars;
-
-    private int total = 0;
-    private int subTotal = 0;
-    private int shipping = 0;
-
     //totals
     @BindView(R.id.sub_total)
     TextView textSubTotal;
@@ -117,6 +108,15 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
     @BindView(R.id.rg_payment_methods)
     RadioGroup paymentMethods;
 
+    private TextView totalSum;
+    private TextView changeAddress;
+    private User user;
+    private Vars vars;
+
+    private int total = 0;
+    private int subTotal = 0;
+    private int shipping = 0;
+
     private String deliveryMethod = "";
 
     private String userUid;
@@ -128,6 +128,7 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
     private ProgressDialog loading;
     private Order order;
     private Address address;
+    private Address verityAddress;
     private List<Cart> cartList;
     private Cart cart;
 
@@ -155,6 +156,7 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
         order = new Order();
         cartList = new ArrayList<>();
         address = new Address();
+        verityAddress = new Address();
 
         Random random = new Random();
         orderNumber = random.nextInt(1000000000);
@@ -205,6 +207,11 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
                 });
             }
         });
+
+        //populate the company address
+        verityAddress.setName("Verity Foods");
+        verityAddress.setPhone("+256750761662");
+        verityAddress.setAddress(this.getResources().getString(R.string.default_address));
 
         getAllCart();
         populateUserDetails();
@@ -344,12 +351,14 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
         if (isChecked) {
             if (id == R.id.standard_shipping){
                 pickupStation.setChecked(false);
+                order.setAddress(address);
                 updateDeliveryMethod(standardShipping.getText().toString());
                 updateTotals(3000);
             }
 
             if (id == R.id.pickup_station) {
                 standardShipping.setChecked(false);
+                order.setAddress(verityAddress);
                 updateDeliveryMethod(pickupStation.getText().toString());
                 updateTotals(0);
             }
