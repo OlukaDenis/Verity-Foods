@@ -13,6 +13,7 @@ public class Order implements Serializable {
     private String deliveryMethod;
     private String deliveryDay;
     private String deliveryTime;
+    private String timestamp;
     private int shippingFee;
     private int subTotal;
     private int total;
@@ -21,6 +22,14 @@ public class Order implements Serializable {
     private String status;
 
     public Order() {
+    }
+
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
     }
 
     public Address getAddress() {

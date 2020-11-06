@@ -228,10 +228,9 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
-                            Address defaultAddress = document.toObject(Address.class);
-                            if (defaultAddress.isDefault()) {
-                                updateAddress(defaultAddress);
-                                Log.d(TAG, "getDefaultAddress: "+defaultAddress.getAddress());
+                            address = document.toObject(Address.class);
+                            if (address.isDefault()) {
+                                updateAddress(address);
                             }
                         }
                     }
@@ -407,6 +406,7 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
                 order.setTimeAdded(AppUtils.currentTime());
                 order.setUser(user);
                 order.setShippingFee(shipping);
+                order.setTimestamp(AppUtils.currentTimeStamp());
                 order.setTotal(total);
                 order.setSubTotal(subTotal);
                 order.setProducts(cartList);
@@ -520,9 +520,9 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
 
         if (resultCode == Activity.RESULT_OK && data != null && requestCode == Globals.PICK_ADDRESS_ID) {
 
-           Address newAddress = data.getParcelableExtra(Globals.MY_SELECTED_ADDRESS);
+           address = data.getParcelableExtra(Globals.MY_SELECTED_ADDRESS);
            assert address != null;
-           updateAddress(newAddress);
+           updateAddress(address);
 
         }
     }
