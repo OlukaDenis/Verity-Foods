@@ -106,7 +106,7 @@ public class OrdersFragment extends Fragment {
                 .collection(Globals.ORDERS)
                 .document(userUid)
                 .collection(Globals.MY_ORDERS)
-                .orderBy("dateAdded");
+                .orderBy("timestamp", Query.Direction.DESCENDING);
 
         PagedList.Config config = new PagedList.Config.Builder()
                 .setEnablePlaceholders(false)

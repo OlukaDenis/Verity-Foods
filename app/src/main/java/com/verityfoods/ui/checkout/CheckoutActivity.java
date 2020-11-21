@@ -8,6 +8,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -38,10 +40,12 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.verityfoods.MainActivity;
 import com.verityfoods.R;
+import com.verityfoods.data.model.Address;
 import com.verityfoods.data.model.Cart;
 import com.verityfoods.data.model.Coupon;
 import com.verityfoods.data.model.Order;
 import com.verityfoods.data.model.User;
+import com.verityfoods.ui.address.AddressActivity;
 import com.verityfoods.utils.AppUtils;
 import com.verityfoods.utils.Globals;
 import com.verityfoods.utils.Vars;
@@ -60,15 +64,6 @@ import butterknife.OnClick;
 
 public class CheckoutActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener  {
     private static final String TAG = "CheckoutActivity";
-    private TextView totalSum;
-    private TextView changeAddress;
-    private User user;
-    private Vars vars;
-
-    private int total = 0;
-    private int subTotal = 0;
-    private int shipping = 0;
-
     //totals
     @BindView(R.id.sub_total)
     TextView textSubTotal;
@@ -109,10 +104,29 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
     @BindView(R.id.three_to_five)
     CheckBox threeToFive;
 
+    @BindView(R.id.coupon_discount_layout)
+    LinearLayout couponDiscountLayout;
+
+    @BindView(R.id.coupon_total)
+    TextView couponTotal;
+
     private RadioButton radioButtonPayment;
 
     @BindView(R.id.rg_payment_methods)
     RadioGroup paymentMethods;
+
+    @BindView(R.id.submit_coupon)
+    MaterialButton submitCouponBtn;
+
+    private TextView totalSum;
+    private TextView changeAddress;
+    private User user;
+    private Vars vars;
+
+    private int total = 0;
+    private int subTotal = 0;
+    private int shipping = 0;
+    private int couponDiscount = 0;
 
     private String deliveryMethod = "";
 
@@ -124,11 +138,12 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
     private int orderNumber;
     private ProgressDialog loading;
     private Order order;
+    private Address address;
+    private Address verityAddress;
     private List<Cart> cartList;
     private Cart cart;
 
     private TextInputEditText couponCode;
-    private MaterialButton submitCouponBtn;
 
     private List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG, Place.Field.ADDRESS);
 
@@ -150,6 +165,8 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
         vars = new Vars(this);
         order = new Order();
         cartList = new ArrayList<>();
+        address = new Address();
+        verityAddress = new Address();
 
         Random random = new Random();
         orderNumber = random.nextInt(1000000000);
@@ -163,7 +180,6 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
         totalSum = findViewById(R.id.total_order_summary);
         totalSum.setText(AppUtils.formatCurrency(total));
         couponCode = findViewById(R.id.coupon_code);
-        submitCouponBtn = findViewById(R.id.submit_coupon);
 
         standardShipping.setOnCheckedChangeListener(this);
         pickupStation.setOnCheckedChangeListener(this);
@@ -182,28 +198,40 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
             strPaymentMethod = radioButtonPayment.getText().toString();
         });
 
-        submitCouponBtn.setOnClickListener(view -> {
-            String mCoupon = couponCode.getText().toString().trim();
-            if (mCoupon.isEmpty()) {
-                couponCode.setError("Please enter the coupon code here");
-            } else  {
-                loading.setMessage("Applying coupon...");
-                loading.show();
-
-                checkFieldIsExist("code", mCoupon, aBoolean -> {
-                    if(aBoolean){
-                        loading.dismiss();
-                        Toast.makeText(getApplicationContext(), "Invalid coupon", Toast.LENGTH_SHORT).show();
-                    }else{
-                        Log.d(TAG, "Exists: ");
-                    }
-                });
-            }
-        });
+        //populate the company address
+        verityAddress.setName("Verity Foods");
+        verityAddress.setPhone("+256750761662");
+        verityAddress.setAddress(this.getResources().getString(R.string.default_address));
 
         getAllCart();
         populateUserDetails();
-        updateTotals(shipping);
+        updateTotals(shipping, couponDiscount);
+        getDefaultAddress();
+    }
+
+    private void getDefaultAddress() {
+        Log.d(TAG, "getDefaultAddress: called...");
+        vars.verityApp.db.collection(Globals.ADDRESS)
+                .document(userUid)
+                .collection(Globals.MY_ADDRESS)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+                            address = document.toObject(Address.class);
+                            if (address.isDefault()) {
+                                updateAddress(address);
+                            }
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "No default addresses found", Toast.LENGTH_LONG));
+    }
+
+    private void updateAddress(Address address) {
+        addressName.setText(address.getAddress());
+        userName.setText(address.getName());
+        userPhone.setText(address.getPhone());
     }
 
     public void checkFieldIsExist(String key, String value, OnSuccessListener<Boolean> onSuccessListener) {
@@ -232,15 +260,9 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
                                 .addOnCompleteListener(task -> {
                                     if (task.isSuccessful()) {
                                         coupon = Objects.requireNonNull(task.getResult()).toObject(Coupon.class);
-
-                                        assert coupon != null;
-                                        Log.d(TAG, "Id found: "+coupon.getValue());
-                                        loading.dismiss();
-                                       total = total - coupon.getValue();
-                                       totalSum.setText(String.valueOf(total));
-                                       couponCode.setText("");
-//                                       deleteCoupon(task.getResult().getId());
-                                        Toast.makeText(getApplicationContext(), "Coupon applied successfully!", Toast.LENGTH_SHORT).show();
+                                        if (coupon != null) {
+                                            calculateCouponDiscount(coupon);
+                                        }
                                     }
                                 });
 
@@ -251,6 +273,21 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
                 }
             }
         });
+    }
+
+    private void calculateCouponDiscount(Coupon coupon) {
+        loading.dismiss();
+        double discount = (double) coupon.getValue() / 100;
+        double actual = discount * total;
+        couponDiscount = (int) actual;
+        Log.d(TAG, "calculateCouponDiscount: "+actual);
+
+        updateTotals(shipping, (int) actual);
+
+        couponDiscountLayout.setVisibility(View.VISIBLE);
+        submitCouponBtn.setEnabled(false);
+        couponCode.setEnabled(false);
+        Toast.makeText(getApplicationContext(), "Coupon applied successfully!", Toast.LENGTH_SHORT).show();
     }
 
     private void deleteCoupon(String id) {
@@ -282,9 +319,8 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
     private void pickLocation() {
         Log.d(TAG, "pickLocation called: ");
 
-        Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields).setCountry("UG")
-                .build(this);
-        startActivityForResult(intent, Globals.AUTOCOMPLETE_REQUEST_CODE);
+        Intent addressIntent = new Intent(getApplicationContext(), AddressActivity.class);
+        startActivityForResult(addressIntent, Globals.PICK_ADDRESS_ID);
     }
 
     public void populateUserDetails() {
@@ -294,22 +330,23 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
                         user = documentSnapshot.toObject(User.class);
-                        if (user != null) {
-                            addressName.setText(user.getAddress());
-                            userName.setText(user.getName());
-                            userPhone.setText(user.getPhone());
-                        }
                     }
                 });
     }
 
-    public void updateTotals(int shippingFee) {
+    public void updateTotals(int shippingFee, int couponAmount) {
         shipping = shippingFee;
-        total = shippingFee + subTotal;
-
-        shippingTotal.setText(AppUtils.formatCurrency(shippingFee));
-        textSubTotal.setText(AppUtils.formatCurrency(subTotal));
-        totalSum.setText(AppUtils.formatCurrency(total));
+        if (couponAmount == 0) {
+            total = shippingFee + subTotal;
+            shippingTotal.setText(AppUtils.formatCurrency(shippingFee));
+            textSubTotal.setText(AppUtils.formatCurrency(subTotal));
+            totalSum.setText(AppUtils.formatCurrency(total));
+        } else {
+            total = total - couponAmount;
+            String dTotal = "- " + AppUtils.formatCurrency(couponAmount);
+            totalSum.setText(AppUtils.formatCurrency(total));
+            couponTotal.setText(dTotal);
+        }
     }
 
     @Override
@@ -318,14 +355,16 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
         if (isChecked) {
             if (id == R.id.standard_shipping){
                 pickupStation.setChecked(false);
+                order.setAddress(address);
                 updateDeliveryMethod(standardShipping.getText().toString());
-                updateTotals(3000);
+                updateTotals(5000, 0);
             }
 
             if (id == R.id.pickup_station) {
                 standardShipping.setChecked(false);
+                order.setAddress(verityAddress);
                 updateDeliveryMethod(pickupStation.getText().toString());
-                updateTotals(0);
+                updateTotals(0, 0);
             }
 
             if (id == R.id.nine_to_eleven) {
@@ -359,7 +398,7 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
 
     }
 
-    @OnClick({R.id.submit_order_btn, R.id.change_address})
+    @OnClick({R.id.submit_order_btn, R.id.change_address, R.id.submit_coupon})
     void submitOrder(View view) {
         switch (view.getId()) {
             case R.id.submit_order_btn:
@@ -372,6 +411,7 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
                 order.setTimeAdded(AppUtils.currentTime());
                 order.setUser(user);
                 order.setShippingFee(shipping);
+                order.setTimestamp(AppUtils.currentTimeStamp());
                 order.setTotal(total);
                 order.setSubTotal(subTotal);
                 order.setProducts(cartList);
@@ -399,6 +439,43 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
                 break;
             case R.id.change_address:
                 pickLocation();
+                break;
+
+            case R.id.submit_coupon:
+
+                if (deliveryMethod.isEmpty()) {
+                    Toast.makeText(this, "Please select your delivery method", Toast.LENGTH_SHORT).show();
+                    loading.dismiss();
+                } else if (strPaymentMethod.isEmpty()) {
+                    Toast.makeText(this, "Please select your preferred payment method", Toast.LENGTH_SHORT).show();
+                    loading.dismiss();
+                } else if (strDeliveryTime.isEmpty()) {
+                    Toast.makeText(this, "Please select your preferred delivery time", Toast.LENGTH_SHORT).show();
+                    loading.dismiss();
+                } else if (strDeliveryDay.isEmpty()) {
+                    Toast.makeText(this, "Please select your preferred delivery day", Toast.LENGTH_SHORT).show();
+                    loading.dismiss();
+                } else if (addressName.getText().toString().isEmpty()) {
+                    Toast.makeText(this, "Please provide your address", Toast.LENGTH_SHORT).show();
+                    loading.dismiss();
+                } else {
+                    String mCoupon = couponCode.getText().toString().trim();
+                    if (mCoupon.isEmpty()) {
+                        couponCode.setError("Please enter the coupon code here");
+                    } else {
+                        loading.setMessage("Applying coupon...");
+                        loading.show();
+
+                        checkFieldIsExist("code", mCoupon, aBoolean -> {
+                            if (aBoolean) {
+                                loading.dismiss();
+                                Toast.makeText(getApplicationContext(), "Invalid coupon", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Log.d(TAG, "Exists: ");
+                            }
+                        });
+                    }
+                }
                 break;
             default:
                 break;
@@ -482,17 +559,13 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == Globals.AUTOCOMPLETE_REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
-                Place place = Autocomplete.getPlaceFromIntent(data);
-                addressName.setText(place.getAddress());
-            } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
-                Status status = Autocomplete.getStatusFromIntent(data);
-                Log.d(TAG, "Error while picking location: "+status.getStatusMessage());
-                Toast.makeText(this, status.getStatusMessage(), Toast.LENGTH_SHORT).show();
-            } else if (resultCode == RESULT_CANCELED) {
-                Log.d(TAG, "onActivityResult: " + "Cancelled...");
-            }
+
+        if (resultCode == Activity.RESULT_OK && data != null && requestCode == Globals.PICK_ADDRESS_ID) {
+
+           address = data.getParcelableExtra(Globals.MY_SELECTED_ADDRESS);
+           assert address != null;
+           updateAddress(address);
+
         }
     }
 

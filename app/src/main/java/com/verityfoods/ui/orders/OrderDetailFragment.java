@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.verityfoods.R;
 import com.verityfoods.data.adapters.OrderItemsAdapter;
+import com.verityfoods.data.model.Address;
 import com.verityfoods.data.model.Cart;
 import com.verityfoods.data.model.Category;
 import com.verityfoods.data.model.Order;
@@ -30,6 +31,7 @@ public class OrderDetailFragment extends Fragment {
     private static final String TAG = "OrderDetailFragment";
     private Order order;
     private User user;
+    private Address address;
     private Vars vars;
     private List<Cart> orderItems;
     private LinearLayoutManager layoutManager;
@@ -56,13 +58,13 @@ public class OrderDetailFragment extends Fragment {
     TextView orderCount;
 
     @BindView(R.id.detail_order_address_user)
-    TextView userName;
+    TextView addressUserName;
 
     @BindView(R.id.detail_order_address_name)
     TextView addressName;
 
     @BindView(R.id.detail_order_address_phone)
-    TextView userPhone;
+    TextView addressUserPhone;
 
     @BindView(R.id.detail_order_items_recycler)
     RecyclerView orderItemsRecycler;
@@ -94,6 +96,7 @@ public class OrderDetailFragment extends Fragment {
     private void populateOderDetails() {
         orderItems = order.getProducts();
         user = order.getUser();
+        address = order.getAddress();
 
         int size = orderItems.size();
         String m = size + " items";
@@ -108,9 +111,9 @@ public class OrderDetailFragment extends Fragment {
         paymentMethod.setText(order.getPaymentMethod());
         deliveryMethod.setText(order.getDeliveryMethod());
 
-        userName.setText(user.getName());
-        userPhone.setText(user.getPhone());
-        addressName.setText(user.getAddress());
+        addressUserName.setText(address.getName());
+        addressUserPhone.setText(address.getPhone());
+        addressName.setText(address.getAddress());
 
 
         OrderItemsAdapter adapter  = new OrderItemsAdapter(orderItems, getContext());

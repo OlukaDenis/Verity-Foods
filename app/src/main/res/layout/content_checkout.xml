@@ -151,7 +151,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
-                    android:text="UGX 3,000"
+                    android:text="UGX 5,000"
                     android:layout_marginLeft="4dp" />
 
             </LinearLayout>
@@ -173,7 +173,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="50dp"
                 android:layout_marginEnd="8dp"
-                android:text="Plot 10-12, Mulwana Road, Opposite GT-BANK, Industrial Area, Kampala Uganda"
+                android:text="@string/default_address"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/pickup_station" />
 
@@ -353,13 +353,13 @@
                     android:id="@+id/online_banking"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Online Banking" />
+                    android:text="Credit/Debit/Visa Card (accepted on delivery)" />
 
                 <RadioButton
                     android:id="@+id/mobile_money"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Mobile Money" />
+                    android:text="Mobile Money (to be activated soon)" />
 
             </RadioGroup>
 

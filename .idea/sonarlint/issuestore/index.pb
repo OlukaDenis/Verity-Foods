@@ -105,3 +105,9 @@ Fapp/src/main/java/com/verityfoods/data/adapters/DealSliderAdapter.java,e/3/e32
 build.gradle,f/0/f07866736216be0ee2aba49e392191aeae700a35
 g
 7app/src/main/java/com/verityfoods/data/model/Brand.java,1/9/1973e429f608d246289c14df09b3bb0db00f7e45
+s
+Capp/src/main/java/com/verityfoods/data/adapters/AddressAdapter.java,0/7/072e89ba2e756cbc018e26a9a67b815dec1d937b
+i
+9app/src/main/java/com/verityfoods/data/model/Address.java,f/1/f102242b9c11b2f39e3f28a5ba19d2feb31a0ce0
+q
+Aapp/src/main/java/com/verityfoods/ui/address/AddressActivity.java,5/5/5552dfcca202a6ce58c69c1169a5ad0a981f6195

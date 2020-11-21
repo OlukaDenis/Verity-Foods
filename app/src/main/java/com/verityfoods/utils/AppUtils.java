@@ -1,5 +1,6 @@
 package com.verityfoods.utils;
 
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -42,4 +43,10 @@ public class AppUtils {
         Date date = new Date();
         return dateFormat.format(date);
     }
+
+    public static String currentTimeStamp() {
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+        return timestamp.toString();
+    }
+
 }

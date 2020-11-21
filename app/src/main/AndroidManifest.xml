@@ -15,7 +15,8 @@
         android:screenOrientation="portrait"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.search.BrandSearchResults"></activity>
+        <activity android:name=".ui.address.AddressActivity"></activity>
+        <activity android:name=".ui.search.BrandSearchResults" />
         <activity android:name=".ui.checkout.SuccessActivity" />
         <activity
             android:name=".ui.checkout.CheckoutActivity"
