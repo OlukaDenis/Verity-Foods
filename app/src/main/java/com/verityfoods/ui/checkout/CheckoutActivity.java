@@ -278,7 +278,7 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
     private void calculateCouponDiscount(Coupon coupon) {
         loading.dismiss();
         double discount = (double) coupon.getValue() / 100;
-        double actual = discount * total;
+        double actual = discount * subTotal;
         couponDiscount = (int) actual;
         Log.d(TAG, "calculateCouponDiscount: "+actual);
 
@@ -342,7 +342,8 @@ public class CheckoutActivity extends AppCompatActivity implements CompoundButto
             textSubTotal.setText(AppUtils.formatCurrency(subTotal));
             totalSum.setText(AppUtils.formatCurrency(total));
         } else {
-            total = total - couponAmount;
+            subTotal = subTotal - couponAmount;
+            total = shippingFee + subTotal;
             String dTotal = "- " + AppUtils.formatCurrency(couponAmount);
             totalSum.setText(AppUtils.formatCurrency(total));
             couponTotal.setText(dTotal);
